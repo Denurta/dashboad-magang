@@ -9,6 +9,18 @@ from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
 
+# CSS untuk mengubah background menjadi biru muda transparan
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: rgba(173, 216, 230, 0.5);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Fungsi untuk memuat data
 def load_data():
     uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
