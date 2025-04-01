@@ -15,22 +15,22 @@ st.markdown(
     <style>
     .stApp {
         background: linear-gradient(to right, rgba(135, 206, 250, 0.4), rgba(70, 130, 180, 0.4));
-        color: #1E3A5F;
+        color: #57aae2;
     }
     .stSidebar {
-        background-color: rgba(50, 90, 140, 0.7); /* Warna lebih gelap */
-        color: #5a65b7;
+        background-color: rgba(50, 90, 140, 0.7); 
+        color: #2939af;
         border-radius: 10px;
         padding: 10px;
     }
     .stTextInput, .stSlider, .stButton, .stFileUploader {
         background-color: rgba(255, 255, 255, 0.5);
-        color: #1E3A5F;
+        color: #57aae2;
         border-radius: 10px;
         padding: 10px;
     }
     h1, h2, h3, h4, h5, h6 {
-        color: #1E3A5F;
+        color: #57aae2;
     }
     </style>
     """,
