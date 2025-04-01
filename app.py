@@ -9,12 +9,33 @@ from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
 
-# CSS untuk mengubah background menjadi biru muda transparan
+# CSS untuk mengubah background dengan tema pelabuhan/laut dengan tampilan lebih proporsional
 st.markdown(
     """
     <style>
     .stApp {
-        background-color: rgba(173, 216, 230, 0.5);
+        background: linear-gradient(to right, rgba(135, 206, 250, 0.8), rgba(70, 130, 180, 0.8));
+        color: #1E3A5F;
+    }
+    .stSidebar, .stTextInput, .stSlider, .stButton, .stFileUploader {
+        background-color: rgba(255, 255, 255, 0.7);
+        color: #1E3A5F;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: #1E3A5F;
+    }
+    .stButton > button {
+        background-color: #4682B4;
+        color: white;
+        border-radius: 8px;
+    }
+    .stButton > button:hover {
+        background-color: #5A9AD4;
+    }
+    .stSidebar select, .stSidebar input {
+        border: 1px solid #4682B4;
     }
     </style>
     """,
