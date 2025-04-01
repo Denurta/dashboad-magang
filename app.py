@@ -14,10 +14,16 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(to right, rgba(135, 206, 250, 0.4), rgba(70, 130, 180, 0.4));
+        background: linear-gradient(to right, rgba(135, 206, 250, 0.6), rgba(70, 130, 180, 0.6));
         color: #1E3A5F;
     }
-    .stSidebar, .stTextInput, .stSlider, .stButton, .stFileUploader {
+    .stSidebar {
+        background-color: rgba(100, 149, 237, 0.5); /* Abu kebiruan transparan */
+        color: #1E3A5F;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    .stTextInput, .stSlider, .stButton, .stFileUploader {
         background-color: rgba(255, 255, 255, 0.5);
         color: #1E3A5F;
         border-radius: 10px;
