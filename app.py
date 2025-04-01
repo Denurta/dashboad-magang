@@ -19,7 +19,7 @@ st.markdown(
     }
     .stSidebar {
         background-color: rgba(50, 90, 140, 0.7); 
-        color: #2939af;
+        color: #2c5b7b;
         border-radius: 10px;
         padding: 10px;
     }
