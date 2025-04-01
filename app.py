@@ -10,11 +10,11 @@ from scipy.spatial.distance import pdist, squareform
 import numpy as np
 
 # CSS untuk mengubah background dengan tema pelabuhan/laut dengan tampilan lebih transparan
-t.markdown(
+st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(to right, rgba(135, 206, 250, 0.6), rgba(70, 130, 180, 0.6));
+        background: linear-gradient(to right, rgba(135, 206, 250, 0.4), rgba(70, 130, 180, 0.4));
         color: #1E3A5F;
     }
     .stSidebar, .stTextInput, .stSlider, .stButton, .stFileUploader {
