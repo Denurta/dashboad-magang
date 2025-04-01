@@ -15,7 +15,7 @@ st.markdown(
     <style>
     .stApp {
         background: linear-gradient(to right, rgba(135, 206, 250, 0.4), rgba(70, 130, 180, 0.4));
-        color: #57aae2;
+        color: #b9d5e8;
     }
     .stSidebar {
         background-color: rgba(50, 90, 140, 0.7); 
