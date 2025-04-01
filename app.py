@@ -25,7 +25,7 @@ st.markdown(
     }
     .stTextInput, .stSlider, .stButton, .stFileUploader {
         background-color: rgba(255, 255, 255, 0.5);
-        color: #57aae2;
+        color: #1E3A5F;
         border-radius: 10px;
         padding: 10px;
     }
