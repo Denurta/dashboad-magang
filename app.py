@@ -30,7 +30,7 @@ st.markdown(
         padding: 10px;
     }
     h1, h2, h3, h4, h5, h6 {
-        color: #57aae2;
+        color: #1E3A5F;
     }
     </style>
     """,
