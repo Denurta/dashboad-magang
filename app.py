@@ -14,12 +14,12 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(to right, rgba(135, 206, 250, 0.6), rgba(70, 130, 180, 0.6));
+        background: linear-gradient(to right, rgba(135, 206, 250, 0.4), rgba(70, 130, 180, 0.4));
         color: #1E3A5F;
     }
     .stSidebar {
-        background-color: rgba(100, 149, 237, 0.5); /* Abu kebiruan transparan */
-        color: #1E3A5F;
+        background-color: rgba(50, 90, 140, 0.7); /* Warna lebih gelap */
+        color: #ffffff;
         border-radius: 10px;
         padding: 10px;
     }
