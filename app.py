@@ -180,10 +180,9 @@ if df is not None:
             plt.clf()
 
         if "Barchart" in visualization_options:
-    # Cek apakah ada kolom 'Row Label'
-    if 'Row Label' in df.columns:
+    if 'Row Labels' in df.columns:
         for feature in selected_features:
-            grouped = df.groupby('Row Label')[feature].mean().reset_index()
+            grouped = df.groupby('Row Labels')[feature].mean().reset_index()
             top5 = grouped.nlargest(5, feature)
             bottom5 = grouped.nsmallest(5, feature)
 
@@ -192,7 +191,7 @@ if df is not None:
 
             with col1:
                 fig_top, ax_top = plt.subplots(figsize=(4, 3))  # Ukuran lebih kecil
-                sns.barplot(x=feature, y='Row Label', data=top5, palette='Blues_d', ax=ax_top)
+                sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
                 ax_top.set_title(f'Top 5 Terminal dengan Average of {feature}', fontsize=10)
                 ax_top.set_xlabel('')
                 ax_top.set_ylabel('')
@@ -202,7 +201,7 @@ if df is not None:
 
             with col2:
                 fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))  # Ukuran lebih kecil
-                sns.barplot(x=feature, y='Row Label', data=bottom5, palette='Blues_d', ax=ax_bottom)
+                sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
                 ax_bottom.set_title(f'Bottom 5 Terminal dengan Average of {feature}', fontsize=10)
                 ax_bottom.set_xlabel('')
                 ax_bottom.set_ylabel('')
@@ -210,7 +209,7 @@ if df is not None:
                 st.pyplot(fig_bottom)
                 plt.clf()
     else:
-        st.warning("Kolom 'Row Label' tidak ditemukan pada data.")
+        st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
 
         # --- Evaluasi Klaster ---
         st.subheader(translate("Evaluasi Klaster"))
