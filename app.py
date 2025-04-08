@@ -62,7 +62,7 @@ def perform_kmeans(df_scaled, n_clusters):
 # Fungsi untuk metode Elbow
 def elbow_method(df_scaled):
     distortions = []
-    K = range(2, 11)
+    K = range(1, 11)
     for k in K:
         kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
         kmeans.fit(df_scaled)
