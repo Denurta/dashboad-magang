@@ -64,12 +64,13 @@ def elbow_method(df_scaled):
         distortions.append(kmeans.inertia_)
     
     plt.figure(figsize=(10, 6))
-    plt.plot(K, distortions, 'bo-', markersize=8)
+    plt.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
     plt.xlabel('Jumlah Klaster')
     plt.ylabel('Inertia')
     plt.title('Metode Elbow')
     st.pyplot(plt.gcf())
     plt.clf()
+
 
 def perform_anova(df, features):
     anova_results = []
@@ -174,16 +175,24 @@ if df is not None:
             st.pyplot(fig)
             plt.clf()
 
-        if "Barchart" in visualization_options:
+         if "Barchart" in visualization_options:
             st.subheader("🔍 Top 5 Tertinggi & Terendah per Variabel")
             for feature in selected_features:
-                st.markdown(f"**Variabel: {feature}**")
-                top5 = df[[feature]].nlargest(5, feature)
-                st.write("Top 5 Tertinggi:")
-                st.bar_chart(top5[feature])
-                bottom5 = df[[feature]].nsmallest(5, feature)
-                st.write("Top 5 Terendah:")
-                st.bar_chart(bottom5[feature])
+            st.markdown(f"**Variabel: {feature}**")
+            top5 = df[[feature]].nlargest(5, feature)
+            bottom5 = df[[feature]].nsmallest(5, feature)
+
+            combined = pd.concat([top5, bottom5])
+            combined['Kategori'] = ['Top']*5 + ['Bottom']*5
+            combined['Index'] = combined.index.astype(str)
+
+            fig, ax = plt.subplots(figsize=(10, 5))
+            sns.barplot(x='Index', y=feature, hue='Kategori', data=combined, palette={'Top': 'steelblue', 'Bottom': 'steelblue'})
+            ax.set_title(f'Top 5 & Bottom 5 dari {feature}')
+            ax.set_xlabel('Index')
+            ax.set_ylabel(feature)
+            st.pyplot(fig)
+            plt.clf()
 
         # Evaluasi Klaster
         st.subheader(translate("Evaluasi Klaster"))
