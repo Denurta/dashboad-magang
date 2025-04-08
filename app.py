@@ -180,29 +180,37 @@ if df is not None:
             plt.clf()
 
         if "Barchart" in visualization_options:
-            for feature in selected_features:
-                top5 = df[[feature]].nlargest(min(5, len(df)), feature).copy()
-                bottom5 = df[[feature]].nsmallest(min(5, len(df)), feature).copy()
-                top5['Label'] = top5.index.astype(str)
-                bottom5['Label'] = bottom5.index.astype(str)
+    # Cek apakah ada kolom 'Row Label'
+    if 'Row Label' in df.columns:
+        for feature in selected_features:
+            grouped = df.groupby('Row Label')[feature].mean().reset_index()
+            top5 = grouped.nlargest(5, feature)
+            bottom5 = grouped.nsmallest(5, feature)
 
-                fig_top, ax_top = plt.subplots(figsize=(8, 4))
-                sns.barplot(x='Label', y=feature, data=top5, color='steelblue', ax=ax_top)
-                ax_top.set_title(f'Top 5 Nilai Tertinggi untuk {feature}', fontsize=12)
-                ax_top.set_xlabel('Index')
-                ax_top.set_ylabel(feature)
-                ax_top.tick_params(axis='x', rotation=45)
+            # Dua kolom berdampingan
+            col1, col2 = st.columns(2)
+
+            with col1:
+                fig_top, ax_top = plt.subplots(figsize=(4, 3))  # Ukuran lebih kecil
+                sns.barplot(x=feature, y='Row Label', data=top5, palette='Blues_d', ax=ax_top)
+                ax_top.set_title(f'Top 5 Terminal dengan Average of {feature}', fontsize=10)
+                ax_top.set_xlabel('')
+                ax_top.set_ylabel('')
+                ax_top.tick_params(axis='y', labelsize=8)
                 st.pyplot(fig_top)
                 plt.clf()
 
-                fig_bottom, ax_bottom = plt.subplots(figsize=(8, 4))
-                sns.barplot(x='Label', y=feature, data=bottom5, color='steelblue', ax=ax_bottom)
-                ax_bottom.set_title(f'Bottom 5 Nilai Terendah untuk {feature}', fontsize=12)
-                ax_bottom.set_xlabel('Index')
-                ax_bottom.set_ylabel(feature)
-                ax_bottom.tick_params(axis='x', rotation=45)
+            with col2:
+                fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))  # Ukuran lebih kecil
+                sns.barplot(x=feature, y='Row Label', data=bottom5, palette='Blues_d', ax=ax_bottom)
+                ax_bottom.set_title(f'Bottom 5 Terminal dengan Average of {feature}', fontsize=10)
+                ax_bottom.set_xlabel('')
+                ax_bottom.set_ylabel('')
+                ax_bottom.tick_params(axis='y', labelsize=8)
                 st.pyplot(fig_bottom)
                 plt.clf()
+    else:
+        st.warning("Kolom 'Row Label' tidak ditemukan pada data.")
 
         # --- Evaluasi Klaster ---
         st.subheader(translate("Evaluasi Klaster"))
