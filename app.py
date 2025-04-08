@@ -175,7 +175,7 @@ if df is not None:
             plt.clf()
 
         if "Barchart" in visualization_options:
-            st.subheader("\ud83d\udd0d Top 5 Tertinggi & Terendah per Variabel")
+            st.subheader("\U0001F50D Top 5 Tertinggi & Terendah per Variabel")
             for feature in selected_features:
                 st.markdown(f"**Variabel: {feature}**")
                 top5 = df[[feature]].nlargest(5, feature)
@@ -198,8 +198,8 @@ if df is not None:
         if "ANOVA" in cluster_evaluation_options:
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
-            interpret = ("\ud83d\udccc Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                         else "\ud83d\udccc ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+            interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                         else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
             st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
         if "Silhouette Score" in cluster_evaluation_options:
@@ -211,14 +211,14 @@ if df is not None:
                 msg = "Silhouette Score tinggi: klaster cukup baik."
             else:
                 msg = "Silhouette Score sedang: kualitas klaster sedang."
-            st.write("\ud83d\udccc " + (msg if language == "Indonesia" else f"\ud83d\udccc Silhouette Score Interpretation: {msg}"))
+            st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"\U0001F4CC Silhouette Score Interpretation: {msg}"))
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
             st.write(f"Dunn Index: {score:.4f}")
             msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
                    else "Dunn Index rendah: klaster saling tumpang tindih.")
-            st.write("\ud83d\udccc " + (msg if language == "Indonesia" else f"\ud83d\udccc Dunn Index Interpretation: {msg}"))
+            st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"\U0001F4CC Dunn Index Interpretation: {msg}"))
 
 else:
-    st.warning("\u26a0 Silakan upload file Excel terlebih dahulu.")
+    st.warning("\u26A0 Silakan upload file Excel terlebih dahulu.")
