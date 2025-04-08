@@ -152,18 +152,24 @@ if df is not None:
         # Visualisasi Klaster
         st.subheader(translate("Visualisasi Klaster"))
         if "Scatter Plot" in visualization_options:
+        for feature in selected_features:
+            st.markdown(f"{feature}")
             plt.figure(figsize=(10, 6))
             sns.scatterplot(x=df_scaled.iloc[:, 0], y=df_scaled.iloc[:, 1], hue=df['KMeans_Cluster'], palette='viridis')
             st.pyplot(plt.gcf())
             plt.clf()
 
         if "Heatmap" in visualization_options:
+        for feature in selected_features:
+            st.markdown(f"{feature}")
             plt.figure(figsize=(10, 6))
             sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
             st.pyplot(plt.gcf())
             plt.clf()
 
         if "Boxplot" in visualization_options:
+        for feature in selected_features:
+            st.markdown(f"{feature}")
             num_features = len(selected_features)
             fig, axes = plt.subplots(1, num_features, figsize=(5 * num_features, 5))
             if num_features == 1:
@@ -175,8 +181,6 @@ if df is not None:
             plt.clf()
 
         if "Barchart" in visualization_options:
-            st.subheader("\U0001F50D Top 5 & Bottom 5 per Variabel")
-
         for feature in selected_features:
             st.markdown(f"{feature}")
 
