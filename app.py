@@ -178,7 +178,7 @@ if df is not None:
             st.subheader("\U0001F50D Top 5 & Bottom 5 per Variabel")
 
         for feature in selected_features:
-            st.markdown(f"### Variabel: {feature}")
+            st.markdown(f"{feature}")
 
             # Tangani jika data kurang dari 5
             top5 = df[[feature]].nlargest(min(5, len(df)), feature)
