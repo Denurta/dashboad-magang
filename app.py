@@ -190,7 +190,7 @@ if df is not None:
         
             # --- Chart Top 5 ---
             fig_top, ax_top = plt.subplots(figsize=(8, 4))
-            sns.barplot(x='Label', y=feature, data=top5, color='green', ax=ax_top)
+            sns.barplot(x='Label', y=feature, data=top5, color='steelblue', ax=ax_top)
             ax_top.set_title(f'Top 5 {feature}', fontsize=12)
             ax_top.set_xlabel('Index')
             ax_top.set_ylabel(feature)
@@ -200,7 +200,7 @@ if df is not None:
 
             # --- Chart Bottom 5 ---
             fig_bottom, ax_bottom = plt.subplots(figsize=(8, 4))
-            sns.barplot(x='Label', y=feature, data=bottom5, color='red', ax=ax_bottom)
+            sns.barplot(x='Label', y=feature, data=bottom5, color='steelblue', ax=ax_bottom)
             ax_bottom.set_title(f'Bottom 5 {feature}', fontsize=12)
             ax_bottom.set_xlabel('Index')
             ax_bottom.set_ylabel(feature)
