@@ -176,13 +176,11 @@ if df is not None:
                 axes[i].set_title(f"Boxplot: {feature} per Cluster")
                 axes[i].set_xlabel("Cluster")
                 axes[i].set_ylabel(feature)
-            fig.suptitle("Boxplot per Fitur berdasarkan Cluster", fontsize=16)
             st.pyplot(fig)
             plt.clf()
 
         if "Barchart" in visualization_options:
             for feature in selected_features:
-                st.markdown(f"### Barchart: {feature}")
                 top5 = df[[feature]].nlargest(min(5, len(df)), feature).copy()
                 bottom5 = df[[feature]].nsmallest(min(5, len(df)), feature).copy()
                 top5['Label'] = top5.index.astype(str)
