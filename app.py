@@ -175,24 +175,39 @@ if df is not None:
             plt.clf()
 
         if "Barchart" in visualization_options:
-            st.subheader("\U0001F50D Top 5 Tertinggi & Terendah per Variabel")
-            for feature in selected_features:
-                st.markdown(f"**Variabel: {feature}**")
-                top5 = df[[feature]].nlargest(5, feature)
-                bottom5 = df[[feature]].nsmallest(5, feature)
+            st.subheader("\U0001F50D Top 5 & Bottom 5 per Variabel")
 
-                combined = pd.concat([top5, bottom5])
-                combined['Kategori'] = ['Top']*5 + ['Bottom']*5
-                combined['Index'] = combined.index.astype(str)
+        for feature in selected_features:
+            st.markdown(f"### Variabel: {feature}")
 
-                fig, ax = plt.subplots(figsize=(10, 5))
-                sns.barplot(x='Index', y=feature, hue='Kategori', data=combined, palette={'Top': 'steelblue', 'Bottom': 'steelblue'})
-                ax.set_title(f'Top 5 & Bottom 5 dari {feature}')
-                ax.set_xlabel('Index')
-                ax.set_ylabel(feature)
-                st.pyplot(fig)
-                plt.clf()
+            # Tangani jika data kurang dari 5
+            top5 = df[[feature]].nlargest(min(5, len(df)), feature)
+            bottom5 = df[[feature]].nsmallest(min(5, len(df)), feature)
 
+            # Label index agar lebih informatif
+            top5['Label'] = top5.index.astype(str)
+            bottom5['Label'] = bottom5.index.astype(str)
+        
+            # --- Chart Top 5 ---
+            fig_top, ax_top = plt.subplots(figsize=(8, 4))
+            sns.barplot(x='Label', y=feature, data=top5, color='green', ax=ax_top)
+            ax_top.set_title(f'Top 5 {feature}', fontsize=12)
+            ax_top.set_xlabel('Index')
+            ax_top.set_ylabel(feature)
+            ax_top.tick_params(axis='x', rotation=45)
+            st.pyplot(fig_top)
+            plt.clf()
+
+            # --- Chart Bottom 5 ---
+            fig_bottom, ax_bottom = plt.subplots(figsize=(8, 4))
+            sns.barplot(x='Label', y=feature, data=bottom5, color='red', ax=ax_bottom)
+            ax_bottom.set_title(f'Bottom 5 {feature}', fontsize=12)
+            ax_bottom.set_xlabel('Index')
+            ax_bottom.set_ylabel(feature)
+            ax_bottom.tick_params(axis='x', rotation=45)
+            st.pyplot(fig_bottom)
+            plt.clf()
+        
         # Evaluasi Klaster
         st.subheader(translate("Evaluasi Klaster"))
         if "ANOVA" in cluster_evaluation_options:
