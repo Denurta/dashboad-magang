@@ -62,7 +62,7 @@ def elbow_method(df_scaled):
         kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
         kmeans.fit(df_scaled)
         distortions.append(kmeans.inertia_)
-    
+
     plt.figure(figsize=(10, 6))
     plt.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
     plt.xlabel('Jumlah Klaster')
@@ -70,7 +70,6 @@ def elbow_method(df_scaled):
     plt.title('Metode Elbow')
     st.pyplot(plt.gcf())
     plt.clf()
-
 
 def perform_anova(df, features):
     anova_results = []
@@ -101,7 +100,7 @@ def dunn_index(df_scaled, labels):
     return np.min(inter_cluster_distances) / np.max(intra_cluster_distances)
 
 # --- Sidebar & Bahasa ---
-st.sidebar.title("⛴ Clustering Terminal")
+st.sidebar.title("\u26f4 Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
@@ -175,32 +174,32 @@ if df is not None:
             st.pyplot(fig)
             plt.clf()
 
-         if "Barchart" in visualization_options:
-            st.subheader("🔍 Top 5 Tertinggi & Terendah per Variabel")
+        if "Barchart" in visualization_options:
+            st.subheader("\ud83d\udd0d Top 5 Tertinggi & Terendah per Variabel")
             for feature in selected_features:
-            st.markdown(f"**Variabel: {feature}**")
-            top5 = df[[feature]].nlargest(5, feature)
-            bottom5 = df[[feature]].nsmallest(5, feature)
+                st.markdown(f"**Variabel: {feature}**")
+                top5 = df[[feature]].nlargest(5, feature)
+                bottom5 = df[[feature]].nsmallest(5, feature)
 
-            combined = pd.concat([top5, bottom5])
-            combined['Kategori'] = ['Top']*5 + ['Bottom']*5
-            combined['Index'] = combined.index.astype(str)
+                combined = pd.concat([top5, bottom5])
+                combined['Kategori'] = ['Top']*5 + ['Bottom']*5
+                combined['Index'] = combined.index.astype(str)
 
-            fig, ax = plt.subplots(figsize=(10, 5))
-            sns.barplot(x='Index', y=feature, hue='Kategori', data=combined, palette={'Top': 'steelblue', 'Bottom': 'steelblue'})
-            ax.set_title(f'Top 5 & Bottom 5 dari {feature}')
-            ax.set_xlabel('Index')
-            ax.set_ylabel(feature)
-            st.pyplot(fig)
-            plt.clf()
+                fig, ax = plt.subplots(figsize=(10, 5))
+                sns.barplot(x='Index', y=feature, hue='Kategori', data=combined, palette={'Top': 'steelblue', 'Bottom': 'steelblue'})
+                ax.set_title(f'Top 5 & Bottom 5 dari {feature}')
+                ax.set_xlabel('Index')
+                ax.set_ylabel(feature)
+                st.pyplot(fig)
+                plt.clf()
 
         # Evaluasi Klaster
         st.subheader(translate("Evaluasi Klaster"))
         if "ANOVA" in cluster_evaluation_options:
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
-            interpret = ("📌 Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                         else "📌 ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+            interpret = ("\ud83d\udccc Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                         else "\ud83d\udccc ANOVA Interpretation: P-value less than alpha indicates significant difference.")
             st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
         if "Silhouette Score" in cluster_evaluation_options:
@@ -212,14 +211,14 @@ if df is not None:
                 msg = "Silhouette Score tinggi: klaster cukup baik."
             else:
                 msg = "Silhouette Score sedang: kualitas klaster sedang."
-            st.write("📌 " + (msg if language == "Indonesia" else f"📌 Silhouette Score Interpretation: {msg}"))
+            st.write("\ud83d\udccc " + (msg if language == "Indonesia" else f"\ud83d\udccc Silhouette Score Interpretation: {msg}"))
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
             st.write(f"Dunn Index: {score:.4f}")
             msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
                    else "Dunn Index rendah: klaster saling tumpang tindih.")
-            st.write("📌 " + (msg if language == "Indonesia" else f"📌 Dunn Index Interpretation: {msg}"))
+            st.write("\ud83d\udccc " + (msg if language == "Indonesia" else f"\ud83d\udccc Dunn Index Interpretation: {msg}"))
 
 else:
-    st.warning("⚠ Silakan upload file Excel terlebih dahulu.")
+    st.warning("\u26a0 Silakan upload file Excel terlebih dahulu.")
