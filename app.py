@@ -107,7 +107,6 @@ def translate(text):
     translations = {
         "Jumlah Klaster": {"Indonesia": "Jumlah Klaster", "English": "Number of Clusters"},
         "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
-        "Pilih Statistik Deskriptif": {"Indonesia": "Pilih Statistik Deskriptif", "English": "Select Descriptive Statistics"},
         "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
         "Hapus Baris": {"Indonesia": "Hapus Baris", "English": "Remove Rows"},
         "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)": {"Indonesia": "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)", "English": "Enter row indices to remove (separate with commas)"},
@@ -123,7 +122,6 @@ n_clusters = st.sidebar.slider(translate("Jumlah Klaster"), 2, 10, 3)
 visualization_options = st.sidebar.multiselect(translate("Pilih Visualisasi"), ["Scatter Plot", "Heatmap", "Boxplot", "Barchart"])
 cluster_evaluation_options = st.sidebar.multiselect(translate("Pilih Evaluasi Klaster"), ["ANOVA", "Silhouette Score", "Dunn Index"])
 
-# Hapus baris
 st.sidebar.subheader(translate("Hapus Baris"))
 drop_rows = st.sidebar.text_area(translate("Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)"))
 
@@ -149,70 +147,66 @@ if df is not None:
 
         df['KMeans_Cluster'], kmeans_model = perform_kmeans(df_scaled, n_clusters)
 
-        # Visualisasi Klaster
+        # --- Visualisasi Klaster ---
         st.subheader(translate("Visualisasi Klaster"))
+
         if "Scatter Plot" in visualization_options:
-        for feature in selected_features:
-            st.markdown(f"{feature}")
             plt.figure(figsize=(10, 6))
             sns.scatterplot(x=df_scaled.iloc[:, 0], y=df_scaled.iloc[:, 1], hue=df['KMeans_Cluster'], palette='viridis')
+            plt.title(f"Scatter Plot: {df_scaled.columns[0]} vs {df_scaled.columns[1]}")
+            plt.xlabel(df_scaled.columns[0])
+            plt.ylabel(df_scaled.columns[1])
             st.pyplot(plt.gcf())
             plt.clf()
 
         if "Heatmap" in visualization_options:
-        for feature in selected_features:
-            st.markdown(f"{feature}")
             plt.figure(figsize=(10, 6))
             sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
+            plt.title("Heatmap Korelasi Antar Fitur")
             st.pyplot(plt.gcf())
             plt.clf()
 
         if "Boxplot" in visualization_options:
-        for feature in selected_features:
-            st.markdown(f"{feature}")
             num_features = len(selected_features)
             fig, axes = plt.subplots(1, num_features, figsize=(5 * num_features, 5))
             if num_features == 1:
                 axes = [axes]
             for i, feature in enumerate(selected_features):
                 sns.boxplot(x='KMeans_Cluster', y=feature, data=df, ax=axes[i])
-                axes[i].set_title(f"Boxplot of {feature} per Cluster")
+                axes[i].set_title(f"Boxplot: {feature} per Cluster")
+                axes[i].set_xlabel("Cluster")
+                axes[i].set_ylabel(feature)
+            fig.suptitle("Boxplot per Fitur berdasarkan Cluster", fontsize=16)
             st.pyplot(fig)
             plt.clf()
 
         if "Barchart" in visualization_options:
-        for feature in selected_features:
-            st.markdown(f"{feature}")
+            for feature in selected_features:
+                st.markdown(f"### Barchart: {feature}")
+                top5 = df[[feature]].nlargest(min(5, len(df)), feature).copy()
+                bottom5 = df[[feature]].nsmallest(min(5, len(df)), feature).copy()
+                top5['Label'] = top5.index.astype(str)
+                bottom5['Label'] = bottom5.index.astype(str)
 
-            # Tangani jika data kurang dari 5
-            top5 = df[[feature]].nlargest(min(5, len(df)), feature)
-            bottom5 = df[[feature]].nsmallest(min(5, len(df)), feature)
+                fig_top, ax_top = plt.subplots(figsize=(8, 4))
+                sns.barplot(x='Label', y=feature, data=top5, color='steelblue', ax=ax_top)
+                ax_top.set_title(f'Top 5 Nilai Tertinggi untuk {feature}', fontsize=12)
+                ax_top.set_xlabel('Index')
+                ax_top.set_ylabel(feature)
+                ax_top.tick_params(axis='x', rotation=45)
+                st.pyplot(fig_top)
+                plt.clf()
 
-            # Label index agar lebih informatif
-            top5['Label'] = top5.index.astype(str)
-            bottom5['Label'] = bottom5.index.astype(str)
-        
-            # --- Chart Top 5 ---
-            fig_top, ax_top = plt.subplots(figsize=(8, 4))
-            sns.barplot(x='Label', y=feature, data=top5, color='steelblue', ax=ax_top)
-            ax_top.set_title(f'Top 5 {feature}', fontsize=12)
-            ax_top.set_xlabel('Index')
-            ax_top.set_ylabel(feature)
-            ax_top.tick_params(axis='x', rotation=45)
-            st.pyplot(fig_top)
-            plt.clf()
+                fig_bottom, ax_bottom = plt.subplots(figsize=(8, 4))
+                sns.barplot(x='Label', y=feature, data=bottom5, color='steelblue', ax=ax_bottom)
+                ax_bottom.set_title(f'Bottom 5 Nilai Terendah untuk {feature}', fontsize=12)
+                ax_bottom.set_xlabel('Index')
+                ax_bottom.set_ylabel(feature)
+                ax_bottom.tick_params(axis='x', rotation=45)
+                st.pyplot(fig_bottom)
+                plt.clf()
 
-            # --- Chart Bottom 5 ---
-            fig_bottom, ax_bottom = plt.subplots(figsize=(8, 4))
-            sns.barplot(x='Label', y=feature, data=bottom5, color='steelblue', ax=ax_bottom)
-            ax_bottom.set_title(f'Bottom 5 {feature}', fontsize=12)
-            ax_bottom.set_xlabel('Index')
-            ax_bottom.set_ylabel(feature)
-            ax_bottom.tick_params(axis='x', rotation=45)
-            st.pyplot(fig_bottom)
-            plt.clf()
-        
-        # Evaluasi Klaster
+        # --- Evaluasi Klaster ---
         st.subheader(translate("Evaluasi Klaster"))
         if "ANOVA" in cluster_evaluation_options:
             anova_results = perform_anova(df, selected_features)
@@ -224,20 +218,22 @@ if df is not None:
         if "Silhouette Score" in cluster_evaluation_options:
             score = silhouette_score(df_scaled, df['KMeans_Cluster'])
             st.write(f"Silhouette Score: {score:.4f}")
-            if score < 0:
-                msg = "Silhouette Score rendah: klaster kurang baik."
-            elif score > 0.5:
-                msg = "Silhouette Score tinggi: klaster cukup baik."
+            if language == "Indonesia":
+                msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
+                       "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
+                       "Silhouette Score tinggi: klaster cukup baik.")
             else:
-                msg = "Silhouette Score sedang: kualitas klaster sedang."
-            st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"\U0001F4CC Silhouette Score Interpretation: {msg}"))
+                msg = ("Silhouette Score is low: poor clustering." if score < 0 else
+                       "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
+                       "Silhouette Score is high: good clustering.")
+            st.write("\U0001F4CC " + msg)
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
             st.write(f"Dunn Index: {score:.4f}")
             msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
                    else "Dunn Index rendah: klaster saling tumpang tindih.")
-            st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"\U0001F4CC Dunn Index Interpretation: {msg}"))
+            st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
 
 else:
     st.warning("\u26A0 Silakan upload file Excel terlebih dahulu.")
