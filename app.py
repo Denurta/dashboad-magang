@@ -206,8 +206,8 @@ if df is not None:
         if "ANOVA" in cluster_evaluation_options:
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
-            interpret = ("F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                         else "F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+            interpret = ("⚠️ Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                         else "⚠️ ANOVA Interpretation: P-value less than alpha indicates significant difference.")
             st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
         if "Silhouette Score" in cluster_evaluation_options:
@@ -221,14 +221,14 @@ if df is not None:
                 msg = ("Silhouette Score is low: poor clustering." if score < 0 else
                        "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
                        "Silhouette Score is high: good clustering.")
-            st.write("F4CC " + msg)
+            st.write("⚠️ " + msg)
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
             st.write(f"Dunn Index: {score:.4f}")
             msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
                    else "Dunn Index rendah: klaster saling tumpang tindih.")
-            st.write("F4CC " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
+            st.write("⚠️ " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
 
 else:
     st.warning("\u26A0 Silakan upload file Excel terlebih dahulu.")
