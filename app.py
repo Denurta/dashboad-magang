@@ -9,6 +9,9 @@ from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
+import warnings
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # --- Styling CSS ---
 st.markdown("""
@@ -63,14 +66,14 @@ def elbow_method(df_scaled):
         kmeans.fit(df_scaled)
         distortions.append(kmeans.inertia_)
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
-    plt.xlabel('Jumlah Klaster')
-    plt.ylabel('Inertia')
-    plt.title('Metode Elbow')
-    st.pyplot(plt.gcf())
-    plt.clf()
-    st.info("\U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal.")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
+    ax.set_xlabel('Jumlah Klaster')
+    ax.set_ylabel('Inertia')
+    ax.set_title('Metode Elbow')
+    st.pyplot(fig)
+    plt.close(fig)
+    st.info("📌 Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal.")
 
 def perform_anova(df, features):
     anova_results = []
@@ -78,7 +81,7 @@ def perform_anova(df, features):
         groups = [df[df['KMeans_Cluster'] == k][feature] for k in sorted(df['KMeans_Cluster'].unique())]
         if all(len(g) > 1 for g in groups):
             f_stat, p_value = f_oneway(*groups)
-            anova_results.append({"Variabel": feature, "F-Stat": round(f_stat, 4), "P-Value": round(p_value, 4)})
+            anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
         else:
             anova_results.append({"Variabel": feature, "F-Stat": None, "P-Value": None})
     return pd.DataFrame(anova_results)
@@ -104,7 +107,7 @@ def dunn_index(df_scaled, labels):
     return np.min(inter_cluster_distances) / np.max(intra_cluster_distances)
 
 # --- Sidebar & Bahasa ---
-st.sidebar.title("\u26f4 Clustering Terminal")
+st.sidebar.title("⛴ Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
@@ -124,8 +127,6 @@ def translate(text):
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
     }
     return translations.get(text, {}).get(language, text)
-
-# [kode selanjutnya tetap seperti semula dan tidak berubah]
 
 n_clusters = st.sidebar.slider(translate("Jumlah Klaster"), 2, 10, 3)
 visualization_options = st.sidebar.multiselect(translate("Pilih Visualisasi"), ["Heatmap", "Boxplot", "Barchart"])
@@ -165,12 +166,12 @@ if df is not None:
         st.subheader(translate("Visualisasi Klaster"))
 
         if "Heatmap" in visualization_options:
-            plt.figure(figsize=(10, 6))
-            sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
-            plt.title("Heatmap Korelasi Antar Fitur")
-            st.pyplot(plt.gcf())
-            plt.clf()
-            st.info("\U0001F4CC Heatmap membantu melihat korelasi antar fitur. Nilai mendekati +1 atau -1 menunjukkan korelasi kuat.")
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm', ax=ax)
+            ax.set_title("Heatmap Korelasi Antar Fitur")
+            st.pyplot(fig)
+            plt.close(fig)
+            st.info("📌 Heatmap membantu melihat korelasi antar fitur.")
 
         if "Boxplot" in visualization_options:
             num_features = len(selected_features)
@@ -182,9 +183,10 @@ if df is not None:
                 axes[i].set_title(f"Boxplot: {feature} per Cluster")
                 axes[i].set_xlabel("Cluster")
                 axes[i].set_ylabel(feature)
+            fig.tight_layout()
             st.pyplot(fig)
-            plt.clf()
-            st.info("\U0001F4CC Boxplot menunjukkan sebaran nilai tiap fitur dalam masing-masing klaster.")
+            plt.close(fig)
+            st.info("📌 Boxplot menunjukkan sebaran nilai tiap fitur dalam masing-masing klaster.")
 
         if "Barchart" in visualization_options:
             if 'Row Labels' in df.columns:
@@ -199,34 +201,29 @@ if df is not None:
                         fig_top, ax_top = plt.subplots(figsize=(4, 3))
                         sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
                         ax_top.set_title(f"Top 5 Terminal dengan {feature} terbaik", fontsize=10)
-                        ax_top.set_xlabel('')
-                        ax_top.set_ylabel('')
-                        ax_top.tick_params(axis='y', labelsize=8)
                         st.pyplot(fig_top)
-                        plt.clf()
+                        plt.close(fig_top)
 
                     with col2:
                         fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
                         sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
                         ax_bottom.set_title(f"Bottom 5 Terminal dengan {feature} terburuk", fontsize=10)
-                        ax_bottom.set_xlabel('')
-                        ax_bottom.set_ylabel('')
-                        ax_bottom.tick_params(axis='y', labelsize=8)
                         st.pyplot(fig_bottom)
-                        plt.clf()
+                        plt.close(fig_bottom)
 
-                st.info("\U0001F4CC Interpretasi:\n- Semakin kecil nilai **BT** dan **BWT**, maka semakin baik.\n- Semakin besar nilai **ET/BT**, maka semakin efisien terminal.")
+                st.info("📌 Interpretasi:\n- Semakin kecil nilai **BT** dan **BWT**, maka semakin baik.\n- Semakin besar nilai **ET/BT**, maka semakin efisien terminal.")
             else:
                 st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
 
         # --- Evaluasi Klaster ---
         st.subheader(translate("Evaluasi Klaster"))
         if "ANOVA" in cluster_evaluation_options:
-            st.write("*Anova*")
+            st.write("*ANOVA*")
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
-            interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                         else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+            interpret = ("📌 Interpretasi ANOVA: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan."
+                         if language == "Indonesia" else
+                         "📌 ANOVA Interpretation: P-value less than alpha indicates significant difference.")
             if (anova_results["P-Value"] < 0.05).any():
                 st.write(interpret)
             else:
@@ -243,13 +240,13 @@ if df is not None:
                 msg = ("Silhouette Score is low: poor clustering." if score < 0.25 else
                        "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
                        "Silhouette Score is high: good clustering.")
-            st.write("\U0001F4CC " + msg)
+            st.write("📌 " + msg)
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
             st.write(f"*Dunn Index*: {score:.4f}")
             msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
                    else "Dunn Index rendah: klaster saling tumpang tindih.")
-            st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
+            st.write("📌 " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
 else:
-    st.warning("\u26A0 Silakan upload file Excel terlebih dahulu.")
+    st.warning("⚠️ Silakan upload file Excel terlebih dahulu.")
