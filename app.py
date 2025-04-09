@@ -205,15 +205,15 @@ if df is not None:
                         plt.clf()
 
                 st.info("📌 Interpretasi:")
-                st.markdown("- Semakin kecil nilai **average bt** dan **bwt**, maka semakin baik.")
-                st.markdown("- Semakin besar nilai **et/bt**, maka semakin efisien terminal.")
+                st.markdown("- Semakin kecil nilai **BT** dan **BWT**, maka semakin baik.")
+                st.markdown("- Semakin besar nilai **ET/BT**, maka semakin efisien terminal.")
             else:
                 st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
 
         # --- Evaluasi Klaster ---
         st.subheader(translate("Evaluasi Klaster"))
         if "ANOVA" in cluster_evaluation_options:
-            st.write(f"Anova")
+            st.write(f"*Anova*")
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
             interpret = ("📌 Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
@@ -222,7 +222,7 @@ if df is not None:
 
         if "Silhouette Score" in cluster_evaluation_options:
             score = silhouette_score(df_scaled, df['KMeans_Cluster'])
-            st.write(f"Silhouette Score: {score:.4f}")
+            st.write(f"*Silhouette Score*: {score:.4f}")
             if language == "Indonesia":
                 msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
                        "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
@@ -235,7 +235,7 @@ if df is not None:
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
-            st.write(f"Dunn Index: {score:.4f}")
+            st.write(f"*Dunn Index*: {score:.4f}")
             msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
                    else "Dunn Index rendah: klaster saling tumpang tindih.")
             st.write("📌 " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
