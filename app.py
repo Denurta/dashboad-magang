@@ -204,6 +204,7 @@ if df is not None:
         # --- Evaluasi Klaster ---
         st.subheader(translate("Evaluasi Klaster"))
         if "ANOVA" in cluster_evaluation_options:
+            st.write(f"Anova")
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
             interpret = ("⚠️ Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
