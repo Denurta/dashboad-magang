@@ -70,7 +70,7 @@ def elbow_method(df_scaled):
     plt.title('Metode Elbow')
     st.pyplot(plt.gcf())
     plt.clf()
-    st.info("📌 Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal.")
+    st.info("\U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal.")
 
 def perform_anova(df, features):
     anova_results = []
@@ -132,8 +132,13 @@ df = load_data()
 
 if df is not None:
     if drop_rows:
-        drop_indices = [int(i) for i in drop_rows.split(',') if i.isdigit()]
-        df = df.drop(index=drop_indices, errors='ignore')
+        try:
+            drop_indices = [int(i.strip()) for i in drop_rows.split(',') if i.strip().isdigit()]
+            df = df.drop(index=drop_indices, errors='ignore')
+            df.reset_index(drop=True, inplace=True)
+            st.success(f"Berhasil menghapus baris: {drop_indices}")
+        except Exception as e:
+            st.error(f"Terjadi kesalahan saat menghapus baris: {e}")
 
     features = df.select_dtypes(include='number').columns.tolist()
     st.subheader(translate("Statistik Deskriptif"))
@@ -157,7 +162,7 @@ if df is not None:
             plt.title("Heatmap Korelasi Antar Fitur")
             st.pyplot(plt.gcf())
             plt.clf()
-            st.info("📌 Heatmap membantu melihat korelasi antar fitur. Nilai mendekati +1 atau -1 menunjukkan korelasi kuat.")
+            st.info("\U0001F4CC Heatmap membantu melihat korelasi antar fitur. Nilai mendekati +1 atau -1 menunjukkan korelasi kuat.")
 
         if "Boxplot" in visualization_options:
             num_features = len(selected_features)
@@ -171,7 +176,7 @@ if df is not None:
                 axes[i].set_ylabel(feature)
             st.pyplot(fig)
             plt.clf()
-            st.info("📌 Boxplot menunjukkan sebaran nilai tiap fitur dalam masing-masing klaster.")
+            st.info("\U0001F4CC Boxplot menunjukkan sebaran nilai tiap fitur dalam masing-masing klaster.")
 
         if "Barchart" in visualization_options:
             if 'Row Labels' in df.columns:
@@ -204,7 +209,7 @@ if df is not None:
                         st.pyplot(fig_bottom)
                         plt.clf()
 
-                st.info("📌 Interpretasi:")
+                st.info("\U0001F4CC Interpretasi:")
                 st.markdown("- Semakin kecil nilai **BT** dan **BWT**, maka semakin baik.")
                 st.markdown("- Semakin besar nilai **ET/BT**, maka semakin efisien terminal.")
             else:
@@ -216,8 +221,8 @@ if df is not None:
             st.write(f"*Anova*")
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
-            interpret = ("📌 Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                         else "📌 ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+            interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                         else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
             st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
         if "Silhouette Score" in cluster_evaluation_options:
@@ -231,14 +236,13 @@ if df is not None:
                 msg = ("Silhouette Score is low: poor clustering." if score < 0 else
                        "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
                        "Silhouette Score is high: good clustering.")
-            st.write("📌 " + msg)
+            st.write("\U0001F4CC " + msg)
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
             st.write(f"*Dunn Index*: {score:.4f}")
             msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
                    else "Dunn Index rendah: klaster saling tumpang tindih.")
-            st.write("📌 " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
-
+            st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
 else:
     st.warning("\u26A0 Silakan upload file Excel terlebih dahulu.")
