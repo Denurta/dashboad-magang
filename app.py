@@ -63,13 +63,14 @@ def elbow_method(df_scaled):
         kmeans.fit(df_scaled)
         distortions.append(kmeans.inertia_)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
-    ax.set_xlabel('Jumlah Klaster')
-    ax.set_ylabel('Inertia')
-    ax.set_title('Metode Elbow')
-    st.pyplot(fig)
-    plt.close(fig)
+    plt.figure(figsize=(10, 6))
+    plt.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
+    plt.xlabel('Jumlah Klaster')
+    plt.ylabel('Inertia')
+    plt.title('Metode Elbow')
+    st.pyplot(plt.gcf())
+    plt.clf()
+    st.info("📌 Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal.")
 
 def perform_anova(df, features):
     anova_results = []
@@ -131,12 +132,12 @@ df = load_data()
 
 if df is not None:
     if drop_rows:
-        drop_indices = [int(i) for i in drop_rows.split(',') if i.strip().isdigit()]
+        drop_indices = [int(i) for i in drop_rows.split(',') if i.isdigit()]
         df = df.drop(index=drop_indices, errors='ignore')
 
     features = df.select_dtypes(include='number').columns.tolist()
     st.subheader(translate("Statistik Deskriptif"))
-    st.write(df.describe())
+    st.dataframe(df.describe())
 
     selected_features = st.multiselect("Pilih variabel untuk Elbow Method", features, default=features)
 
@@ -147,74 +148,97 @@ if df is not None:
 
         df['KMeans_Cluster'], kmeans_model = perform_kmeans(df_scaled, n_clusters)
 
+        # --- Visualisasi Klaster ---
         st.subheader(translate("Visualisasi Klaster"))
 
         if "Heatmap" in visualization_options:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm', ax=ax)
-            ax.set_title("Heatmap Korelasi Antar Fitur")
-            st.pyplot(fig)
-            plt.close(fig)
+            plt.figure(figsize=(10, 6))
+            sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
+            plt.title("Heatmap Korelasi Antar Fitur")
+            st.pyplot(plt.gcf())
+            plt.clf()
+            st.info("📌 Heatmap membantu melihat korelasi antar fitur. Nilai mendekati +1 atau -1 menunjukkan korelasi kuat.")
 
         if "Boxplot" in visualization_options:
-            fig, axes = plt.subplots(1, len(selected_features), figsize=(5 * len(selected_features), 5))
-            if len(selected_features) == 1:
+            num_features = len(selected_features)
+            fig, axes = plt.subplots(1, num_features, figsize=(5 * num_features, 5))
+            if num_features == 1:
                 axes = [axes]
             for i, feature in enumerate(selected_features):
                 sns.boxplot(x='KMeans_Cluster', y=feature, data=df, ax=axes[i])
                 axes[i].set_title(f"Boxplot: {feature} per Cluster")
+                axes[i].set_xlabel("Cluster")
+                axes[i].set_ylabel(feature)
             st.pyplot(fig)
-            plt.close(fig)
+            plt.clf()
+            st.info("📌 Boxplot menunjukkan sebaran nilai tiap fitur dalam masing-masing klaster.")
 
-        if "Barchart" in visualization_options and 'Row Labels' in df.columns:
-            for feature in selected_features:
-                grouped = df.groupby('Row Labels')[feature].mean().reset_index()
-                top5 = grouped.nlargest(5, feature)
-                bottom5 = grouped.nsmallest(5, feature)
+        if "Barchart" in visualization_options:
+            if 'Row Labels' in df.columns:
+                for feature in selected_features:
+                    grouped = df.groupby('Row Labels')[feature].mean().reset_index()
+                    top5 = grouped.nlargest(5, feature)
+                    bottom5 = grouped.nsmallest(5, feature)
 
-                col1, col2 = st.columns(2)
+                    col1, col2 = st.columns(2)
 
-                with col1:
-                    fig_top, ax_top = plt.subplots(figsize=(4, 3))
-                    sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
-                    ax_top.set_title(f'Top 5 Terminal dengan Average of {feature}')
-                    st.pyplot(fig_top)
-                    plt.close(fig_top)
+                    with col1:
+                        fig_top, ax_top = plt.subplots(figsize=(4, 3))
+                        sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
+                        judul_top = f"Top 5 Terminal dengan {feature} terbaik" if feature == 'et/bt' else f"Top 5 Terminal dengan {feature} terburuk"
+                        ax_top.set_title(judul_top, fontsize=10)
+                        ax_top.set_xlabel('')
+                        ax_top.set_ylabel('')
+                        ax_top.tick_params(axis='y', labelsize=8)
+                        st.pyplot(fig_top)
+                        plt.clf()
 
-                with col2:
-                    fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
-                    sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
-                    ax_bottom.set_title(f'Bottom 5 Terminal dengan Average of {feature}')
-                    st.pyplot(fig_bottom)
-                    plt.close(fig_bottom)
-        elif "Barchart" in visualization_options:
-            st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
+                    with col2:
+                        fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
+                        sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
+                        judul_bottom = f"Bottom 5 Terminal dengan {feature} terburuk" if feature == 'et/bt' else f"Bottom 5 Terminal dengan {feature} terbaik"
+                        ax_bottom.set_title(judul_bottom, fontsize=10)
+                        ax_bottom.set_xlabel('')
+                        ax_bottom.set_ylabel('')
+                        ax_bottom.tick_params(axis='y', labelsize=8)
+                        st.pyplot(fig_bottom)
+                        plt.clf()
 
+                st.info("📌 Interpretasi:")
+                st.markdown("- Semakin kecil nilai **average bt** dan **bwt**, maka semakin baik.")
+                st.markdown("- Semakin besar nilai **et/bt**, maka semakin efisien terminal.")
+            else:
+                st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
+
+        # --- Evaluasi Klaster ---
         st.subheader(translate("Evaluasi Klaster"))
-
         if "ANOVA" in cluster_evaluation_options:
-            st.write("Anova")
+            st.write(f"Anova")
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
-            interpret = ("\u26A0 Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                         else "\u26A0 ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+            interpret = ("⚠️ Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                         else "⚠️ ANOVA Interpretation: P-value less than alpha indicates significant difference.")
             st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
         if "Silhouette Score" in cluster_evaluation_options:
             score = silhouette_score(df_scaled, df['KMeans_Cluster'])
             st.write(f"Silhouette Score: {score:.4f}")
-            msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0.25 else
-                   "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
-                   "Silhouette Score tinggi: klaster cukup baik.")
-            if language == "English":
-                msg = msg.replace("rendah", "is low").replace("sedang", "is moderate").replace("tinggi", "is high")
-            st.write("\u26A0 " + msg)
+            if language == "Indonesia":
+                msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
+                       "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
+                       "Silhouette Score tinggi: klaster cukup baik.")
+            else:
+                msg = ("Silhouette Score is low: poor clustering." if score < 0 else
+                       "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
+                       "Silhouette Score is high: good clustering.")
+            st.write("⚠️ " + msg)
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
             st.write(f"Dunn Index: {score:.4f}")
-            msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else
-                   "Dunn Index rendah: klaster saling tumpang tindih.")
-            st.write("\u26A0 " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
+            msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
+                   else "Dunn Index rendah: klaster saling tumpang tindih.")
+            st.write("⚠️ " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
+
 else:
     st.warning("\u26A0 Silakan upload file Excel terlebih dahulu.")
