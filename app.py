@@ -78,7 +78,7 @@ def perform_anova(df, features):
         groups = [df[df['KMeans_Cluster'] == k][feature] for k in sorted(df['KMeans_Cluster'].unique())]
         if all(len(g) > 1 for g in groups):
             f_stat, p_value = f_oneway(*groups)
-            anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+            anova_results.append({"Variabel": feature, "F-Stat": round(f_stat, 4), "P-Value": round(p_value, 4)})
         else:
             anova_results.append({"Variabel": feature, "F-Stat": None, "P-Value": None})
     return pd.DataFrame(anova_results)
@@ -124,6 +124,8 @@ def translate(text):
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
     }
     return translations.get(text, {}).get(language, text)
+
+# [kode selanjutnya tetap seperti semula dan tidak berubah]
 
 n_clusters = st.sidebar.slider(translate("Jumlah Klaster"), 2, 10, 3)
 visualization_options = st.sidebar.multiselect(translate("Pilih Visualisasi"), ["Heatmap", "Boxplot", "Barchart"])
