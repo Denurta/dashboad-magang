@@ -75,9 +75,12 @@ def elbow_method(df_scaled):
 def perform_anova(df, features):
     anova_results = []
     for feature in features:
-        groups = [df[df['KMeans_Cluster'] == k][feature] for k in df['KMeans_Cluster'].unique()]
-        f_stat, p_value = f_oneway(*groups)
-        anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+        groups = [df[df['KMeans_Cluster'] == k][feature] for k in sorted(df['KMeans_Cluster'].unique())]
+        if all(len(g) > 1 for g in groups):
+            f_stat, p_value = f_oneway(*groups)
+            anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+        else:
+            anova_results.append({"Variabel": feature, "F-Stat": None, "P-Value": None})
     return pd.DataFrame(anova_results)
 
 def dunn_index(df_scaled, labels):
@@ -110,7 +113,10 @@ def translate(text):
         "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
         "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
         "Hapus Baris": {"Indonesia": "Hapus Baris", "English": "Remove Rows"},
-        "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)": {"Indonesia": "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)", "English": "Enter row indices to remove (separate with commas)"},
+        "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)": {
+            "Indonesia": "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)",
+            "English": "Enter row indices to remove (separate with commas)"
+        },
         "Analisis Klaster Terminal": {"Indonesia": "Analisis Klaster Terminal", "English": "Terminal Cluster Analysis"},
         "Metode Elbow": {"Indonesia": "Metode Elbow", "English": "Elbow Method"},
         "Visualisasi Klaster": {"Indonesia": "Visualisasi Klaster", "English": "Cluster Visualization"},
@@ -190,8 +196,7 @@ if df is not None:
                     with col1:
                         fig_top, ax_top = plt.subplots(figsize=(4, 3))
                         sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
-                        judul_top = f"Top 5 Terminal dengan {feature} terbaik" if feature == 'et/bt' else f"Top 5 Terminal dengan {feature} terburuk"
-                        ax_top.set_title(judul_top, fontsize=10)
+                        ax_top.set_title(f"Top 5 Terminal dengan {feature} terbaik", fontsize=10)
                         ax_top.set_xlabel('')
                         ax_top.set_ylabel('')
                         ax_top.tick_params(axis='y', labelsize=8)
@@ -201,39 +206,39 @@ if df is not None:
                     with col2:
                         fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
                         sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
-                        judul_bottom = f"Bottom 5 Terminal dengan {feature} terburuk" if feature == 'et/bt' else f"Bottom 5 Terminal dengan {feature} terbaik"
-                        ax_bottom.set_title(judul_bottom, fontsize=10)
+                        ax_bottom.set_title(f"Bottom 5 Terminal dengan {feature} terburuk", fontsize=10)
                         ax_bottom.set_xlabel('')
                         ax_bottom.set_ylabel('')
                         ax_bottom.tick_params(axis='y', labelsize=8)
                         st.pyplot(fig_bottom)
                         plt.clf()
 
-                st.info("\U0001F4CC Interpretasi:")
-                st.markdown("- Semakin kecil nilai **BT** dan **BWT**, maka semakin baik.")
-                st.markdown("- Semakin besar nilai **ET/BT**, maka semakin efisien terminal.")
+                st.info("\U0001F4CC Interpretasi:\n- Semakin kecil nilai **BT** dan **BWT**, maka semakin baik.\n- Semakin besar nilai **ET/BT**, maka semakin efisien terminal.")
             else:
                 st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
 
         # --- Evaluasi Klaster ---
         st.subheader(translate("Evaluasi Klaster"))
         if "ANOVA" in cluster_evaluation_options:
-            st.write(f"*Anova*")
+            st.write("*Anova*")
             anova_results = perform_anova(df, selected_features)
             st.write(anova_results)
             interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
                          else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
-            st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+            if (anova_results["P-Value"] < 0.05).any():
+                st.write(interpret)
+            else:
+                st.write(interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
         if "Silhouette Score" in cluster_evaluation_options:
             score = silhouette_score(df_scaled, df['KMeans_Cluster'])
             st.write(f"*Silhouette Score*: {score:.4f}")
             if language == "Indonesia":
-                msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
+                msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0.25 else
                        "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
                        "Silhouette Score tinggi: klaster cukup baik.")
             else:
-                msg = ("Silhouette Score is low: poor clustering." if score < 0 else
+                msg = ("Silhouette Score is low: poor clustering." if score < 0.25 else
                        "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
                        "Silhouette Score is high: good clustering.")
             st.write("\U0001F4CC " + msg)
