@@ -205,21 +205,12 @@ if df is not None:
             st.subheader(translate("Evaluasi Klaster"))
 
             if "ANOVA" in cluster_evaluation_options:
-                st.markdown("📌 **Hasil ANOVA**")
                 anova_df = perform_anova(df, selected_features)
                 st.dataframe(anova_df)
-                anova_df["P-Value"] = pd.to_numeric(anova_df["P-Value"], errors="coerce")
-                has_significant = (anova_df["P-Value"] < 0.05).dropna().any()
-                interpretasi = (
-                    "**Interpretasi ANOVA:** Terdapat perbedaan signifikan antar klaster berdasarkan beberapa variabel (p < 0.05)." 
-                    if has_significant else 
-                    "**Interpretasi ANOVA:** Tidak ditemukan perbedaan signifikan antar klaster untuk variabel-variabel tersebut (p ≥ 0.05)."
-                )
-                st.markdown(interpretasi)
-
-                if has_significant:
+                has_significant = (anova_df["P-Value"] != "N/A") & (anova_df["P-Value"].astype(str).astype(float) < 0.05)
+                if has_significant.any():
                     fig, ax = plt.subplots()
-                    sns.barplot(data=anova_df.sort_values("P-Value"), x="P-Value", y="Variabel", ax=ax)
+                    sns.barplot(data=anova_df[has_significant].sort_values("P-Value"), x="P-Value", y="Variabel", ax=ax)
                     ax.set_title("P-Value ANOVA")
                     st.pyplot(fig)
 
