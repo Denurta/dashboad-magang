@@ -1,9 +1,3 @@
-Klaster dengan Performa Tinggi (Klaster Efisien) Ciri-ciri: ✅ BT rendah → Bongkar cepat ✅ BWT rendah → Waktu sandar efisien ✅ ET/BT tinggi → Efisiensi antara bongkar dan sandar tinggi Kesimpulan: Terminal dalam klaster ini memiliki efisiensi tinggi dalam seluruh aspek operasional.
-
-Klaster dengan Performa Buruk (Klaster Tidak Efisien) Ciri-ciri: ❌ BT tinggi → Bongkar lambat ❌ BWT tinggi → Waktu sandar lama ❌ ET/BT rendah → Efisiensi operasi rendah Kesimpulan: Terminal dalam klaster ini memerlukan perbaikan signifikan, baik dari sisi infrastruktur, manajemen jadwal, maupun proses operasional.
-
-
-
 # --- Import Library ---
 import streamlit as st
 import pandas as pd
