@@ -65,10 +65,10 @@ def elbow_method(df_scaled):
 def perform_anova(df, features):
     results = []
     for feature in features:
-        if df[feature].isnull().any():
-            df = df.dropna(subset=[feature])
         try:
-            groups = [df[df['KMeans_Cluster'] == k][feature] for k in sorted(df['KMeans_Cluster'].unique())]
+            df[feature] = pd.to_numeric(df[feature], errors='coerce')
+            df_clean = df.dropna(subset=[feature, 'KMeans_Cluster'])
+            groups = [df_clean[df_clean['KMeans_Cluster'] == k][feature] for k in sorted(df_clean['KMeans_Cluster'].unique())]
             if all(len(g) > 1 for g in groups):
                 f_stat, p_val = f_oneway(*groups)
                 results.append({
