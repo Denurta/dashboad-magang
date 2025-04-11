@@ -147,6 +147,9 @@ if df is not None:
 
             df['KMeans_Cluster'], kmeans_model = perform_kmeans(df_scaled, n_clusters)
 
+            st.write("\n### Hasil Klaster Tiap Terminal")
+            st.dataframe(df[['KMeans_Cluster'] + selected_features])
+
             # --- Visualisasi Klaster ---
             st.subheader(translate("Visualisasi Klaster"))
 
@@ -179,11 +182,15 @@ if df is not None:
                             sns.barplot(data=top5, x=feature, y='Row Labels', ax=ax)
                             ax.set_title(f"Top 5 Terminal: {feature}")
                             st.pyplot(fig_top)
+                            if feature == "ET/BT":
+                                st.info("Terminal yang masuk **Top 5 untuk variabel ET/BT** dapat dikategorikan sebagai **Klaster Efisien**.")
                         with col2:
                             fig_bot, ax = plt.subplots()
                             sns.barplot(data=bottom5, x=feature, y='Row Labels', ax=ax)
                             ax.set_title(f"Bottom 5 Terminal: {feature}")
                             st.pyplot(fig_bot)
+                            if feature in ["BT", "BWT"]:
+                                st.warning("Terminal yang masuk **Bottom 5 untuk variabel BT dan BWT** cenderung tidak efisien.")
                 else:
                     st.warning("Kolom 'Row Labels' tidak tersedia.")
 
@@ -202,8 +209,7 @@ if df is not None:
             if "Silhouette Score" in cluster_evaluation_options:
                 sil_score = silhouette_score(df_scaled, df['KMeans_Cluster'])
                 st.write(f"*Silhouette Score*: {sil_score:.4f}")
-                level = ("rendah" if sil_score < 0.25 else
-                         "sedang" if sil_score <= 0.5 else "tinggi")
+                level = ("rendah" if sil_score < 0.25 else "sedang" if sil_score <= 0.5 else "tinggi")
                 st.write(f"📌 Kualitas klaster {level}.")
 
             if "Dunn Index" in cluster_evaluation_options:
