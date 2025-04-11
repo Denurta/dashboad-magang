@@ -65,12 +65,25 @@ def elbow_method(df_scaled):
 def perform_anova(df, features):
     results = []
     for feature in features:
-        groups = [df[df['KMeans_Cluster'] == k][feature] for k in df['KMeans_Cluster'].unique()]
-        if all(len(g) > 1 for g in groups):
-            f_stat, p_val = f_oneway(*groups)
-            results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_val})
-        else:
+        # Hapus NaN jika ada
+        if df[feature].isnull().any():
+            df = df.dropna(subset=[feature])
+        
+        try:
+            groups = [df[df['KMeans_Cluster'] == k][feature] for k in sorted(df['KMeans_Cluster'].unique())]
+            if all(len(g) > 1 for g in groups):
+                f_stat, p_val = f_oneway(*groups)
+                results.append({
+                    "Variabel": feature,
+                    "F-Stat": round(f_stat, 4),
+                    "P-Value": round(p_val, 4)
+                })
+            else:
+                results.append({"Variabel": feature, "F-Stat": "N/A", "P-Value": "N/A"})
+        except Exception as e:
             results.append({"Variabel": feature, "F-Stat": None, "P-Value": None})
+            print(f"Error pada feature {feature}: {e}")
+
     return pd.DataFrame(results)
 
 def dunn_index(df_scaled, labels):
@@ -87,7 +100,7 @@ def dunn_index(df_scaled, labels):
         for j in range(i + 1, len(unique_clusters)):
             c_i = df_scaled[labels == unique_clusters[i]]
             c_j = df_scaled[labels == unique_clusters[j]]
-            inter.append(np.min(pdist(np.vstack((c_i, c_j)))))
+            inter.append(np.min(pdist(np.vstack((c_i, c_j))))))
 
     if intra and inter:
         return np.min(inter) / np.max(intra)
@@ -195,7 +208,7 @@ if df is not None:
 st.subheader(translate("Evaluasi Klaster"))
 
 if "ANOVA" in cluster_evaluation_options:
-    st.markdown("**ANOVA**")
+    st.markdown("📌 **Hasil ANOVA**")
     anova_df = perform_anova(df, selected_features)
     st.dataframe(anova_df)
     has_significant = (anova_df["P-Value"] < 0.05).any()
@@ -208,13 +221,13 @@ if "ANOVA" in cluster_evaluation_options:
 
 if "Silhouette Score" in cluster_evaluation_options:
     sil_score = silhouette_score(df_scaled, df['KMeans_Cluster'])
-    st.markdown(f"**Silhouette Score**: {sil_score:.4f}")
+    st.markdown(f"📌 **Silhouette Score**: {sil_score:.4f}")
     level = ("rendah" if sil_score < 0.25 else "sedang" if sil_score <= 0.5 else "tinggi")
     st.markdown(f"📌 **Interpretasi Silhouette Score:** Kualitas klaster **{level}**.")
 
 if "Dunn Index" in cluster_evaluation_options:
     dunn_score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
-    st.markdown(f"**Dunn Index**: {dunn_score:.4f}")
+    st.markdown(f"📌 **Dunn Index**: {dunn_score:.4f}")
     interpretasi_dunn = (
         "📌 **Interpretasi Dunn Index:** Nilai Dunn Index tinggi: pemisahan antar klaster **baik**."
         if dunn_score > 1 else 
