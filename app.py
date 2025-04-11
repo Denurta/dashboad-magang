@@ -68,18 +68,18 @@ def perform_anova(df, features):
         try:
             df[feature] = pd.to_numeric(df[feature], errors='coerce')
             df_clean = df.dropna(subset=[feature, 'KMeans_Cluster'])
+            if df_clean['KMeans_Cluster'].nunique() < 2:
+                raise ValueError("Jumlah klaster tidak mencukupi untuk ANOVA")
+
             groups = [df_clean[df_clean['KMeans_Cluster'] == k][feature] for k in sorted(df_clean['KMeans_Cluster'].unique())]
             if all(len(g) > 1 for g in groups):
                 f_stat, p_val = f_oneway(*groups)
-                results.append({
-                    "Variabel": feature,
-                    "F-Stat": round(f_stat, 4),
-                    "P-Value": round(p_val, 4)
-                })
+                results.append({"Variabel": feature, "F-Stat": round(f_stat, 4), "P-Value": round(p_val, 4)})
             else:
                 results.append({"Variabel": feature, "F-Stat": "N/A", "P-Value": "N/A"})
         except Exception as e:
-            results.append({"Variabel": feature, "F-Stat": None, "P-Value": None})
+            results.append({"Variabel": feature, "F-Stat": "N/A", "P-Value": "N/A"})
+            st.warning(f"Gagal menghitung ANOVA untuk {feature}: {e}")
     return pd.DataFrame(results)
 
 def dunn_index(df_scaled, labels):
@@ -202,7 +202,8 @@ if df is not None:
             st.subheader(translate("Evaluasi Klaster"))
 
             if "ANOVA" in cluster_evaluation_options:
-                st.markdown("**Hasil ANOVA**")
+                st.markdown("📌 **Hasil ANOVA**")
+                st.dataframe(df[['KMeans_Cluster'] + selected_features].head())
                 anova_df = perform_anova(df, selected_features)
                 st.dataframe(anova_df)
                 anova_df["P-Value"] = pd.to_numeric(anova_df["P-Value"], errors="coerce")
