@@ -204,16 +204,20 @@ if df is not None:
             st.subheader(translate("Evaluasi Klaster"))
 
             if "ANOVA" in cluster_evaluation_options:
-                st.markdown("📌 **Hasil ANOVA**")
-                anova_df = perform_anova(df, selected_features)
-                st.dataframe(anova_df)
-                has_significant = (anova_df["P-Value"] < 0.05).any()
-                interpretasi = (
-                    "📌 **Interpretasi ANOVA:** Terdapat perbedaan signifikan antar klaster berdasarkan beberapa variabel (p < 0.05)." 
-                    if has_significant else 
-                    "📌 **Interpretasi ANOVA:** Tidak ditemukan perbedaan signifikan antar klaster untuk variabel-variabel tersebut (p ≥ 0.05)."
-                )
-                st.markdown(interpretasi)
+    st.markdown("📌 **Hasil ANOVA**")
+    anova_df = perform_anova(df, selected_features)
+    st.dataframe(anova_df)
+
+    # Convert to numeric for comparison
+    anova_df["P-Value"] = pd.to_numeric(anova_df["P-Value"], errors="coerce")
+    has_significant = (anova_df["P-Value"] < 0.05).dropna().any()
+
+    interpretasi = (
+        "📌 **Interpretasi ANOVA:** Terdapat perbedaan signifikan antar klaster berdasarkan beberapa variabel (p < 0.05)." 
+        if has_significant else 
+        "📌 **Interpretasi ANOVA:** Tidak ditemukan perbedaan signifikan antar klaster untuk variabel-variabel tersebut (p ≥ 0.05)."
+    )
+    st.markdown(interpretasi)
 
             if "Silhouette Score" in cluster_evaluation_options:
                 sil_score = silhouette_score(df_scaled, df['KMeans_Cluster'])
