@@ -60,7 +60,7 @@ def elbow_method(df_scaled):
     ax.set_title('Metode Elbow')
     st.pyplot(fig)
     plt.close(fig)
-    st.info("📌 Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
+    st.info("\ud83d\udccc Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
 
 def perform_anova(df, features):
     results = []
@@ -94,7 +94,7 @@ def dunn_index(df_scaled, labels):
     return 0
 
 # --- Sidebar & Bahasa ---
-st.sidebar.title("⛴ Clustering Terminal")
+st.sidebar.title("\u26f4 Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
@@ -179,11 +179,15 @@ if df is not None:
                             sns.barplot(data=top5, x=feature, y='Row Labels', ax=ax)
                             ax.set_title(f"Top 5 Terminal: {feature}")
                             st.pyplot(fig_top)
+                            if feature == "ET/BT":
+                                st.info("Terminal yang masuk **Top 5 untuk variabel ET/BT** dapat dikategorikan sebagai **Klaster Efisien**.")
                         with col2:
                             fig_bot, ax = plt.subplots()
                             sns.barplot(data=bottom5, x=feature, y='Row Labels', ax=ax)
                             ax.set_title(f"Bottom 5 Terminal: {feature}")
                             st.pyplot(fig_bot)
+                            if feature in ["BT", "BWT"]:
+                                st.warning("Terminal yang masuk **Bottom 5 untuk variabel BT dan BWT** cenderung tidak efisien.")
                 else:
                     st.warning("Kolom 'Row Labels' tidak tersedia.")
 
@@ -195,23 +199,22 @@ if df is not None:
                 anova_df = perform_anova(df, selected_features)
                 st.dataframe(anova_df)
                 has_significant = (anova_df["P-Value"] < 0.05).any()
-                msg = ("📌 Terdapat perbedaan signifikan antar klaster." if has_significant
-                       else "📌 Tidak terdapat perbedaan signifikan antar klaster.")
+                msg = ("\ud83d\udccc Terdapat perbedaan signifikan antar klaster." if has_significant
+                       else "\ud83d\udccc Tidak terdapat perbedaan signifikan antar klaster.")
                 st.write(msg)
 
             if "Silhouette Score" in cluster_evaluation_options:
                 sil_score = silhouette_score(df_scaled, df['KMeans_Cluster'])
                 st.write(f"*Silhouette Score*: {sil_score:.4f}")
-                level = ("rendah" if sil_score < 0.25 else
-                         "sedang" if sil_score <= 0.5 else "tinggi")
-                st.write(f"📌 Kualitas klaster {level}.")
+                level = ("rendah" if sil_score < 0.25 else "sedang" if sil_score <= 0.5 else "tinggi")
+                st.write(f"\ud83d\udccc Kualitas klaster {level}.")
 
             if "Dunn Index" in cluster_evaluation_options:
                 dunn_score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
                 st.write(f"*Dunn Index*: {dunn_score:.4f}")
-                msg = "📌 Dunn Index tinggi: pemisahan antar klaster baik." if dunn_score > 1 else "📌 Dunn Index rendah: klaster saling tumpang tindih."
+                msg = "\ud83d\udccc Dunn Index tinggi: pemisahan antar klaster baik." if dunn_score > 1 else "\ud83d\udccc Dunn Index rendah: klaster saling tumpang tindih."
                 st.write(msg)
     else:
         st.error("Data tidak memiliki kolom numerik yang bisa dianalisis.")
 else:
-    st.warning("⚠️ Silakan upload file Excel terlebih dahulu.")
+    st.warning("\u26a0\ufe0f Silakan upload file Excel terlebih dahulu.")
