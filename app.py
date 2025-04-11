@@ -1,3 +1,9 @@
+Klaster dengan Performa Tinggi (Klaster Efisien) Ciri-ciri: ✅ BT rendah → Bongkar cepat ✅ BWT rendah → Waktu sandar efisien ✅ ET/BT tinggi → Efisiensi antara bongkar dan sandar tinggi Kesimpulan: Terminal dalam klaster ini memiliki efisiensi tinggi dalam seluruh aspek operasional.
+
+Klaster dengan Performa Buruk (Klaster Tidak Efisien) Ciri-ciri: ❌ BT tinggi → Bongkar lambat ❌ BWT tinggi → Waktu sandar lama ❌ ET/BT rendah → Efisiensi operasi rendah Kesimpulan: Terminal dalam klaster ini memerlukan perbaikan signifikan, baik dari sisi infrastruktur, manajemen jadwal, maupun proses operasional.
+
+
+
 # --- Import Library ---
 import streamlit as st
 import pandas as pd
@@ -60,26 +66,17 @@ def elbow_method(df_scaled):
     ax.set_title('Metode Elbow')
     st.pyplot(fig)
     plt.close(fig)
-    st.info("Tips: Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
+    st.info("📌 Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
 
 def perform_anova(df, features):
     results = []
     for feature in features:
-        try:
-            df[feature] = pd.to_numeric(df[feature], errors='coerce')
-            df_clean = df.dropna(subset=[feature, 'KMeans_Cluster'])
-            if df_clean['KMeans_Cluster'].nunique() < 2:
-                raise ValueError("Jumlah klaster tidak mencukupi untuk ANOVA")
-
-            groups = [df_clean[df_clean['KMeans_Cluster'] == k][feature] for k in sorted(df_clean['KMeans_Cluster'].unique())]
-            if all(len(g) > 1 for g in groups):
-                f_stat, p_val = f_oneway(*groups)
-                results.append({"Variabel": feature, "F-Stat": round(f_stat, 4), "P-Value": round(p_val, 4)})
-            else:
-                results.append({"Variabel": feature, "F-Stat": "N/A", "P-Value": "N/A"})
-        except Exception as e:
-            results.append({"Variabel": feature, "F-Stat": "N/A", "P-Value": "N/A"})
-            st.warning(f"Gagal menghitung ANOVA untuk {feature}: {e}")
+        groups = [df[df['KMeans_Cluster'] == k][feature] for k in df['KMeans_Cluster'].unique()]
+        if all(len(g) > 1 for g in groups):
+            f_stat, p_val = f_oneway(*groups)
+            results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_val})
+        else:
+            results.append({"Variabel": feature, "F-Stat": None, "P-Value": None})
     return pd.DataFrame(results)
 
 def dunn_index(df_scaled, labels):
@@ -103,26 +100,26 @@ def dunn_index(df_scaled, labels):
     return 0
 
 # --- Sidebar & Bahasa ---
-st.sidebar.title("Clustering Terminal")
+st.sidebar.title("⛴ Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
     translations = {
-        "Jumlah Klaster": ("Jumlah Klaster", "Number of Clusters"),
-        "Pilih Visualisasi": ("Pilih Visualisasi", "Select Visualization"),
-        "Pilih Evaluasi Klaster": ("Pilih Evaluasi Klaster", "Select Cluster Evaluation"),
-        "Hapus Baris": ("Hapus Baris", "Remove Rows"),
-        "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)": (
-            "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)",
-            "Enter row indices to remove (separate with commas)"
-        ),
-        "Analisis Klaster Terminal": ("Analisis Klaster Terminal", "Terminal Cluster Analysis"),
-        "Metode Elbow": ("Metode Elbow", "Elbow Method"),
-        "Visualisasi Klaster": ("Visualisasi Klaster", "Cluster Visualization"),
-        "Statistik Deskriptif": ("Statistik Deskriptif", "Descriptive Statistics"),
-        "Evaluasi Klaster": ("Evaluasi Klaster", "Cluster Evaluation"),
+        "Jumlah Klaster": {"Indonesia": "Jumlah Klaster", "English": "Number of Clusters"},
+        "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
+        "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
+        "Hapus Baris": {"Indonesia": "Hapus Baris", "English": "Remove Rows"},
+        "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)": {
+            "Indonesia": "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)",
+            "English": "Enter row indices to remove (separate with commas)"
+        },
+        "Analisis Klaster Terminal": {"Indonesia": "Analisis Klaster Terminal", "English": "Terminal Cluster Analysis"},
+        "Metode Elbow": {"Indonesia": "Metode Elbow", "English": "Elbow Method"},
+        "Visualisasi Klaster": {"Indonesia": "Visualisasi Klaster", "English": "Cluster Visualization"},
+        "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
+        "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
     }
-    return translations.get(text, (text, text))[0 if language == "Indonesia" else 1]
+    return translations.get(text, {}).get(language, text)
 
 n_clusters = st.sidebar.slider(translate("Jumlah Klaster"), 2, 10, 3)
 visualization_options = st.sidebar.multiselect(translate("Pilih Visualisasi"), ["Heatmap", "Boxplot", "Barchart"])
@@ -144,7 +141,6 @@ if df is not None:
             st.error(f"Terjadi kesalahan saat menghapus baris: {e}")
 
     features = df.select_dtypes(include='number').columns.tolist()
-    
     if features:
         st.subheader(translate("Statistik Deskriptif"))
         st.dataframe(df.describe())
@@ -157,9 +153,7 @@ if df is not None:
 
             df['KMeans_Cluster'], kmeans_model = perform_kmeans(df_scaled, n_clusters)
 
-            st.markdown("### Distribusi Jumlah Data per Klaster")
-            st.bar_chart(df['KMeans_Cluster'].value_counts().sort_index())
-
+            # --- Visualisasi Klaster ---
             st.subheader(translate("Visualisasi Klaster"))
 
             if "Heatmap" in visualization_options:
@@ -179,55 +173,51 @@ if df is not None:
                 st.pyplot(fig)
                 plt.close(fig)
 
-            if "Barchart" in visualization_options and 'Row Labels' in df.columns:
-                for feature in selected_features:
-                    grouped = df.groupby('Row Labels')[feature].mean().reset_index()
-                    top5 = grouped.nlargest(5, feature)
-                    bottom5 = grouped.nsmallest(5, feature)
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        fig_top, ax = plt.subplots()
-                        sns.barplot(data=top5, x=feature, y='Row Labels', ax=ax)
-                        ax.set_title(f"Top 5 Terminal: {feature}")
-                        st.pyplot(fig_top)
-                        if feature == "ET/BT":
-                            st.info("Terminal yang masuk Top 5 untuk variabel ET/BT dapat dikategorikan sebagai Klaster Efisien.")
-                    with col2:
-                        fig_bot, ax = plt.subplots()
-                        sns.barplot(data=bottom5, x=feature, y='Row Labels', ax=ax)
-                        ax.set_title(f"Bottom 5 Terminal: {feature}")
-                        st.pyplot(fig_bot)
-                        if feature in ["BT", "BWT"]:
-                            st.warning("Terminal yang masuk Bottom 5 untuk variabel BT dan BWT cenderung tidak efisien.")
-            elif "Barchart" in visualization_options:
-                st.warning("Kolom 'Row Labels' tidak tersedia untuk visualisasi Barchart.")
+            if "Barchart" in visualization_options:
+                if 'Row Labels' in df.columns:
+                    for feature in selected_features:
+                        grouped = df.groupby('Row Labels')[feature].mean().reset_index()
+                        top5 = grouped.nlargest(5, feature)
+                        bottom5 = grouped.nsmallest(5, feature)
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            fig_top, ax = plt.subplots()
+                            sns.barplot(data=top5, x=feature, y='Row Labels', ax=ax)
+                            ax.set_title(f"Top 5 Terminal: {feature}")
+                            st.pyplot(fig_top)
+                        with col2:
+                            fig_bot, ax = plt.subplots()
+                            sns.barplot(data=bottom5, x=feature, y='Row Labels', ax=ax)
+                            ax.set_title(f"Bottom 5 Terminal: {feature}")
+                            st.pyplot(fig_bot)
+                else:
+                    st.warning("Kolom 'Row Labels' tidak tersedia.")
 
+            # --- Evaluasi Klaster ---
             st.subheader(translate("Evaluasi Klaster"))
 
             if "ANOVA" in cluster_evaluation_options:
+                st.write("*ANOVA*")
                 anova_df = perform_anova(df, selected_features)
                 st.dataframe(anova_df)
-                has_significant = (anova_df["P-Value"] != "N/A") & (anova_df["P-Value"].astype(str).astype(float) < 0.05)
-                if has_significant.any():
-                    fig, ax = plt.subplots()
-                    sns.barplot(data=anova_df[has_significant].sort_values("P-Value"), x="P-Value", y="Variabel", ax=ax)
-                    ax.set_title("P-Value ANOVA")
-                    st.pyplot(fig)
+                has_significant = (anova_df["P-Value"] < 0.05).any()
+                msg = ("📌 Terdapat perbedaan signifikan antar klaster." if has_significant
+                       else "📌 Tidak terdapat perbedaan signifikan antar klaster.")
+                st.write(msg)
 
             if "Silhouette Score" in cluster_evaluation_options:
                 sil_score = silhouette_score(df_scaled, df['KMeans_Cluster'])
-                st.markdown(f"**Silhouette Score**: {sil_score:.4f}")
-                level = ("rendah" if sil_score < 0.25 else "sedang" if sil_score <= 0.5 else "tinggi")
-                st.markdown(f"**Interpretasi Silhouette Score:** Kualitas klaster **{level}**.")
+                st.write(f"*Silhouette Score*: {sil_score:.4f}")
+                level = ("rendah" if sil_score < 0.25 else
+                         "sedang" if sil_score <= 0.5 else "tinggi")
+                st.write(f"📌 Kualitas klaster {level}.")
 
             if "Dunn Index" in cluster_evaluation_options:
                 dunn_score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
-                st.markdown(f"**Dunn Index**: {dunn_score:.4f}")
-                interpretasi_dunn = (
-                    "**Interpretasi Dunn Index:** Nilai Dunn Index tinggi: pemisahan antar klaster **baik**."
-                    if dunn_score > 1 else 
-                    "**Interpretasi Dunn Index:** Nilai Dunn Index rendah: klaster cenderung **saling tumpang tindih**."
-                )
-                st.markdown(interpretasi_dunn)
+                st.write(f"*Dunn Index*: {dunn_score:.4f}")
+                msg = "📌 Dunn Index tinggi: pemisahan antar klaster baik." if dunn_score > 1 else "📌 Dunn Index rendah: klaster saling tumpang tindih."
+                st.write(msg)
     else:
-        st.warning("Data tidak memiliki kolom numerik untuk analisis klaster.")
+        st.error("Data tidak memiliki kolom numerik yang bisa dianalisis.")
+else:
+    st.warning("⚠️ Silakan upload file Excel terlebih dahulu.")
