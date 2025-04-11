@@ -192,29 +192,32 @@ if df is not None:
                     st.warning("Kolom 'Row Labels' tidak tersedia.")
 
             # --- Evaluasi Klaster ---
-            st.subheader(translate("Evaluasi Klaster"))
+st.subheader(translate("Evaluasi Klaster"))
 
-            if "ANOVA" in cluster_evaluation_options:
-                st.write("*ANOVA*")
-                anova_df = perform_anova(df, selected_features)
-                st.dataframe(anova_df)
-                has_significant = (anova_df["P-Value"] < 0.05).any()
-                msg = ("Terdapat perbedaan signifikan antar klaster." if has_significant
-                       else "Tidak terdapat perbedaan signifikan antar klaster.")
-                st.write(msg)
+if "ANOVA" in cluster_evaluation_options:
+    st.markdown("📌 **Hasil ANOVA**")
+    anova_df = perform_anova(df, selected_features)
+    st.dataframe(anova_df)
+    has_significant = (anova_df["P-Value"] < 0.05).any()
+    interpretasi = (
+        "📌 **Interpretasi ANOVA:** Terdapat perbedaan signifikan antar klaster berdasarkan beberapa variabel (p < 0.05)." 
+        if has_significant else 
+        "📌 **Interpretasi ANOVA:** Tidak ditemukan perbedaan signifikan antar klaster untuk variabel-variabel tersebut (p ≥ 0.05)."
+    )
+    st.markdown(interpretasi)
 
-            if "Silhouette Score" in cluster_evaluation_options:
-                sil_score = silhouette_score(df_scaled, df['KMeans_Cluster'])
-                st.write(f"*Silhouette Score*: {sil_score:.4f}")
-                level = ("rendah" if sil_score < 0.25 else "sedang" if sil_score <= 0.5 else "tinggi")
-                st.write(f"Kualitas klaster {level}.")
+if "Silhouette Score" in cluster_evaluation_options:
+    sil_score = silhouette_score(df_scaled, df['KMeans_Cluster'])
+    st.markdown(f"📌 **Silhouette Score**: {sil_score:.4f}")
+    level = ("rendah" if sil_score < 0.25 else "sedang" if sil_score <= 0.5 else "tinggi")
+    st.markdown(f"📌 **Interpretasi Silhouette Score:** Kualitas klaster **{level}**.")
 
-            if "Dunn Index" in cluster_evaluation_options:
-                dunn_score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
-                st.write(f"*Dunn Index*: {dunn_score:.4f}")
-                msg = "Dunn Index tinggi: pemisahan antar klaster baik." if dunn_score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
-                st.write(msg)
-    else:
-        st.error("Data tidak memiliki kolom numerik yang bisa dianalisis.")
-else:
-    st.warning("Silakan upload file Excel terlebih dahulu.")
+if "Dunn Index" in cluster_evaluation_options:
+    dunn_score = dunn_index(df_scaled.to_numpy(), df['KMeans_Cluster'].to_numpy())
+    st.markdown(f"📌 **Dunn Index**: {dunn_score:.4f}")
+    interpretasi_dunn = (
+        "📌 **Interpretasi Dunn Index:** Nilai Dunn Index tinggi: pemisahan antar klaster **baik**."
+        if dunn_score > 1 else 
+        "📌 **Interpretasi Dunn Index:** Nilai Dunn Index rendah: klaster cenderung **saling tumpang tindih**."
+    )
+    st.markdown(interpretasi_dunn)
