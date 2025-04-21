@@ -37,28 +37,21 @@ st.markdown("""
 
 # --- Fungsi ---
 def load_data():
-    uploaded_file = st.sidebar.file_uploader("Upload file Excel", type=["xlsx"])
+    uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
     if uploaded_file is not None:
         try:
             df = pd.read_excel(uploaded_file)
             df.columns = df.columns.str.strip()
             if 'Row Labels' not in df.columns:
-                st.sidebar.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
+                st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
             st.session_state['df_original'] = df  # Simpan data asli
             st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
             st.session_state['data_uploaded'] = True
             return True
         except Exception as e:
-            st.sidebar.error(f"Terjadi kesalahan saat membaca file: {e}")
+            st.error(f"Terjadi kesalahan saat membaca file: {e}")
             return False
     return False
-
-def clear_data():
-    for key in ['df_original', 'df_cleaned', 'data_uploaded']:
-        if key in st.session_state:
-            del st.session_state[key]
-    st.session_state['data_uploaded'] = False
-    st.rerun()
 
 def normalize_data(df, features):
     scaler = StandardScaler()
@@ -135,18 +128,11 @@ def translate(text):
         "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
         "Upload Data untuk Analisis": {"Indonesia": "Upload Data untuk Analisis", "English": "Upload Data for Analysis"},
-        "Hapus Data yang Diunggah": {"Indonesia": "Hapus Data yang Diunggah", "English": "Clear Uploaded Data"},
     }
     return translations.get(text, {}).get(language, text)
 
 # --- Sidebar ---
 with st.sidebar:
-    st.subheader(translate("Upload Data untuk Analisis"))
-    load_data()
-    st.subheader(translate("Hapus Data yang Diunggah"))
-    clear_button = st.button(translate("Hapus Data yang Diunggah"))
-    if clear_button:
-        clear_data()
     st.subheader(translate("Jumlah Klaster"))
     n_clusters = st.slider("", 2, 10, 3)
     st.subheader(translate("Pilih Visualisasi"))
@@ -160,7 +146,13 @@ with st.sidebar:
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
 
-if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
+# Area untuk upload data
+if 'data_uploaded' not in st.session_state or not st.session_state['data_uploaded']:
+    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
+    load_data()
+else:
+    load_data() # Tetap tampilkan uploader agar bisa ganti data
+
     df_cleaned = st.session_state['df_cleaned']
 
     if 'Row Labels' not in df_cleaned.columns:
