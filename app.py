@@ -18,7 +18,7 @@ st.markdown("""
         color: #1E3A5F;
     }
     .stSidebar {
-        background-color: rgba(50, 90, 140, 0.7); 
+        background-color: rgba(50, 90, 140, 0.7);
         color: #2c5b7b;
         border-radius: 10px;
         padding: 10px;
@@ -41,8 +41,10 @@ def load_data():
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
         df.columns = df.columns.str.strip()
-        return df
-    return None
+        st.session_state['df_original'] = df  # Simpan data asli
+        st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
+        return True
+    return False
 
 def normalize_data(df, features):
     scaler = StandardScaler()
@@ -98,7 +100,9 @@ def dunn_index(df_scaled, labels):
             cluster_j = df_scaled[labels == unique_clusters[j]]
             inter_cluster_distances.append(np.min(pdist(np.vstack((cluster_i, cluster_j)))))
 
-    return np.min(inter_cluster_distances) / np.max(intra_cluster_distances)
+    if inter_cluster_distances and intra_cluster_distances:
+        return np.min(inter_cluster_distances) / np.max(intra_cluster_distances)
+    return np.nan
 
 # --- Sidebar & Bahasa ---
 st.sidebar.title("\u26f4 Clustering Terminal")
@@ -125,21 +129,29 @@ visualization_options = st.sidebar.multiselect(translate("Pilih Visualisasi"), [
 cluster_evaluation_options = st.sidebar.multiselect(translate("Pilih Evaluasi Klaster"), ["ANOVA", "Silhouette Score", "Dunn Index"])
 
 st.sidebar.subheader(translate("Hapus Baris"))
-drop_rows = st.sidebar.text_area(translate("Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)"))
+drop_rows = st.sidebar.text_area(translate("Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)"), key="drop_rows")
+drop_button = st.sidebar.button(translate("Hapus Baris"))
 
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
-df = load_data()
 
-if df is not None:
-    df_cleaned = df.copy()
+if 'df_original' not in st.session_state:
+    st.warning("⚠️ " + translate("Silakan upload file Excel terlebih dahulu."))
+elif 'df_cleaned' in st.session_state:
+    df_cleaned = st.session_state['df_cleaned']
 
-    if drop_rows:
+    if drop_button and drop_rows:
         try:
             drop_indices = [int(i.strip()) for i in drop_rows.split(',') if i.strip().isdigit()]
+            initial_rows = df_cleaned.shape[0]
             df_cleaned = df_cleaned.drop(index=drop_indices, errors='ignore')
             df_cleaned.reset_index(drop=True, inplace=True)
-            st.success(f"✅ Berhasil menghapus baris: {drop_indices}")
+            st.session_state['df_cleaned'] = df_cleaned # Update df_cleaned di session state
+            rows_deleted = initial_rows - df_cleaned.shape[0]
+            if rows_deleted > 0:
+                st.success(f"✅ Berhasil menghapus {rows_deleted} baris: {drop_indices}")
+            else:
+                st.info("Tidak ada baris yang dihapus. Periksa kembali indeks yang dimasukkan.")
         except Exception as e:
             st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
 
@@ -231,16 +243,15 @@ if df is not None:
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df_cleaned['KMeans_Cluster'].to_numpy())
             st.write(f"*Dunn Index*: {score:.4f}")
-    
+
             # Pesan untuk Bahasa Indonesia
             msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
-    
+
             # Pesan untuk Bahasa Inggris
             msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
 
-        # Menampilkan pesan sesuai pilihan bahasa
-        st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+            # Menampilkan pesan sesuai pilihan bahasa
+            st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
 
-
-else:
-    st.warning("⚠️ " + translate("Silakan upload file Excel terlebih dahulu."))
+if 'df_original' in st.session_state and 'df_cleaned' not in st.session_state:
+    st.info("Data berhasil diunggah.")
