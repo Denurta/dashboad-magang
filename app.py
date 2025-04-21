@@ -117,7 +117,6 @@ def translate(text):
         "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
         "Silakan upload file Excel terlebih dahulu.": {"Indonesia": "Silakan upload file Excel terlebih dahulu.", "English": "Please upload an Excel file first."},
-        }
 
     }
     return translations.get(text, {}).get(language, text)
