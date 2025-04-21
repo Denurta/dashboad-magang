@@ -227,12 +227,20 @@ if df is not None:
                        "Silhouette Score is high: good clustering.")
             st.write("\U0001F4CC " + msg)
 
+
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(df_scaled.to_numpy(), df_cleaned['KMeans_Cluster'].to_numpy())
             st.write(f"*Dunn Index*: {score:.4f}")
-            msg = ("Dunn Index tinggi: pemisahan antar klaster baik." if score > 1
-                   else "Dunn Index rendah: klaster saling tumpang tindih.")
-            st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
+    
+            # Pesan untuk Bahasa Indonesia
+            msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
+    
+            # Pesan untuk Bahasa Inggris
+            msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
+
+        # Menampilkan pesan sesuai pilihan bahasa
+        st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+
 
 else:
     st.warning("⚠️ " + translate("Silakan upload file Excel terlebih dahulu."))
