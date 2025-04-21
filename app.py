@@ -39,11 +39,16 @@ st.markdown("""
 def load_data():
     uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
     if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file)
-        df.columns = df.columns.str.strip()
-        st.session_state['df_original'] = df  # Simpan data asli
-        st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
-        return True
+        try:
+            df = pd.read_excel(uploaded_file)
+            df.columns = df.columns.str.strip()
+            st.session_state['df_original'] = df  # Simpan data asli
+            st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
+            st.session_state['data_uploaded'] = True
+            return True
+        except Exception as e:
+            st.error(f"Terjadi kesalahan saat membaca file: {e}")
+            return False
     return False
 
 def normalize_data(df, features):
@@ -135,9 +140,11 @@ drop_button = st.sidebar.button(translate("Hapus Baris"))
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
 
-if 'df_original' not in st.session_state:
-    st.warning("⚠️ " + translate("Silakan upload file Excel terlebih dahulu."))
-elif 'df_cleaned' in st.session_state:
+# Selalu tampilkan file uploader jika data belum berhasil diunggah
+if 'data_uploaded' not in st.session_state or not st.session_state['data_uploaded']:
+    if load_data():
+        st.session_state['data_uploaded'] = True
+else:
     df_cleaned = st.session_state['df_cleaned']
 
     if drop_button and drop_rows:
@@ -252,6 +259,3 @@ elif 'df_cleaned' in st.session_state:
 
             # Menampilkan pesan sesuai pilihan bahasa
             st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
-
-if 'df_original' in st.session_state and 'df_cleaned' not in st.session_state:
-    st.info("Data berhasil diunggah.")
