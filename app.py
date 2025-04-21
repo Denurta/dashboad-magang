@@ -117,7 +117,6 @@ def translate(text):
         "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
         "Silakan upload file Excel terlebih dahulu.": {"Indonesia": "Silakan upload file Excel terlebih dahulu.", "English": "Please upload an Excel file first."},
-
     }
     return translations.get(text, {}).get(language, text)
 
@@ -133,16 +132,17 @@ st.title(translate("Analisis Klaster Terminal"))
 df = load_data()
 
 if df is not None:
+    df_cleaned = df.copy()
+
     if drop_rows:
         try:
             drop_indices = [int(i.strip()) for i in drop_rows.split(',') if i.strip().isdigit()]
-            df = df.drop(index=drop_indices, errors='ignore')
-            df.reset_index(drop=True, inplace=True)
+            df_cleaned = df_cleaned.drop(index=drop_indices, errors='ignore')
+            df_cleaned.reset_index(drop=True, inplace=True)
             st.success(f"✅ Berhasil menghapus baris: {drop_indices}")
         except Exception as e:
             st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
 
-    df_cleaned = df.copy()
     features = df_cleaned.select_dtypes(include='number').columns.tolist()
 
     st.subheader(translate("Statistik Deskriptif"))
@@ -236,4 +236,3 @@ if df is not None:
 
 else:
     st.warning("⚠️ " + translate("Silakan upload file Excel terlebih dahulu."))
-
