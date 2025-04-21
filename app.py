@@ -147,12 +147,22 @@ with st.sidebar:
 st.title(translate("Analisis Klaster Terminal"))
 
 # Area untuk upload data
-if 'data_uploaded' not in st.session_state or not st.session_state['data_uploaded']:
-    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
-    load_data()
+uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
+if uploaded_file is not None:
+    try:
+        df = pd.read_excel(uploaded_file)
+        df.columns = df.columns.str.strip()
+        if 'Row Labels' not in df.columns:
+            st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
+        st.session_state['df_original'] = df  # Simpan data asli
+        st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
+        st.session_state['data_uploaded'] = True
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat membaca file: {e}")
 else:
-    load_data() # Tetap tampilkan uploader agar bisa ganti data
+    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
 
+if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
     df_cleaned = st.session_state['df_cleaned']
 
     if 'Row Labels' not in df_cleaned.columns:
@@ -273,5 +283,3 @@ else:
 
                     # Menampilkan pesan sesuai pilihan bahasa
                     st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
-else:
-    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
