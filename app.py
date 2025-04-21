@@ -143,6 +143,11 @@ def translate(text):
 with st.sidebar:
     st.subheader(translate("Upload Data untuk Analisis"))
     load_data()
+    st.subheader(translate("Hapus Data yang Diunggah"))
+    clear_button = st.button(translate("Hapus Data yang Diunggah"))
+    if clear_button:
+        clear_data()
+    st.subheader(translate("Jumlah Klaster"))
     n_clusters = st.slider("", 2, 10, 3)
     st.subheader(translate("Pilih Visualisasi"))
     visualization_options = st.multiselect("", ["Heatmap", "Boxplot", "Barchart"])
@@ -154,9 +159,6 @@ with st.sidebar:
 
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
-
-if clear_button:
-    clear_data()
 
 if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
     df_cleaned = st.session_state['df_cleaned']
@@ -241,8 +243,8 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                             ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
                             st.pyplot(fig_bottom)
                             plt.clf()
-                    else:
-                        st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
+                else:
+                    st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
 
                 st.subheader(translate("Evaluasi Klaster"))
 
