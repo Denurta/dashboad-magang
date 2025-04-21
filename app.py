@@ -37,19 +37,19 @@ st.markdown("""
 
 # --- Fungsi ---
 def load_data():
-    uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
+    uploaded_file = st.sidebar.file_uploader("Upload file Excel", type=["xlsx"])
     if uploaded_file is not None:
         try:
             df = pd.read_excel(uploaded_file)
             df.columns = df.columns.str.strip()
             if 'Row Labels' not in df.columns:
-                st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
+                st.sidebar.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
             st.session_state['df_original'] = df  # Simpan data asli
             st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
             st.session_state['data_uploaded'] = True
             return True
         except Exception as e:
-            st.error(f"Terjadi kesalahan saat membaca file: {e}")
+            st.sidebar.error(f"Terjadi kesalahan saat membaca file: {e}")
             return False
     return False
 
@@ -139,110 +139,111 @@ def translate(text):
     }
     return translations.get(text, {}).get(language, text)
 
-n_clusters = st.sidebar.slider(translate("Jumlah Klaster"), 2, 10, 3)
-visualization_options = st.sidebar.multiselect(translate("Pilih Visualisasi"), ["Heatmap", "Boxplot", "Barchart"])
-cluster_evaluation_options = st.sidebar.multiselect(translate("Pilih Evaluasi Klaster"), ["ANOVA", "Silhouette Score", "Dunn Index"])
-
-st.sidebar.subheader(translate("Hapus Baris"))
-drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), key="drop_names")
-drop_button = st.sidebar.button(translate("Hapus Baris"))
-
-st.sidebar.subheader(translate("Hapus Data yang Diunggah"))
-clear_button = st.sidebar.button(translate("Hapus Data yang Diunggah"))
+# --- Sidebar ---
+with st.sidebar:
+    st.subheader(translate("Upload Data untuk Analisis"))
+    load_data()
+    st.subheader(translate("Hapus Data yang Diunggah"))
+    clear_button = st.button(translate("Hapus Data yang Diunggah"))
+    st.subheader(translate("Jumlah Klaster"))
+    n_clusters = st.slider("", 2, 10, 3)
+    st.subheader(translate("Pilih Visualisasi"))
+    visualization_options = st.multiselect("", ["Heatmap", "Boxplot", "Barchart"])
+    st.subheader(translate("Pilih Evaluasi Klaster"))
+    cluster_evaluation_options = st.multiselect("", ["ANOVA", "Silhouette Score", "Dunn Index"])
+    st.subheader(translate("Hapus Baris"))
+    drop_names = st.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), key="drop_names")
+    drop_button = st.button(translate("Hapus Baris"))
 
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
 
-# Area untuk upload data
-if 'data_uploaded' not in st.session_state or not st.session_state['data_uploaded']:
-    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
-    load_data()
-else:
-    if clear_button:
-        clear_data()
+if clear_button:
+    clear_data()
+
+if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
+    df_cleaned = st.session_state['df_cleaned']
+
+    if 'Row Labels' not in df_cleaned.columns:
+        st.error("Kolom 'Row Labels' tidak ditemukan dalam data. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
     else:
-        df_cleaned = st.session_state['df_cleaned']
+        if drop_button and drop_names:
+            try:
+                names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
+                initial_rows = df_cleaned.shape[0]
+                df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
+                df_cleaned.reset_index(drop=True, inplace=True)
+                st.session_state['df_cleaned'] = df_cleaned # Pastikan state df_cleaned diperbarui
+                rows_deleted = initial_rows - df_cleaned.shape[0]
+                if rows_deleted > 0:
+                    st.success(f"✅ Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
+                else:
+                    st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
+            except Exception as e:
+                st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
 
-        if 'Row Labels' not in df_cleaned.columns:
-            st.error("Kolom 'Row Labels' tidak ditemukan dalam data. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-        else:
-            if drop_button and drop_names:
-                try:
-                    names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
-                    initial_rows = df_cleaned.shape[0]
-                    df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
-                    df_cleaned.reset_index(drop=True, inplace=True)
-                    st.session_state['df_cleaned'] = df_cleaned # Pastikan state df_cleaned diperbarui
-                    rows_deleted = initial_rows - df_cleaned.shape[0]
-                    if rows_deleted > 0:
-                        st.success(f"✅ Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
-                    else:
-                        st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-                except Exception as e:
-                    st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
+    # Gunakan df_cleaned yang ada di session state untuk analisis
+    if 'df_cleaned' in st.session_state:
+        df_cleaned_for_analysis = st.session_state['df_cleaned']
+        features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
 
-        # Gunakan df_cleaned yang ada di session state untuk analisis
-        if 'df_cleaned' in st.session_state:
-            df_cleaned_for_analysis = st.session_state['df_cleaned']
-            features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
+        st.subheader(translate("Statistik Deskriptif"))
+        st.dataframe(df_cleaned_for_analysis.describe())
 
-            st.subheader(translate("Statistik Deskriptif"))
-            st.dataframe(df_cleaned_for_analysis.describe())
+        selected_features = st.multiselect("Pilih variabel untuk Elbow Method", features, default=features)
 
-            selected_features = st.multiselect("Pilih variabel untuk Elbow Method", features, default=features)
+        if selected_features:
+            df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
 
-            if selected_features:
-                df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
+            st.subheader(translate("Metode Elbow"))
+            elbow_method(df_scaled)
 
-                st.subheader(translate("Metode Elbow"))
-                elbow_method(df_scaled)
+            df_cleaned_for_analysis['KMeans_Cluster'], kmeans_model = perform_kmeans(df_scaled, n_clusters)
 
-                df_cleaned_for_analysis['KMeans_Cluster'], kmeans_model = perform_kmeans(df_scaled, n_clusters)
+            st.subheader(translate("Visualisasi Klaster"))
 
-                st.subheader(translate("Visualisasi Klaster"))
+            if "Heatmap" in visualization_options:
+                plt.figure(figsize=(10, 6))
+                sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
+                plt.title("Heatmap Korelasi Antar Fitur")
+                st.pyplot(plt.gcf())
+                plt.clf()
 
-                if "Heatmap" in visualization_options:
-                    plt.figure(figsize=(10, 6))
-                    sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
-                    plt.title("Heatmap Korelasi Antar Fitur")
-                    st.pyplot(plt.gcf())
-                    plt.clf()
+            if "Boxplot" in visualization_options:
+                num_features = len(selected_features)
+                fig, axes = plt.subplots(1, num_features, figsize=(5 * num_features, 5))
+                if num_features == 1:
+                    axes = [axes]
+                for i, feature in enumerate(selected_features):
+                    sns.boxplot(x='KMeans_Cluster', y=feature, data=df_cleaned_for_analysis, ax=axes[i])
+                    axes[i].set_title(f"Boxplot: {feature} per Cluster")
+                    axes[i].set_xlabel("Cluster")
+                    axes[i].set_ylabel(feature)
+                st.pyplot(fig)
+                plt.clf()
 
-                if "Boxplot" in visualization_options:
-                    num_features = len(selected_features)
-                    fig, axes = plt.subplots(1, num_features, figsize=(5 * num_features, 5))
-                    if num_features == 1:
-                        axes = [axes]
-                    for i, feature in enumerate(selected_features):
-                        sns.boxplot(x='KMeans_Cluster', y=feature, data=df_cleaned_for_analysis, ax=axes[i])
-                        axes[i].set_title(f"Boxplot: {feature} per Cluster")
-                        axes[i].set_xlabel("Cluster")
-                        axes[i].set_ylabel(feature)
-                    st.pyplot(fig)
-                    plt.clf()
+            if "Barchart" in visualization_options:
+                if 'Row Labels' in df_cleaned_for_analysis.columns:
+                    for feature in selected_features:
+                        grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
+                        top5 = grouped.nlargest(5, feature)
+                        bottom5 = grouped.nsmallest(5, feature)
 
-                if "Barchart" in visualization_options:
-                    if 'Row Labels' in df_cleaned_for_analysis.columns:
-                        for feature in selected_features:
-                            grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
-                            top5 = grouped.nlargest(5, feature)
-                            bottom5 = grouped.nsmallest(5, feature)
+                        col1, col2 = st.columns(2)
 
-                            col1, col2 = st.columns(2)
+                        with col1:
+                            fig_top, ax_top = plt.subplots(figsize=(4, 3))
+                            sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
+                            ax_top.set_title(f"Top 5 Terminal - {feature}")
+                            st.pyplot(fig_top)
+                            plt.clf()
 
-                            with col1:
-                                fig_top, ax_top = plt.subplots(figsize=(4, 3))
-                                sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
-                                ax_top.set_title(f"Top 5 Terminal - {feature}")
-                                st.pyplot(fig_top)
-                                plt.clf()
-
-                            with col2:
-                                fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
-                                sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
-                                ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
-                                st.pyplot(fig_bottom)
-                                plt.clf()
+                        with col2:
+                            fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
+                            sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
+                            ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
+                            st.pyplot(fig_bottom)
+                            plt.clf()
                     else:
                         st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
 
@@ -281,3 +282,5 @@ else:
 
                     # Menampilkan pesan sesuai pilihan bahasa
                     st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+else:
+    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
