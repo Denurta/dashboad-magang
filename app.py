@@ -142,8 +142,6 @@ if df is not None:
         except Exception as e:
             st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
 
-    st.info("📌 Analisis dilakukan berdasarkan data setelah penghapusan baris (jika ada).")
-
     df_cleaned = df.copy()
     features = df_cleaned.select_dtypes(include='number').columns.tolist()
 
