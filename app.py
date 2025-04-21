@@ -116,6 +116,9 @@ def translate(text):
         "Visualisasi Klaster": {"Indonesia": "Visualisasi Klaster", "English": "Cluster Visualization"},
         "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
+        "Silakan upload file Excel terlebih dahulu.": {"Indonesia": "Silakan upload file Excel terlebih dahulu.", "English": "Please upload an Excel file first."},
+        }
+
     }
     return translations.get(text, {}).get(language, text)
 
@@ -235,4 +238,5 @@ if df is not None:
             st.write("\U0001F4CC " + (msg if language == "Indonesia" else f"Dunn Index Interpretation: {msg}"))
 
 else:
-    st.warning("\u26A0 Silakan upload file Excel terlebih dahulu.")
+    st.warning("⚠️ " + translate("Silakan upload file Excel terlebih dahulu."))
+
