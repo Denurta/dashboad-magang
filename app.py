@@ -42,6 +42,8 @@ def load_data():
         try:
             df = pd.read_excel(uploaded_file)
             df.columns = df.columns.str.strip()
+            if 'Row Labels' not in df.columns:
+                st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
             st.session_state['df_original'] = df  # Simpan data asli
             st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
             st.session_state['data_uploaded'] = True
@@ -119,13 +121,14 @@ def translate(text):
         "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
         "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
         "Hapus Baris": {"Indonesia": "Hapus Baris", "English": "Remove Rows"},
-        "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)": {"Indonesia": "Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)", "English": "Enter row indices to remove (separate with commas)"},
+        "Masukkan nama baris yang akan dihapus (pisahkan dengan koma)": {"Indonesia": "Masukkan nama baris yang akan dihapus (pisahkan dengan koma)", "English": "Enter row names to remove (separate with commas)"},
         "Analisis Klaster Terminal": {"Indonesia": "Analisis Klaster Terminal", "English": "Terminal Cluster Analysis"},
         "Metode Elbow": {"Indonesia": "Metode Elbow", "English": "Elbow Method"},
         "Visualisasi Klaster": {"Indonesia": "Visualisasi Klaster", "English": "Cluster Visualization"},
         "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
         "Silakan upload file Excel terlebih dahulu.": {"Indonesia": "Silakan upload file Excel terlebih dahulu.", "English": "Please upload an Excel file first."},
+        "Upload Data untuk Analisis": {"Indonesia": "Upload Data untuk Analisis", "English": "Upload Data for Analysis"},
     }
     return translations.get(text, {}).get(language, text)
 
@@ -134,7 +137,7 @@ visualization_options = st.sidebar.multiselect(translate("Pilih Visualisasi"), [
 cluster_evaluation_options = st.sidebar.multiselect(translate("Pilih Evaluasi Klaster"), ["ANOVA", "Silhouette Score", "Dunn Index"])
 
 st.sidebar.subheader(translate("Hapus Baris"))
-drop_rows = st.sidebar.text_area(translate("Masukkan indeks baris yang akan dihapus (pisahkan dengan koma)"), key="drop_rows")
+drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), key="drop_names")
 drop_button = st.sidebar.button(translate("Hapus Baris"))
 
 # --- Tampilan Utama ---
@@ -142,25 +145,28 @@ st.title(translate("Analisis Klaster Terminal"))
 
 # Selalu tampilkan file uploader jika data belum berhasil diunggah
 if 'data_uploaded' not in st.session_state or not st.session_state['data_uploaded']:
-    if load_data():
-        st.session_state['data_uploaded'] = True
+    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
+    load_data()
 else:
     df_cleaned = st.session_state['df_cleaned']
 
-    if drop_button and drop_rows:
-        try:
-            drop_indices = [int(i.strip()) for i in drop_rows.split(',') if i.strip().isdigit()]
-            initial_rows = df_cleaned.shape[0]
-            df_cleaned = df_cleaned.drop(index=drop_indices, errors='ignore')
-            df_cleaned.reset_index(drop=True, inplace=True)
-            st.session_state['df_cleaned'] = df_cleaned # Pastikan state df_cleaned diperbarui SEBELUM pesan sukses
-            rows_deleted = initial_rows - df_cleaned.shape[0]
-            if rows_deleted > 0:
-                st.success(f"✅ Berhasil menghapus {rows_deleted} baris: {drop_indices}")
-            else:
-                st.info("Tidak ada baris yang dihapus. Periksa kembali indeks yang dimasukkan.")
-        except Exception as e:
-            st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
+    if 'Row Labels' not in df_cleaned.columns:
+        st.error("Kolom 'Row Labels' tidak ditemukan dalam data. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
+    else:
+        if drop_button and drop_names:
+            try:
+                names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
+                initial_rows = df_cleaned.shape[0]
+                df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
+                df_cleaned.reset_index(drop=True, inplace=True)
+                st.session_state['df_cleaned'] = df_cleaned # Pastikan state df_cleaned diperbarui
+                rows_deleted = initial_rows - df_cleaned.shape[0]
+                if rows_deleted > 0:
+                    st.success(f"✅ Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
+                else:
+                    st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
+            except Exception as e:
+                st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
 
     # Gunakan df_cleaned yang ada di session state untuk analisis
     if 'df_cleaned' in st.session_state:
