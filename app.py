@@ -143,9 +143,6 @@ def translate(text):
 with st.sidebar:
     st.subheader(translate("Upload Data untuk Analisis"))
     load_data()
-    st.subheader(translate("Hapus Data yang Diunggah"))
-    clear_button = st.button(translate("Hapus Data yang Diunggah"))
-    st.subheader(translate("Jumlah Klaster"))
     n_clusters = st.slider("", 2, 10, 3)
     st.subheader(translate("Pilih Visualisasi"))
     visualization_options = st.multiselect("", ["Heatmap", "Boxplot", "Barchart"])
