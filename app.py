@@ -117,7 +117,7 @@ language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
     translations = {
-        "Pilih Bahasa": {"Indonesia": : Pilih Bahasa", "English": "Select Language"},
+        "Pilih Bahasa": {"Indonesia": "Pilih Bahasa", "English": "Select Language"},
         "Jumlah Klaster": {"Indonesia": "Jumlah Klaster", "English": "Number of Clusters"},
         "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
         "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
@@ -249,38 +249,38 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 else:
                     st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
 
-                st.subheader(translate("Evaluasi Klaster"))
+            st.subheader(translate("Evaluasi Klaster"))
 
-                if "ANOVA" in cluster_evaluation_options:
-                    anova_results = perform_anova(df_cleaned_for_analysis, selected_features)
-                    st.write(anova_results)
-                    interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                                 else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
-                    st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+            if "ANOVA" in cluster_evaluation_options:
+                anova_results = perform_anova(df_cleaned_for_analysis, selected_features)
+                st.write(anova_results)
+                interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                             else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+                st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
-                if "Silhouette Score" in cluster_evaluation_options:
-                    score = silhouette_score(normalize_data(df_cleaned_for_analysis, selected_features), df_cleaned_for_analysis['KMeans_Cluster'])
-                    st.write(f"*Silhouette Score*: {score:.4f}")
-                    if language == "Indonesia":
-                        msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
-                               "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
-                               "Silhouette Score tinggi: klaster cukup baik.")
-                    else:
-                        msg = ("Silhouette Score is low: poor clustering." if score < 0 else
-                               "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
-                               "Silhouette Score is high: good clustering.")
-                    st.write("\U0001F4CC " + msg)
+            if "Silhouette Score" in cluster_evaluation_options:
+                score = silhouette_score(normalize_data(df_cleaned_for_analysis, selected_features), df_cleaned_for_analysis['KMeans_Cluster'])
+                st.write(f"*Silhouette Score*: {score:.4f}")
+                if language == "Indonesia":
+                    msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
+                           "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
+                           "Silhouette Score tinggi: klaster cukup baik.")
+                else:
+                    msg = ("Silhouette Score is low: poor clustering." if score < 0 else
+                           "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
+                           "Silhouette Score is high: good clustering.")
+                st.write("\U0001F4CC " + msg)
 
 
-                if "Dunn Index" in cluster_evaluation_options:
-                    score = dunn_index(normalize_data(df_cleaned_for_analysis, selected_features).to_numpy(), df_cleaned_for_analysis['KMeans_Cluster'].to_numpy())
-                    st.write(f"*Dunn Index*: {score:.4f}")
+            if "Dunn Index" in cluster_evaluation_options:
+                score = dunn_index(normalize_data(df_cleaned_for_analysis, selected_features).to_numpy(), df_cleaned_for_analysis['KMeans_Cluster'].to_numpy())
+                st.write(f"*Dunn Index*: {score:.4f}")
 
-                    # Pesan untuk Bahasa Indonesia
-                    msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
+                # Pesan untuk Bahasa Indonesia
+                msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
 
-                    # Pesan untuk Bahasa Inggris
-                    msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
+                # Pesan untuk Bahasa Inggris
+                msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
 
-                    # Menampilkan pesan sesuai pilihan bahasa
-                    st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+                # Menampilkan pesan sesuai pilihan bahasa
+                st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
