@@ -117,6 +117,7 @@ language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
     translations = {
+        "Pilih Bahasa": {"Indonesia": : Pilih Bahasa", "English": "Select Language"},
         "Jumlah Klaster": {"Indonesia": "Jumlah Klaster", "English": "Number of Clusters"},
         "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
         "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
