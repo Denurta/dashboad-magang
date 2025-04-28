@@ -9,7 +9,6 @@ from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
-from PIL import Image
 
 # --- Styling CSS ---
 st.markdown("""
@@ -32,22 +31,6 @@ st.markdown("""
     }
     h1, h2, h3, h4, h5, h6 {
         color: #1E3A5F;
-    }
-    .top-navigation {
-        display: flex;
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-    .top-navigation button {
-        background-color: rgba(50, 90, 140, 0.7);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .top-navigation button:hover {
-        background-color: rgba(70, 130, 180, 0.8);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -129,7 +112,7 @@ def dunn_index(df_scaled, labels):
     return np.nan
 
 # --- Sidebar & Bahasa ---
-st.sidebar.title("\u26f4 Pengaturan")
+st.sidebar.title("\u26f4 Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
@@ -146,204 +129,158 @@ def translate(text):
         "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
         "Upload Data untuk Analisis": {"Indonesia": "Upload Data untuk Analisis", "English": "Upload Data for Analysis"},
-        "Selamat Datang di Dashboard Analisis Klaster Terminal": {"Indonesia": "Selamat Datang di Dashboard Analisis Klaster Terminal", "English": "Welcome to Terminal Cluster Analysis Dashboard"},
-        "Dashboard ini memungkinkan Anda untuk melakukan analisis klaster pada data terminal.": {"Indonesia": "Dashboard ini memungkinkan Anda untuk melakukan analisis klaster pada data terminal.", "English": "This dashboard allows you to perform cluster analysis on terminal data."},
-        "Unggah file Excel Anda pada halaman 'Analisis Klaster' untuk memulai.": {"Indonesia": "Unggah file Excel Anda pada halaman 'Analisis Klaster' untuk memulai.", "English": "Upload your Excel file on the 'Cluster Analysis' page to begin."},
-        "Beranda": {"Indonesia": "Beranda", "English": "Home"},
-        "Analisis Klaster": {"Indonesia": "Analisis Klaster", "English": "Cluster Analysis"},
-        "Definisi Klastering di PT Terminal Petikemas": {"Indonesia": "Definisi Klastering di PT Terminal Petikemas", "English": "Definition of Clustering in PT Terminal Petikemas"},
-        "Klastering di PT Terminal Petikemas adalah metode untuk mengelompokkan berbagai entitas operasional atau aset (seperti dermaga, alat berat, atau area penyimpanan) berdasarkan karakteristik atau kinerja tertentu. Tujuannya adalah untuk mendapatkan pemahaman yang lebih baik tentang pola, efisiensi, dan potensi optimasi dalam operasional terminal.": {
-            "Indonesia": "Klastering di PT Terminal Petikemas adalah metode untuk mengelompokkan berbagai entitas operasional atau aset (seperti dermaga, alat berat, atau area penyimpanan) berdasarkan karakteristik atau kinerja tertentu. Tujuannya adalah untuk mendapatkan pemahaman yang lebih baik tentang pola, efisiensi, dan potensi optimasi dalam operasional terminal.",
-            "English": "Clustering in PT Terminal Petikemas is a method to group various operational entities or assets (such as berths, equipment, or storage areas) based on specific characteristics or performance. The goal is to gain a better understanding of patterns, efficiency, and potential for optimization in terminal operations."
-        }
     }
     return translations.get(text, {}).get(language, text)
 
-# --- Load Assets ---
-try:
-    logo_pelindo = Image.open("pelindo_logo.png")  # Pastikan file logo ada di direktori yang sama
-    pelabuhan_image = Image.open("port_image.jpg")  # Pastikan file gambar pelabuhan ada
-except FileNotFoundError as e:
-    st.error(f"File aset tidak ditemukan: {e}. Pastikan 'pelindo_logo.png' dan 'port_image.jpg' berada di direktori yang sama dengan script.")
-    logo_pelindo = None
-    pelabuhan_image = None
+# --- Sidebar ---
+with st.sidebar:
+    st.subheader(translate("Jumlah Klaster"))
+    n_clusters = st.slider("", 2, 10, 3)
+    st.subheader(translate("Pilih Visualisasi"))
+    visualization_options = st.multiselect("", ["Heatmap", "Boxplot", "Barchart"])
+    st.subheader(translate("Pilih Evaluasi Klaster"))
+    cluster_evaluation_options = st.multiselect("", ["ANOVA", "Silhouette Score", "Dunn Index"])
+    st.subheader(translate("Hapus Baris"))
+    drop_names = st.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), key="drop_names")
+    drop_button = st.button(translate("Hapus Baris"))
 
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
 
-# --- Navigasi Atas ---
-if logo_pelindo:
-    st.image(logo_pelindo, width=150)
-st.markdown("<div class='top-navigation'>", unsafe_allow_html=True)
-home_button = st.button(translate("Beranda"))
-analisis_button = st.button(translate("Analisis Klaster"))
-st.markdown("</div>", unsafe_allow_html=True)
+# Area untuk upload data
+uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
+if uploaded_file is not None:
+    try:
+        df = pd.read_excel(uploaded_file)
+        df.columns = df.columns.str.strip()
+        if 'Row Labels' not in df.columns:
+            st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
+        st.session_state['df_original'] = df  # Simpan data asli
+        st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
+        st.session_state['data_uploaded'] = True
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat membaca file: {e}")
+else:
+    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
 
-if home_button:
-    st.session_state['current_page'] = 'home'
-elif analisis_button:
-    st.session_state['current_page'] = 'analisis'
+if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
+    df_cleaned = st.session_state['df_cleaned']
 
-if 'current_page' not in st.session_state:
-    st.session_state['current_page'] = 'home'
-
-if st.session_state['current_page'] == 'home':
-    st.header(translate("Selamat Datang di Dashboard Analisis Klaster Terminal"))
-    st.write(translate("Dashboard ini memungkinkan Anda untuk melakukan analisis klaster pada data terminal."))
-    st.write(translate("Unggah file Excel Anda pada halaman 'Analisis Klaster' untuk memulai."))
-
-    if pelabuhan_image:
-        st.image(pelabuhan_image, caption="Visualisasi Operasional Terminal", use_column_width=True)
-
-    st.subheader(translate("Definisi Klastering di PT Terminal Petikemas"))
-    st.write(translate("Klastering di PT Terminal Petikemas adalah metode untuk mengelompokkan berbagai entitas operasional atau aset (seperti dermaga, alat berat, atau area penyimpanan) berdasarkan karakteristik atau kinerja tertentu. Tujuannya adalah untuk mendapatkan pemahaman yang lebih baik tentang pola, efisiensi, dan potensi optimasi dalam operasional terminal."))
-
-elif st.session_state['current_page'] == 'analisis':
-    st.title(translate("Analisis Klaster Terminal"))
-
-    # Area untuk upload data
-    uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
-    if uploaded_file is not None:
-        try:
-            df = pd.read_excel(uploaded_file)
-            df.columns = df.columns.str.strip()
-            if 'Row Labels' not in df.columns:
-                st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-            st.session_state['df_original'] = df  # Simpan data asli
-            st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
-            st.session_state['data_uploaded'] = True
-        except Exception as e:
-            st.error(f"Terjadi kesalahan saat membaca file: {e}")
+    if 'Row Labels' not in df_cleaned.columns:
+        st.error("Kolom 'Row Labels' tidak ditemukan dalam data. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
     else:
-        st.info("⚠️ " + translate("Upload Data untuk Analisis"))
+        if drop_button and drop_names:
+            try:
+                names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
+                initial_rows = df_cleaned.shape[0]
+                df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
+                df_cleaned.reset_index(drop=True, inplace=True)
+                st.session_state['df_cleaned'] = df_cleaned # Pastikan state df_cleaned diperbarui
+                rows_deleted = initial_rows - df_cleaned.shape[0]
+                if rows_deleted > 0:
+                    st.success(f"✅ Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
+                else:
+                    st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
+            except Exception as e:
+                st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
 
-    if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
-        df_cleaned = st.session_state['df_cleaned']
+    # Gunakan df_cleaned yang ada di session state untuk analisis
+    if 'df_cleaned' in st.session_state:
+        df_cleaned_for_analysis = st.session_state['df_cleaned']
+        features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
 
-        if 'Row Labels' not in df_cleaned.columns:
-            st.error("Kolom 'Row Labels' tidak ditemukan dalam data. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-        else:
-            with st.sidebar:
-                st.subheader(translate("Pengaturan Analisis"))
-                drop_names = st.text_area(translate("Hapus Baris"), key="drop_names")
-                drop_button = st.button(translate("Hapus"))
-                if drop_button and drop_names:
-                    try:
-                        names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
-                        initial_rows = df_cleaned.shape[0]
-                        df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
-                        df_cleaned.reset_index(drop=True, inplace=True)
-                        st.session_state['df_cleaned'] = df_cleaned # Pastikan state df_cleaned diperbarui
-                        rows_deleted = initial_rows - df_cleaned.shape[0]
-                        if rows_deleted > 0:
-                            st.success(f"✅ Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
-                        else:
-                            st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-                    except Exception as e:
-                        st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
+        st.subheader(translate("Statistik Deskriptif"))
+        st.dataframe(df_cleaned_for_analysis.describe())
 
-                st.subheader(translate("Parameter Klastering"))
-                n_clusters = st.slider(translate("Jumlah Klaster"), 2, 10, 3)
-                visualization_options = st.multiselect(translate("Pilih Visualisasi"), ["Heatmap", "Boxplot", "Barchart"])
-                cluster_evaluation_options = st.multiselect(translate("Pilih Evaluasi Klaster"), ["ANOVA", "Silhouette Score", "Dunn Index"])
+        selected_features = st.multiselect("Pilih variabel untuk Elbow Method", features, default=features)
 
-        # Gunakan df_cleaned yang ada di session state untuk analisis
-        if 'df_cleaned' in st.session_state:
-            df_cleaned_for_analysis = st.session_state['df_cleaned']
-            features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
+        if selected_features:
+            df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
 
-            st.subheader(translate("Statistik Deskriptif"))
-            st.dataframe(df_cleaned_for_analysis.describe())
+            st.subheader(translate("Metode Elbow"))
+            elbow_method(df_scaled)
 
-            selected_features = st.multiselect("Pilih variabel untuk Elbow Method", features, default=features)
+            df_cleaned_for_analysis['KMeans_Cluster'], kmeans_model = perform_kmeans(df_scaled, n_clusters)
 
-            if selected_features:
-                df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
+            st.subheader(translate("Visualisasi Klaster"))
 
-                st.subheader(translate("Metode Elbow"))
-                elbow_method(df_scaled)
+            if "Heatmap" in visualization_options:
+                plt.figure(figsize=(10, 6))
+                sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
+                plt.title("Heatmap Korelasi Antar Fitur")
+                st.pyplot(plt.gcf())
+                plt.clf()
 
-                df_cleaned_for_analysis['KMeans_Cluster'], kmeans_model = perform_kmeans(df_scaled, n_clusters)
+            if "Boxplot" in visualization_options:
+                num_features = len(selected_features)
+                fig, axes = plt.subplots(1, num_features, figsize=(5 * num_features, 5))
+                if num_features == 1:
+                    axes = [axes]
+                for i, feature in enumerate(selected_features):
+                    sns.boxplot(x='KMeans_Cluster', y=feature, data=df_cleaned_for_analysis, ax=axes[i])
+                    axes[i].set_title(f"Boxplot: {feature} per Cluster")
+                    axes[i].set_xlabel("Cluster")
+                    axes[i].set_ylabel(feature)
+                st.pyplot(fig)
+                plt.clf()
 
-                st.subheader(translate("Visualisasi Klaster"))
+            if "Barchart" in visualization_options:
+                if 'Row Labels' in df_cleaned_for_analysis.columns:
+                    for feature in selected_features:
+                        grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
+                        top5 = grouped.nlargest(5, feature)
+                        bottom5 = grouped.nsmallest(5, feature)
 
-                if "Heatmap" in visualization_options:
-                    plt.figure(figsize=(10, 6))
-                    sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
-                    plt.title("Heatmap Korelasi Antar Fitur")
-                    st.pyplot(plt.gcf())
-                    plt.clf()
+                        col1, col2 = st.columns(2)
 
-                if "Boxplot" in visualization_options:
-                    num_features = len(selected_features)
-                    fig, axes = plt.subplots(1, num_features, figsize=(5 * num_features, 5))
-                    if num_features == 1:
-                        axes = [axes]
-                    for i, feature in enumerate(selected_features):
-                        sns.boxplot(x='KMeans_Cluster', y=feature, data=df_cleaned_for_analysis, ax=axes[i])
-                        axes[i].set_title(f"Boxplot: {feature} per Cluster")
-                        axes[i].set_xlabel("Cluster")
-                        axes[i].set_ylabel(feature)
-                    st.pyplot(fig)
-                    plt.clf()
+                        with col1:
+                            fig_top, ax_top = plt.subplots(figsize=(4, 3))
+                            sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
+                            ax_top.set_title(f"Top 5 Terminal - {feature}")
+                            st.pyplot(fig_top)
+                            plt.clf()
 
-                if "Barchart" in visualization_options:
-                    if 'Row Labels' in df_cleaned_for_analysis.columns:
-                        for feature in selected_features:
-                            grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
-                            top5 = grouped.nlargest(5, feature)
-                            bottom5 = grouped.nsmallest(5, feature)
+                        with col2:
+                            fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
+                            sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
+                            ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
+                            st.pyplot(fig_bottom)
+                            plt.clf()
+                else:
+                    st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
 
-                            col1, col2 = st.columns(2)
+            st.subheader(translate("Evaluasi Klaster"))
 
-                            with col1:
-                                fig_top, ax_top = plt.subplots(figsize=(4, 3))
-                                sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
-                                ax_top.set_title(f"Top 5 Terminal - {feature}")
-                                st.pyplot(fig_top)
-                                plt.clf()
+            if "ANOVA" in cluster_evaluation_options:
+                anova_results = perform_anova(df_cleaned_for_analysis, selected_features)
+                st.write(anova_results)
+                interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                             else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+                st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
-                            with col2:
-                                fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
-                                sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
-                                ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
-                                st.pyplot(fig_bottom)
-                                plt.clf()
-                    else:
-                        st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
-
-                st.subheader(translate("Evaluasi Klaster"))
-
-                if "ANOVA" in cluster_evaluation_options:
-                    anova_results = perform_anova(df_cleaned_for_analysis, selected_features)
-                    st.write(anova_results)
-                    interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                                 else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
-                    st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
-
-                if "Silhouette Score" in cluster_evaluation_options:
-                    score = silhouette_score(normalize_data(df_cleaned_for_analysis, selected_features), df_cleaned_for_analysis['KMeans_Cluster'])
-                    st.write(f"*Silhouette Score*: {score:.4f}")
-                    if language == "Indonesia":
-                        msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
-                               "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
-                               "Silhouette Score tinggi: klaster cukup baik.")
-                    else:
-                        msg = ("Silhouette Score is low: poor clustering." if score < 0 else
-                               "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
-                               "Silhouette Score is high: good clustering.")
-                    st.write("\U0001F4CC " + msg)
+            if "Silhouette Score" in cluster_evaluation_options:
+                score = silhouette_score(normalize_data(df_cleaned_for_analysis, selected_features), df_cleaned_for_analysis['KMeans_Cluster'])
+                st.write(f"*Silhouette Score*: {score:.4f}")
+                if language == "Indonesia":
+                    msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
+                           "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
+                           "Silhouette Score tinggi: klaster cukup baik.")
+                else:
+                    msg = ("Silhouette Score is low: poor clustering." if score < 0 else
+                           "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
+                           "Silhouette Score is high: good clustering.")
+                st.write("\U0001F4CC " + msg)
 
 
-                if "Dunn Index" in cluster_evaluation_options:
-                    score = dunn_index(normalize_data(df_cleaned_for_analysis, selected_features).to_numpy(), df_cleaned_for_analysis['KMeans_Cluster'].to_numpy())
-                    st.write(f"*Dunn Index*: {score:.4f}")
+            if "Dunn Index" in cluster_evaluation_options:
+                score = dunn_index(normalize_data(df_cleaned_for_analysis, selected_features).to_numpy(), df_cleaned_for_analysis['KMeans_Cluster'].to_numpy())
+                st.write(f"*Dunn Index*: {score:.4f}")
 
-                    # Pesan untuk Bahasa Indonesia
-                    msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
+                # Pesan untuk Bahasa Indonesia
+                msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
 
-                    # Pesan untuk Bahasa Inggris
-                    msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
+                # Pesan untuk Bahasa Inggris
+                msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
 
-                    # Menampilkan pesan sesuai pilihan bahasa
-                    st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+                # Menampilkan pesan sesuai pilihan bahasa
+                st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
