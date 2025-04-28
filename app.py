@@ -292,4 +292,10 @@ elif page == translate("Analisis"):
                     st.write(f"*Dunn Index*: {score:.4f}")
 
                     # Pesan untuk Bahasa Indonesia
-                    msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score >
+                    msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
+
+                    # Pesan untuk Bahasa Inggris
+                    msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
+
+                    # Menampilkan pesan sesuai pilihan bahasa
+                    st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
