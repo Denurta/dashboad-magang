@@ -178,7 +178,11 @@ def translate(text):
         "Download Template CSV": {"Indonesia": "Download Template CSV", "English": "Download CSV Template"},
         "dengan klik tombol berikut. Sesuaikan periode waktunya dengan periode waktu data anda dan jangan merubah nama provinsi. Data yang dimasukkan merupakan data runtun waktu seperti data nilai produksi, harga komoditas, temperatur udara, curah hujan, dan lainnya selama beberapa periode waktu.":{
             "English": "by clicking the button below. Adjust the time period to match your data's time period and do not change the province names. The data entered is time-series data such as production value data, commodity prices, air temperature, rainfall, and others over several time periods."
-        }
+        },
+        "Download Template Excel": {
+            "Indonesia": "Download Template Excel",
+            "English": "Download Excel Template"
+        },
     }
     return translations.get(text, {}).get(language, text)
 
@@ -222,16 +226,20 @@ st.markdown(f"""
     </div>
     """, unsafe_allow_html=True)
 
-# Tambahkan tombol untuk mengunduh template CSV
-template_url = 'https://github.com/putrilikaaaa/PROJECTTA24/raw/main/TEMPLATE.csv'
-response = requests.get(template_url)
-template_data = response.content
-
+# Tambahkan tombol untuk mengunduh template Excel
+excel_template = pd.DataFrame({'Row Labels': ['Terminal A', 'Terminal B', 'Terminal C'],
+                               'Feature 1': [10, 15, 12],
+                               'Feature 2': [25, 30, 28],
+                               'Feature 3': [5, 8, 6]})
+buffer = io.BytesIO()
+with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+    excel_template.to_excel(writer, sheet_name='Sheet1', index=False)
+    writer.close()
 st.download_button(
-    label=translate("Download Template CSV"),
-    data=template_data,
-    file_name="TEMPLATE.csv",
-    mime="text/csv"
+    label=translate("Download Template Excel"),
+    data=buffer.getvalue(),
+    file_name="terminal_clustering_template.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
 
 # Area untuk upload data
