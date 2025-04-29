@@ -266,7 +266,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 st.pyplot(fig)
                 plt.clf()
 
-            if "Barchart if 'Row Labels' in df_cleaned_for_analysis.columns:
+            if 'Row Labels' in df_cleaned_for_analysis.columns:
                     for feature in selected_features:
                         grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
                         top5 = grouped.nlargest(5, feature)
