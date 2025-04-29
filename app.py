@@ -9,6 +9,7 @@ from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
+import requests
 
 # --- Styling CSS ---
 st.markdown("""
@@ -37,19 +38,19 @@ st.markdown("""
 
 # --- Fungsi ---
 def load_data():
-    uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
+    uploaded_file = st.file_uploader(translate("Upload file Excel"), type=["xlsx"])
     if uploaded_file is not None:
         try:
             df = pd.read_excel(uploaded_file)
             df.columns = df.columns.str.strip()
             if 'Row Labels' not in df.columns:
-                st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
+                st.error(translate("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi."))
             st.session_state['df_original'] = df  # Simpan data asli
             st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
             st.session_state['data_uploaded'] = True
             return True
         except Exception as e:
-            st.error(f"Terjadi kesalahan saat membaca file: {e}")
+            st.error(f"{translate('Terjadi kesalahan saat membaca file')}: {e}")
             return False
     return False
 
@@ -74,12 +75,12 @@ def elbow_method(df_scaled):
 
     plt.figure(figsize=(10, 6))
     plt.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
-    plt.xlabel('Jumlah Klaster')
+    plt.xlabel(translate('Jumlah Klaster'))
     plt.ylabel('Inertia')
-    plt.title('Metode Elbow')
+    plt.title(translate('Metode Elbow'))
     st.pyplot(plt.gcf())
     plt.clf()
-    st.info("\U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal.")
+    st.info(translate("\U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal."))
 
 def perform_anova(df, features):
     anova_results = []
@@ -113,7 +114,7 @@ def dunn_index(df_scaled, labels):
 
 # --- Sidebar & Bahasa ---
 st.sidebar.title("\u26f4 Clustering Terminal")
-language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
+language = st.sidebar.radio(translate("Pilih Bahasa"), ["Indonesia", "English"])
 
 def translate(text):
     translations = {
@@ -129,6 +130,30 @@ def translate(text):
         "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
         "Upload Data untuk Analisis": {"Indonesia": "Upload Data untuk Analisis", "English": "Upload Data for Analysis"},
+        "Upload file Excel": {"Indonesia": "Upload file Excel", "English": "Upload Excel file"},
+        "Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.": {"Indonesia": "Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.", "English": "The 'Row Labels' column was not found in the Excel file. The delete rows by name feature will not work."},
+        "Terjadi kesalahan saat membaca file": {"Indonesia": "Terjadi kesalahan saat membaca file", "English": "An error occurred while reading the file"},
+        "Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal.": {"Indonesia": "Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Titik ini menunjukkan jumlah klaster optimal.", "English": "The best elbow point is at the number of clusters where the decrease in inertia starts to slow down significantly. This point indicates the optimal number of clusters."},
+        "Heatmap Korelasi Antar Fitur": {"Indonesia": "Heatmap Korelasi Antar Fitur", "English": "Feature Correlation Heatmap"},
+        "Boxplot: {} per Cluster": {"Indonesia": "Boxplot: {} per Cluster", "English": "Boxplot: {} per Cluster"},
+        "Cluster": {"Indonesia": "Klaster", "English": "Cluster"},
+        "Top 5 Terminal - {}": {"Indonesia": "Top 5 Terminal - {}", "English": "Top 5 Terminal - {}"},
+        "Bottom 5 Terminal - {}": {"Indonesia": "Bottom 5 Terminal - {}", "English": "Bottom 5 Terminal - {}"},
+        "Kolom 'Row Labels' tidak ditemukan pada data.": {"Indonesia": "Kolom 'Row Labels' tidak ditemukan pada data.", "English": "The 'Row Labels' column was not found in the data."},
+        "Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan.": {"Indonesia": "Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan.", "English": "ANOVA Interpretation: P-value less than alpha indicates a significant difference."},
+        "Silhouette Score rendah: klaster kurang baik.": {"Indonesia": "Silhouette Score rendah: klaster kurang baik.", "English": "Silhouette Score is low: poor clustering."},
+        "Silhouette Score sedang: kualitas klaster sedang.": {"Indonesia": "Silhouette Score sedang: kualitas klaster sedang.", "English": "Silhouette Score is moderate: medium quality clustering."},
+        "Silhouette Score tinggi: klaster cukup baik.": {"Indonesia": "Silhouette Score tinggi: klaster cukup baik.", "English": "Silhouette Score is high: good clustering."},
+        "Dunn Index tinggi: pemisahan antar klaster baik.": {"Indonesia": "Dunn Index tinggi: pemisahan antar klaster baik.", "English": "Dunn Index is high: good separation between clusters."},
+        "Dunn Index rendah: klaster saling tumpang tindih.": {"Indonesia": "Dunn Index rendah: klaster saling tumpang tindih.", "English": "Dunn Index is low: clusters overlap."},
+        "Upload Template Excel": {"Indonesia": "Unduh Template Excel", "English": "Download Excel Template"},
+        "Template Excel berhasil diunduh.": {"Indonesia": "Template Excel berhasil diunduh.", "English": "Excel template downloaded successfully."},
+        "⚠️ Upload Data untuk Analisis": {"Indonesia": "⚠️ Upload Data untuk Analisis", "English": "⚠️ Upload Data for Analysis"},
+        "Berhasil menghapus": {"Indonesia": "Berhasil menghapus", "English": "Successfully deleted"},
+        "baris dengan nama": {"Indonesia": "baris dengan nama", "English": "rows with names"},
+        "Tidak ada baris dengan nama tersebut yang ditemukan.": {"Indonesia": "Tidak ada baris dengan nama tersebut yang ditemukan.", "English": "No rows with those names were found."},
+        "Terjadi kesalahan saat menghapus baris": {"Indonesia": "Terjadi kesalahan saat menghapus baris", "English": "An error occurred while deleting rows"},
+        "Pilih variabel untuk Elbow Method": {"Indonesia": "Pilih variabel untuk Elbow Method", "English": "Select variables for Elbow Method"},
     }
     return translations.get(text, {}).get(language, text)
 
@@ -147,27 +172,44 @@ with st.sidebar:
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
 
-# Area untuk upload data
-uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
-if uploaded_file is not None:
-    try:
-        df = pd.read_excel(uploaded_file)
-        df.columns = df.columns.str.strip()
-        if 'Row Labels' not in df.columns:
-            st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-        st.session_state['df_original'] = df  # Simpan data asli
-        st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
-        st.session_state['data_uploaded'] = True
-    except Exception as e:
-        st.error(f"Terjadi kesalahan saat membaca file: {e}")
-else:
-    st.info("⚠️ " + translate("Upload Data untuk Analisis"))
+# Area untuk upload data dan unduh template
+col1, col2 = st.columns([3, 1])
+
+with col1:
+    uploaded_file = st.file_uploader(translate("Upload file Excel"), type=["xlsx"])
+    if uploaded_file is not None:
+        try:
+            df = pd.read_excel(uploaded_file)
+            df.columns = df.columns.str.strip()
+            if 'Row Labels' not in df.columns:
+                st.error(translate("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi."))
+            st.session_state['df_original'] = df  # Simpan data asli
+            st.session_state['df_cleaned'] = df.copy() # Inisialisasi df_cleaned
+            st.session_state['data_uploaded'] = True
+        except Exception as e:
+            st.error(f"{translate('Terjadi kesalahan saat membaca file')}: {e}")
+    else:
+        st.info("⚠️ " + translate("Upload Data untuk Analisis"))
+
+with col2:
+    template_url = 'https://github.com/nama_pengguna/nama_repositori/raw/main/TEMPLATE_KLUSTER.xlsx' # Ganti dengan URL template Anda
+    response = requests.get(template_url)
+    if response.status_code == 200:
+        template_data = response.content
+        st.download_button(
+            label=translate("Upload Template Excel"),
+            data=template_data,
+            file_name="TEMPLATE_KLUSTER.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    else:
+        st.error("Gagal mengunduh template.")
 
 if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
     df_cleaned = st.session_state['df_cleaned']
 
     if 'Row Labels' not in df_cleaned.columns:
-        st.error("Kolom 'Row Labels' tidak ditemukan dalam data. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
+        st.error(translate("Kolom 'Row Labels' tidak ditemukan pada data. Fitur hapus berdasarkan nama baris tidak akan berfungsi."))
     else:
         if drop_button and drop_names:
             try:
@@ -178,11 +220,11 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 st.session_state['df_cleaned'] = df_cleaned # Pastikan state df_cleaned diperbarui
                 rows_deleted = initial_rows - df_cleaned.shape[0]
                 if rows_deleted > 0:
-                    st.success(f"✅ Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
+                    st.success(f"✅ {translate('Berhasil menghapus')} {rows_deleted} {translate('baris dengan nama')}: {names_to_drop}")
                 else:
-                    st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
+                    st.info(translate("Tidak ada baris dengan nama tersebut yang ditemukan."))
             except Exception as e:
-                st.error(f"❌ Terjadi kesalahan saat menghapus baris: {e}")
+                st.error(f"❌ {translate('Terjadi kesalahan saat menghapus baris')}: {e}")
 
     # Gunakan df_cleaned yang ada di session state untuk analisis
     if 'df_cleaned' in st.session_state:
@@ -192,7 +234,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
         st.subheader(translate("Statistik Deskriptif"))
         st.dataframe(df_cleaned_for_analysis.describe())
 
-        selected_features = st.multiselect("Pilih variabel untuk Elbow Method", features, default=features)
+        selected_features = st.multiselect(translate("Pilih variabel untuk Elbow Method"), features, default=features)
 
         if selected_features:
             df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
@@ -207,7 +249,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
             if "Heatmap" in visualization_options:
                 plt.figure(figsize=(10, 6))
                 sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
-                plt.title("Heatmap Korelasi Antar Fitur")
+                plt.title(translate("Heatmap Korelasi Antar Fitur"))
                 st.pyplot(plt.gcf())
                 plt.clf()
 
@@ -218,14 +260,13 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                     axes = [axes]
                 for i, feature in enumerate(selected_features):
                     sns.boxplot(x='KMeans_Cluster', y=feature, data=df_cleaned_for_analysis, ax=axes[i])
-                    axes[i].set_title(f"Boxplot: {feature} per Cluster")
-                    axes[i].set_xlabel("Cluster")
+                    axes[i].set_title(translate("Boxplot: {} per Cluster").format(feature))
+                    axes[i].set_xlabel(translate("Cluster"))
                     axes[i].set_ylabel(feature)
                 st.pyplot(fig)
                 plt.clf()
 
-            if "Barchart" in visualization_options:
-                if 'Row Labels' in df_cleaned_for_analysis.columns:
+            if "Barchart if 'Row Labels' in df_cleaned_for_analysis.columns:
                     for feature in selected_features:
                         grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
                         top5 = grouped.nlargest(5, feature)
@@ -236,39 +277,39 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                         with col1:
                             fig_top, ax_top = plt.subplots(figsize=(4, 3))
                             sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
-                            ax_top.set_title(f"Top 5 Terminal - {feature}")
+                            ax_top.set_title(translate("Top 5 Terminal - {}").format(feature))
                             st.pyplot(fig_top)
                             plt.clf()
 
                         with col2:
                             fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
                             sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
-                            ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
+                            ax_bottom.set_title(translate("Bottom 5 Terminal - {}").format(feature))
                             st.pyplot(fig_bottom)
                             plt.clf()
                 else:
-                    st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
+                    st.warning(translate("Kolom 'Row Labels' tidak ditemukan pada data."))
 
             st.subheader(translate("Evaluasi Klaster"))
 
             if "ANOVA" in cluster_evaluation_options:
                 anova_results = perform_anova(df_cleaned_for_analysis, selected_features)
                 st.write(anova_results)
-                interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                             else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+                interpret = (translate("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan.") if language == "Indonesia"
+                             else translate("\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference."))
                 st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
             if "Silhouette Score" in cluster_evaluation_options:
                 score = silhouette_score(normalize_data(df_cleaned_for_analysis, selected_features), df_cleaned_for_analysis['KMeans_Cluster'])
                 st.write(f"*Silhouette Score*: {score:.4f}")
                 if language == "Indonesia":
-                    msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
-                           "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
-                           "Silhouette Score tinggi: klaster cukup baik.")
+                    msg = (translate("Silhouette Score rendah: klaster kurang baik.") if score < 0 else
+                           translate("Silhouette Score sedang: kualitas klaster sedang.") if score <= 0.5 else
+                           translate("Silhouette Score tinggi: klaster cukup baik."))
                 else:
-                    msg = ("Silhouette Score is low: poor clustering." if score < 0 else
-                           "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
-                           "Silhouette Score is high: good clustering.")
+                    msg = (translate("Silhouette Score is low: poor clustering.") if score < 0 else
+                           translate("Silhouette Score is moderate: medium quality clustering.") if score <= 0.5 else
+                           translate("Silhouette Score is high: good clustering."))
                 st.write("\U0001F4CC " + msg)
 
 
@@ -277,10 +318,10 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 st.write(f"*Dunn Index*: {score:.4f}")
 
                 # Pesan untuk Bahasa Indonesia
-                msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
+                msg_id = translate("Dunn Index tinggi: pemisahan antar klaster baik.") if score > 1 else translate("Dunn Index rendah: klaster saling tumpang tindih.")
 
                 # Pesan untuk Bahasa Inggris
-                msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
+                msg_en = translate("Dunn Index is high: good separation between clusters.") if score > 1 else translate("Dunn Index is low: clusters overlap.")
 
                 # Menampilkan pesan sesuai pilihan bahasa
                 st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
