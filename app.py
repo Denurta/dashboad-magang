@@ -175,7 +175,7 @@ def translate(text):
         "Dunn Index is high: good separation between clusters.": {"Indonesia": "Dunn Index tinggi: pemisahan antar klaster baik.", "English": "Dunn Index is high: good separation between clusters."},
         "Dunn Index is low: clusters overlap.": {"Indonesia": "Dunn Index rendah: klaster saling tumpang tindih.", "English": "Dunn Index is low: clusters overlap."},
         "Panduan Pengguna": {"Indonesia": "Panduan Pengguna", "English": "User Guide"},
-        "Download Template CSV": {"Indonesia": "Download Template CSV", "English": "Download CSV Template"},
+        "Download Template Excel": {"Indonesia": "Download Template Excel", "English": "Download Excel Template"},
         "dengan klik tombol berikut. Sesuaikan periode waktunya dengan periode waktu data anda dan jangan merubah nama provinsi. Data yang dimasukkan merupakan data runtun waktu seperti data nilai produksi, harga komoditas, temperatur udara, curah hujan, dan lainnya selama beberapa periode waktu.":{
             "English": "by clicking the button below. Adjust the time period to match your data's time period and do not change the province names. The data entered is time-series data such as production value data, commodity prices, air temperature, rainfall, and others over several time periods."
         },
@@ -183,6 +183,10 @@ def translate(text):
             "Indonesia": "Download Template Excel",
             "English": "Download Excel Template"
         },
+        "Kinerja Operasional Terminal": {
+            "Indonesia": "Kinerja Operasional Terminal",
+            "English": "Terminal Operational Performance"
+        }
     }
     return translations.get(text, {}).get(language, text)
 
@@ -201,9 +205,9 @@ with st.sidebar:
     st.markdown("---")
     st.subheader(translate("Download Template Excel"))
     excel_template = pd.DataFrame({'Row Labels': ['Terminal A', 'Terminal B', 'Terminal C'],
-                                   'Feature 1': [10, 15, 12],
-                                   'Feature 2': [25, 30, 28],
-                                   'Feature 3': [5, 8, 6]})
+                                   'Kinerja Operasional 1': [10, 15, 12],
+                                   'Kinerja Operasional 2': [25, 30, 28],
+                                   'Kinerja Operasional 3': [5, 8, 6]})
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
         excel_template.to_excel(writer, sheet_name='Sheet1', index=False)
@@ -228,9 +232,9 @@ st.markdown(f"""
 
 # Tambahkan tombol untuk mengunduh template Excel
 excel_template = pd.DataFrame({'Row Labels': ['Terminal A', 'Terminal B', 'Terminal C'],
-                               'Feature 1': [10, 15, 12],
-                               'Feature 2': [25, 30, 28],
-                               'Feature 3': [5, 8, 6]})
+                               'Kinerja Operasional 1': [10, 15, 12],
+                               'Kinerja Operasional 2': [25, 30, 28],
+                               'Kinerja Operasional 3': [5, 8, 6]})
 buffer = io.BytesIO()
 with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
     excel_template.to_excel(writer, sheet_name='Sheet1', index=False)
@@ -282,7 +286,8 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
     # Gunakan df_cleaned yang ada di session state untuk analisis
     if 'df_cleaned' in st.session_state:
         df_cleaned_for_analysis = st.session_state['df_cleaned']
-        features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
+        # Ubah variabel features menjadi kinerja operasional terminal
+        features = [col for col in df_cleaned_for_analysis.columns if 'Kinerja Operasional' in col]
 
         st.subheader(translate("Statistik Deskriptif"))
         st.dataframe(df_cleaned_for_analysis.describe())
