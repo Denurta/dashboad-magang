@@ -7,3 +7,5 @@ scipy
 openpyxl
 xlsxwriter
 requests
+streamlit_folium
+streamlit-option-menu
