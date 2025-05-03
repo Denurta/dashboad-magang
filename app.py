@@ -55,10 +55,10 @@ def load_data():
     return False
     
 def normalize_data(df, features):
-scaler = StandardScaler()
-df_scaled = pd.DataFrame(scaler.fit_transform(df[features]), columns=features)
-df_scaled.index = df.index
-return df_scaled
+    scaler = StandardScaler()
+    df_scaled = pd.DataFrame(scaler.fit_transform(df[features]), columns=features)
+    df_scaled.index = df.index
+    return df_scaled
 
 def perform_kmeans(df_scaled, n_clusters):
 kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
