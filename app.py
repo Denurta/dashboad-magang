@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-from scipy.stats import f\_oneway
-from sklearn.metrics import silhouette\_score
+from scipy.stats import f_oneway
+from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
 
