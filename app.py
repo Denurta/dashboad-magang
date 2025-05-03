@@ -40,14 +40,14 @@ color: #1E3A5F;
 def load_data(): 
     uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
 if uploaded_file is not None:
-try:
-df = pd.read_excel(uploaded_file)
-df.columns = df.columns.str.strip()
-if 'Row Labels' not in df.columns:
-st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-st.session_state['df_original'] = df
-st.session_state['df_cleaned'] = df.copy()
-st.session_state['data_uploaded'] = True
+    try:
+        df = pd.read_excel(uploaded_file)
+        df.columns = df.columns.str.strip()
+    if 'Row Labels' not in df.columns:
+        st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
+        st.session_state['df_original'] = df
+        st.session_state['df_cleaned'] = df.copy()
+        st.session_state['data_uploaded'] = True
 return True
 except Exception as e:
 st.error(f"Terjadi kesalahan saat membaca file: {e}")
