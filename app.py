@@ -69,20 +69,18 @@ def elbow_method(df_scaled):
     distortions = []
     K = range(1, 11)
     for k in K:
-    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-    kmeans.fit(df_scaled)
-    distortions.append(kmeans.inertia_)
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+        kmeans.fit(df_scaled)
+        distortions.append(kmeans.inertia_)
 
-```
-plt.figure(figsize=(10, 6))
-plt.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
-plt.xlabel('Jumlah Klaster')
-plt.ylabel('Inertia')
-plt.title('Metode Elbow')
-st.pyplot(plt.gcf())
-plt.clf()
-st.info("U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
-```
+    plt.figure(figsize=(10, 6))
+    plt.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
+    plt.xlabel('Jumlah Klaster')
+    plt.ylabel('Inertia')
+    plt.title('Metode Elbow')
+    st.pyplot(plt.gcf())
+    plt.clf()
+    st.info("📌 Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
 
 def perform_anova(df, features):
     anova_results = []
