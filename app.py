@@ -33,45 +33,45 @@ padding: 10px;
 h1, h2, h3, h4, h5, h6 {
 color: #1E3A5F;
 } </style>
-""", unsafe\_allow\_html=True)
+""", unsafe_allow_html=True)
 
 # --- Fungsi ---
 
-def load\_data():
-uploaded\_file = st.file\_uploader("Upload file Excel", type=\["xlsx"])
-if uploaded\_file is not None:
+def load_data():
+uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
+if uploaded_file is not None:
 try:
-df = pd.read\_excel(uploaded\_file)
+df = pd.read_excel(uploaded_file)
 df.columns = df.columns.str.strip()
 if 'Row Labels' not in df.columns:
 st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-st.session\_state\['df\_original'] = df
-st.session\_state\['df\_cleaned'] = df.copy()
-st.session\_state\['data\_uploaded'] = True
+st.session_state['df_original'] = df
+st.session_state['df_cleaned'] = df.copy()
+st.session_state['data_uploaded'] = True
 return True
 except Exception as e:
 st.error(f"Terjadi kesalahan saat membaca file: {e}")
 return False
 return False
 
-def normalize\_data(df, features):
+def normalize_data(df, features):
 scaler = StandardScaler()
-df\_scaled = pd.DataFrame(scaler.fit\_transform(df\[features]), columns=features)
-df\_scaled.index = df.index
-return df\_scaled
+df_scaled = pd.DataFrame(scaler.fit_transform(df[features]), columns=features)
+df_scaled.index = df.index
+return df_scaled
 
-def perform\_kmeans(df\_scaled, n\_clusters):
-kmeans = KMeans(n\_clusters=n\_clusters, random\_state=42, n\_init=10)
-clusters = kmeans.fit\_predict(df\_scaled)
+def perform_kmeans(df_scaled, n_clusters):
+kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+clusters = kmeans.fit_predict(df_scaled)
 return clusters, kmeans
 
-def elbow\_method(df\_scaled):
-distortions = \[]
+def elbow_method(df_scaled):
+distortions = []
 K = range(1, 11)
 for k in K:
-kmeans = KMeans(n\_clusters=k, random\_state=42, n\_init=10)
-kmeans.fit(df\_scaled)
-distortions.append(kmeans.inertia\_)
+kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+kmeans.fit(df_scaled)
+distortions.append(kmeans.inertia_)
 
 ```
 plt.figure(figsize=(10, 6))
@@ -81,20 +81,20 @@ plt.ylabel('Inertia')
 plt.title('Metode Elbow')
 st.pyplot(plt.gcf())
 plt.clf()
-st.info("\U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
+st.info("U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
 ```
 
-def perform\_anova(df, features):
-anova\_results = \[]
+def perform_anova(df, features):
+anova_results = []
 for feature in features:
-groups = \[df\[df\['KMeans\_Cluster'] == k]\[feature] for k in df\['KMeans\_Cluster'].unique()]
-f\_stat, p\_value = f\_oneway(\*groups)
-anova\_results.append({"Variabel": feature, "F-Stat": f\_stat, "P-Value": p\_value})
-return pd.DataFrame(anova\_results)
+groups = [df[df['KMeans_Cluster'] == k][feature] for k in df['KMeans_Cluster'].unique()]
+f_stat, p_value = f_oneway(*groups)
+anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+return pd.DataFrame(anova_results)
 
-def dunn\_index(df\_scaled, labels):
-distances = squareform(pdist(df\_scaled, metric='euclidean'))
-unique\_clusters = np.unique(labels)
+def dunn_index(df_scaled, labels):
+distances = squareform(pdist(df_scaled, metric='euclidean'))
+unique_clusters = np.unique(labels)
 
 ```
 intra_cluster_distances = []
@@ -118,8 +118,8 @@ return np.nan
 
 # --- Sidebar & Bahasa ---
 
-st.sidebar.title("\u26f4 Clustering Terminal")
-language = st.sidebar.radio("Pilih Bahasa", \["Indonesia", "English"])
+st.sidebar.title("u26f4 Clustering Terminal")
+language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
 translations = {
@@ -142,14 +142,14 @@ return translations.get(text, {}).get(language, text)
 
 with st.sidebar:
 st.subheader(translate("Jumlah Klaster"))
-n\_clusters = st.slider("", 2, 10, 3)
+n_clusters = st.slider("", 2, 10, 3)
 st.subheader(translate("Pilih Visualisasi"))
-visualization\_options = st.multiselect("", \["Heatmap", "Boxplot", "Barchart"])
+visualization_options = st.multiselect("", ["Heatmap", "Boxplot", "Barchart"])
 st.subheader(translate("Pilih Evaluasi Klaster"))
-cluster\_evaluation\_options = st.multiselect("", \["ANOVA", "Silhouette Score", "Dunn Index"])
+cluster_evaluation_options = st.multiselect("", ["ANOVA", "Silhouette Score", "Dunn Index"])
 st.subheader(translate("Hapus Baris"))
-drop\_names = st.text\_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), key="drop\_names")
-drop\_button = st.button(translate("Hapus Baris"))
+drop_names = st.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), key="drop_names")
+drop_button = st.button(translate("Hapus Baris"))
 
 # --- Tampilan Utama ---
 
@@ -157,12 +157,12 @@ st.title(translate("Analisis Klaster Terminal"))
 
 # Upload Data
 
-data\_loaded = load\_data()
-if not data\_loaded:
+data_loaded = load_data()
+if not data_loaded:
 st.info("⚠️ " + translate("Upload Data untuk Analisis"))
 
-if 'data\_uploaded' in st.session\_state and st.session\_state\['data\_uploaded']:
-df\_cleaned = st.session\_state\['df\_cleaned']
+if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
+df_cleaned = st.session_state['df_cleaned']
 
 ```
 if 'Row Labels' in df_cleaned.columns:
@@ -249,8 +249,8 @@ if 'df_cleaned' in st.session_state:
         if "ANOVA" in cluster_evaluation_options:
             anova_results = perform_anova(df_cleaned_for_analysis, selected_features)
             st.write(anova_results)
-            interpret = ("\U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                         else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
+            interpret = ("U0001F4CC Interpretasi Anova: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                         else "U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
             st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
         if "Silhouette Score" in cluster_evaluation_options:
@@ -264,14 +264,14 @@ if 'df_cleaned' in st.session_state:
                 msg = ("Silhouette Score is low: poor clustering." if score < 0 else
                        "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
                        "Silhouette Score is high: good clustering.")
-            st.write("\U0001F4CC " + msg)
+            st.write("U0001F4CC " + msg)
 
         if "Dunn Index" in cluster_evaluation_options:
             score = dunn_index(normalize_data(df_cleaned_for_analysis, selected_features).to_numpy(), df_cleaned_for_analysis['KMeans_Cluster'].to_numpy())
             st.write(f"*Dunn Index*: {score:.4f}")
             msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
             msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
-            st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+            st.write("U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
 ```
 
 # --- Panduan Penggunaan ---
@@ -279,17 +279,17 @@ if 'df_cleaned' in st.session_state:
 with st.expander("ℹ️ Panduan Penggunaan Aplikasi" if language == "Indonesia" else "ℹ️ Application Usage Guide"):
 if language == "Indonesia":
 st.markdown("""
-1\. **Upload File Excel:** Klik tombol "Browse files" untuk mengunggah file data Anda (format `.xlsx`).
-2\. **Pilih Jumlah Klaster:** Tentukan jumlah klaster yang diinginkan menggunakan slider.
-3\. **Hapus Baris (Opsional):** Masukkan nama terminal pada kolom 'Row Labels' yang ingin dihapus, pisahkan dengan koma.
-4\. **Pilih Visualisasi & Evaluasi:** Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.
-5\. **Interpretasi:** Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.
+1. **Upload File Excel:** Klik tombol "Browse files" untuk mengunggah file data Anda (format `.xlsx`).
+2. **Pilih Jumlah Klaster:** Tentukan jumlah klaster yang diinginkan menggunakan slider.
+3. **Hapus Baris (Opsional):** Masukkan nama terminal pada kolom 'Row Labels' yang ingin dihapus, pisahkan dengan koma.
+4. **Pilih Visualisasi & Evaluasi:** Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.
+5. **Interpretasi:** Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.
 """)
 else:
 st.markdown("""
-1\. **Upload Excel File:** Click "Browse files" to upload your data file (in `.xlsx` format).
-2\. **Select Number of Clusters:** Use the slider to choose how many clusters you want.
-3\. **Remove Rows (Optional):** Enter row names from the 'Row Labels' column to be removed, separated by commas.
-4\. **Select Visualizations & Evaluations:** Check any cluster visualizations or evaluations you want to see.
-5\. **Interpretation:** The results will be displayed automatically after data and parameters are provided.
+1. **Upload Excel File:** Click "Browse files" to upload your data file (in `.xlsx` format).
+2. **Select Number of Clusters:** Use the slider to choose how many clusters you want.
+3. **Remove Rows (Optional):** Enter row names from the 'Row Labels' column to be removed, separated by commas.
+4. **Select Visualizations & Evaluations:** Check any cluster visualizations or evaluations you want to see.
+5. **Interpretation:** The results will be displayed automatically after data and parameters are provided.
 """)
