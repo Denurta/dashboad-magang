@@ -281,22 +281,3 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
                 msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
                 st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
-
-# --- Panduan Penggunaan ---
-with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indonesia" else "\u2139\uFE0F Application Usage Guide"):
-    if language == "Indonesia":
-        st.markdown("""
-        1. **Upload File Excel:** Klik tombol "Browse files" untuk mengunggah file data Anda (format `.xlsx`).
-        2. **Pilih Jumlah Klaster:** Tentukan jumlah klaster yang diinginkan menggunakan slider.
-        3. **Hapus Baris (Opsional):** Masukkan nama terminal pada kolom 'Row Labels' yang ingin dihapus, pisahkan dengan koma.
-        4. **Pilih Visualisasi & Evaluasi:** Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.
-        5. **Interpretasi:** Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.
-        """)
-    else:
-        st.markdown("""
-        1. **Upload Excel File:** Click "Browse files" to upload your data file (in `.xlsx` format).
-        2. **Select Number of Clusters:** Use the slider to choose how many clusters you want.
-        3. **Remove Rows (Optional):** Enter row names from the 'Row Labels' column to be removed, separated by commas.
-        4. **Select Visualizations & Evaluations:** Check any cluster visualizations or evaluations you want to see.
-        5. **Interpretation:** The results will be displayed automatically after data and parameters are provided.
-        """)
