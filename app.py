@@ -30,6 +30,10 @@ st.markdown(""" <style>
 }
 h1, h2, h3, h4, h5, h6 {
     color: #1E3A5F;
+}
+li {
+    padding: 5px;
+    font-size: 16px;
 } </style>
 """, unsafe_allow_html=True)
 
@@ -150,28 +154,31 @@ st.title(translate("Analisis Klaster Terminal"))
 with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indonesia" else "\u2139\uFE0F Application Usage Guide"):
     if language == "Indonesia":
         st.markdown("""
-        1. **Upload File Excel:** Klik tombol "Browse files" untuk mengunggah file data Anda (format `.xlsx`).
-        2. **Pilih Variabel:** Tentukan variabel mana saja yang ingin digunakan untuk analisis klaster.
-        3. **Hapus Baris (Opsional):** Masukkan nama terminal pada kolom 'Row Labels' yang ingin dihapus, pisahkan dengan koma.
-        4. **Pilih Jumlah Klaster:** Gunakan slider untuk menentukan jumlah klaster yang diinginkan.
-        5. **Pilih Visualisasi & Evaluasi:** Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.
-        6. **Interpretasi:** Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.
-        """)
+        <ol>
+            <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
+            <li><b>Pilih Variabel:</b> Tentukan variabel mana saja yang ingin digunakan untuk analisis klaster.</li>
+            <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code> yang ingin dihapus, pisahkan dengan koma.</li>
+            <li><b>Pilih Jumlah Klaster:</b> Gunakan slider untuk menentukan jumlah klaster yang diinginkan.</li>
+            <li><b>Pilih Visualisasi & Evaluasi:</b> Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.</li>
+            <li><b>Interpretasi:</b> Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.</li>
+        </ol>
+        """, unsafe_allow_html=True)
     else:
         st.markdown("""
-        1. **Upload Excel File:** Click "Browse files" to upload your data file (in `.xlsx` format).
-        2. **Select Features:** Choose which variables you want to use for cluster analysis.
-        3. **Remove Rows (Optional):** Enter row names from the 'Row Labels' column to be removed, separated by commas.
-        4. **Select Number of Clusters:** Use the slider to choose how many clusters you want.
-        5. **Select Visualizations & Evaluations:** Check any cluster visualizations or evaluations you want to see.
-        6. **Interpretation:** The results will be displayed automatically after data and parameters are provided.
-        """)
-        
+        <ol>
+            <li><b>Upload Excel File:</b> Click <i>"Browse files"</i> to upload your data file (in <code>.xlsx</code> format).</li>
+            <li><b>Select Features:</b> Choose which variables you want to use for cluster analysis.</li>
+            <li><b>Remove Rows (Optional):</b> Enter row names from the <code>Row Labels</code> column to be removed, separated by commas.</li>
+            <li><b>Select Number of Clusters:</b> Use the slider to choose how many clusters you want.</li>
+            <li><b>Select Visualizations & Evaluations:</b> Check any cluster visualizations or evaluations you want to see.</li>
+            <li><b>Interpretation:</b> The results will be displayed automatically after data and parameters are provided.</li>
+        </ol>
+        """, unsafe_allow_html=True)
+
 # Upload Data
 data_loaded = load_data()
 if not data_loaded:
     st.info("\u26A0\uFE0F " + translate("Upload Data untuk Analisis"))
-
 
 if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
     df_cleaned = st.session_state['df_cleaned']
