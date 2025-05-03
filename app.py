@@ -37,8 +37,8 @@ color: #1E3A5F;
 
 # --- Fungsi ---
 
-def load_data():
-uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
+def load_data(): 
+    uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"])
 if uploaded_file is not None:
 try:
 df = pd.read_excel(uploaded_file)
