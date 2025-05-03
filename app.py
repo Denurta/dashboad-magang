@@ -151,20 +151,22 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indo
     if language == "Indonesia":
         st.markdown("""
         1. **Upload File Excel:** Klik tombol "Browse files" untuk mengunggah file data Anda (format `.xlsx`).
-        2. **Pilih Jumlah Klaster:** Tentukan jumlah klaster yang diinginkan menggunakan slider.
+        2. **Pilih Variabel:** Tentukan variabel mana saja yang ingin digunakan untuk analisis klaster.
         3. **Hapus Baris (Opsional):** Masukkan nama terminal pada kolom 'Row Labels' yang ingin dihapus, pisahkan dengan koma.
-        4. **Pilih Visualisasi & Evaluasi:** Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.
-        5. **Interpretasi:** Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.
+        4. **Pilih Jumlah Klaster:** Gunakan slider untuk menentukan jumlah klaster yang diinginkan.
+        5. **Pilih Visualisasi & Evaluasi:** Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.
+        6. **Interpretasi:** Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.
         """)
     else:
         st.markdown("""
         1. **Upload Excel File:** Click "Browse files" to upload your data file (in `.xlsx` format).
-        2. **Select Number of Clusters:** Use the slider to choose how many clusters you want.
+        2. **Select Features:** Choose which variables you want to use for cluster analysis.
         3. **Remove Rows (Optional):** Enter row names from the 'Row Labels' column to be removed, separated by commas.
-        4. **Select Visualizations & Evaluations:** Check any cluster visualizations or evaluations you want to see.
-        5. **Interpretation:** The results will be displayed automatically after data and parameters are provided.
+        4. **Select Number of Clusters:** Use the slider to choose how many clusters you want.
+        5. **Select Visualizations & Evaluations:** Check any cluster visualizations or evaluations you want to see.
+        6. **Interpretation:** The results will be displayed automatically after data and parameters are provided.
         """)
-
+        
 # Upload Data
 data_loaded = load_data()
 if not data_loaded:
