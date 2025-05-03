@@ -61,17 +61,17 @@ def normalize_data(df, features):
     return df_scaled
 
 def perform_kmeans(df_scaled, n_clusters):
-kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-clusters = kmeans.fit_predict(df_scaled)
-return clusters, kmeans
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+    clusters = kmeans.fit_predict(df_scaled)
+    return clusters, kmeans
 
 def elbow_method(df_scaled):
-distortions = []
-K = range(1, 11)
-for k in K:
-kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-kmeans.fit(df_scaled)
-distortions.append(kmeans.inertia_)
+    distortions = []
+    K = range(1, 11)
+    for k in K:
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    kmeans.fit(df_scaled)
+    distortions.append(kmeans.inertia_)
 
 ```
 plt.figure(figsize=(10, 6))
@@ -85,16 +85,16 @@ st.info("U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penuru
 ```
 
 def perform_anova(df, features):
-anova_results = []
-for feature in features:
-groups = [df[df['KMeans_Cluster'] == k][feature] for k in df['KMeans_Cluster'].unique()]
-f_stat, p_value = f_oneway(*groups)
-anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
-return pd.DataFrame(anova_results)
+    anova_results = []
+    for feature in features:
+    groups = [df[df['KMeans_Cluster'] == k][feature] for k in df['KMeans_Cluster'].unique()]
+    f_stat, p_value = f_oneway(*groups)
+    anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+    return pd.DataFrame(anova_results)
 
 def dunn_index(df_scaled, labels):
-distances = squareform(pdist(df_scaled, metric='euclidean'))
-unique_clusters = np.unique(labels)
+    distances = squareform(pdist(df_scaled, metric='euclidean'))
+    unique_clusters = np.unique(labels)
 
 ```
 intra_cluster_distances = []
@@ -122,21 +122,21 @@ st.sidebar.title("u26f4 Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
 def translate(text):
-translations = {
-"Pilih Bahasa": {"Indonesia": "Pilih Bahasa", "English": "Select Language"},
-"Jumlah Klaster": {"Indonesia": "Jumlah Klaster", "English": "Number of Clusters"},
-"Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
-"Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
-"Hapus Baris": {"Indonesia": "Hapus Baris", "English": "Remove Rows"},
-"Masukkan nama baris yang akan dihapus (pisahkan dengan koma)": {"Indonesia": "Masukkan nama baris yang akan dihapus (pisahkan dengan koma)", "English": "Enter row names to remove (separate with commas)"},
-"Analisis Klaster Terminal": {"Indonesia": "Analisis Klaster Terminal", "English": "Terminal Cluster Analysis"},
-"Metode Elbow": {"Indonesia": "Metode Elbow", "English": "Elbow Method"},
-"Visualisasi Klaster": {"Indonesia": "Visualisasi Klaster", "English": "Cluster Visualization"},
-"Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
-"Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
-"Upload Data untuk Analisis": {"Indonesia": "Upload Data untuk Analisis", "English": "Upload Data for Analysis"},
-}
-return translations.get(text, {}).get(language, text)
+    translations = {
+    "Pilih Bahasa": {"Indonesia": "Pilih Bahasa", "English": "Select Language"},
+    "Jumlah Klaster": {"Indonesia": "Jumlah Klaster", "English": "Number of Clusters"},
+    "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
+    "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
+    "Hapus Baris": {"Indonesia": "Hapus Baris", "English": "Remove Rows"},
+    "Masukkan nama baris yang akan dihapus (pisahkan dengan koma)": {"Indonesia": "Masukkan nama baris yang akan dihapus (pisahkan dengan koma)", "English": "Enter row names to remove (separate with commas)"},
+    "Analisis Klaster Terminal": {"Indonesia": "Analisis Klaster Terminal", "English": "Terminal Cluster Analysis"},
+    "Metode Elbow": {"Indonesia": "Metode Elbow", "English": "Elbow Method"},
+    "Visualisasi Klaster": {"Indonesia": "Visualisasi Klaster", "English": "Cluster Visualization"},
+    "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
+    "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
+    "Upload Data untuk Analisis": {"Indonesia": "Upload Data untuk Analisis", "English": "Upload Data for Analysis"},
+    }
+    return translations.get(text, {}).get(language, text)
 
 # --- Sidebar ---
 
