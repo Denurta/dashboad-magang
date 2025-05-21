@@ -291,13 +291,7 @@ drop_button = st.sidebar.button(translate("Hapus Baris"), key="drop_button_sideb
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
 
----
-
-### Panduan Penggunaan Aplikasi
-
-With the new clustering models, here's an updated guide for your users:
-
-```python
+# --- Panduan Penggunaan ---
 with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indonesia" else "\u2139\uFE0F Application Usage Guide"):
     if language == "Indonesia":
         st.markdown("""
@@ -325,6 +319,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indo
             <li><b>Interpretation:</b> The results will be displayed automatically after clustering is performed.</li>
         </ol>
         """, unsafe_allow_html=True)
+
 # Main Application Logic
 def app_main():
     # Initialize session state variables if they don't exist
