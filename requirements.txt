@@ -9,3 +9,4 @@ xlsxwriter
 requests
 streamlit_folium
 streamlit-option-menu
+plotly
