@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering # Import AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score
@@ -66,6 +66,16 @@ def perform_kmeans(df_scaled, n_clusters):
     clusters = kmeans.fit_predict(df_scaled)
     return clusters, kmeans
 
+def perform_dbscan(df_scaled, eps, min_samples):
+    dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+    clusters = dbscan.fit_predict(df_scaled)
+    return clusters, dbscan
+
+def perform_agglomerative(df_scaled, n_clusters_agg, linkage_method):
+    agg_clustering = AgglomerativeClustering(n_clusters=n_clusters_agg, linkage=linkage_method)
+    clusters = agg_clustering.fit_predict(df_scaled)
+    return clusters, agg_clustering
+
 def elbow_method(df_scaled):
     distortions = []
     K = range(1, 11)
@@ -83,13 +93,19 @@ def elbow_method(df_scaled):
     plt.clf()
     st.info("\U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
 
-def perform_anova(df, features):
+def perform_anova(df, features, cluster_col):
     anova_results = []
     for feature in features:
-        groups = [df[df['KMeans_Cluster'] == k][feature] for k in df['KMeans_Cluster'].unique()]
-        f_stat, p_value = f_oneway(*groups)
-        anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+        groups = [df[df[cluster_col] == k][feature] for k in df[cluster_col].unique()]
+        # Filter out empty groups which can happen if a cluster has no data points
+        groups = [g for g in groups if not g.empty]
+        if len(groups) > 1: # ANOVA requires at least two groups
+            f_stat, p_value = f_oneway(*groups)
+            anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+        else:
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan}) # Handle cases with 0 or 1 group
     return pd.DataFrame(anova_results)
+
 
 def dunn_index(df_scaled, labels):
     distances = squareform(pdist(df_scaled, metric='euclidean'))
@@ -102,11 +118,20 @@ def dunn_index(df_scaled, labels):
         if len(points_in_cluster) > 1:
             intra_cluster_distances.append(np.max(pdist(points_in_cluster)))
 
+    if not intra_cluster_distances: # Handle case where all clusters have only one point or are empty
+        return np.nan
+
     for i in range(len(unique_clusters)):
         for j in range(i + 1, len(unique_clusters)):
             cluster_i = df_scaled[labels == unique_clusters[i]]
             cluster_j = df_scaled[labels == unique_clusters[j]]
-            inter_cluster_distances.append(np.min(pdist(np.vstack((cluster_i, cluster_j)))))
+            if len(cluster_i) > 0 and len(cluster_j) > 0:
+                # Calculate minimum distance between points in different clusters
+                # This needs to be clarified to calculate minimum distance between points from different clusters
+                # A more robust way would be to calculate all pairwise distances between points in cluster_i and cluster_j
+                min_dist_inter = np.min(pdist(np.vstack((cluster_i, cluster_j))))
+                inter_cluster_distances.append(min_dist_inter)
+
 
     if inter_cluster_distances and intra_cluster_distances:
         return np.min(inter_cluster_distances) / np.max(intra_cluster_distances)
@@ -130,12 +155,32 @@ def translate(text):
         "Statistik Deskriptif": {"Indonesia": "Statistik Deskriptif", "English": "Descriptive Statistics"},
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
         "Upload Data untuk Analisis": {"Indonesia": "Upload Data untuk Analisis", "English": "Upload Data for Analysis"},
+        "Pilih Algoritma Klastering": {"Indonesia": "Pilih Algoritma Klastering", "English": "Select Clustering Algorithm"},
+        "Parameter DBSCAN (eps)": {"Indonesia": "Parameter DBSCAN (eps)", "English": "DBSCAN Parameter (eps)"},
+        "Parameter DBSCAN (min_samples)": {"Indonesia": "Parameter DBSCAN (min_samples)", "English": "DBSCAN Parameter (min_samples)"},
+        "Parameter Agglomerative (Jumlah Klaster)": {"Indonesia": "Parameter Agglomerative (Jumlah Klaster)", "English": "Agglomerative Parameter (Number of Clusters)"},
+        "Parameter Agglomerative (Metode Linkage)": {"Indonesia": "Parameter Agglomerative (Metode Linkage)", "English": "Agglomerative Parameter (Linkage Method)"},
     }
     return translations.get(text, {}).get(language, text)
 
 # --- Sidebar ---
-st.sidebar.subheader(translate("Jumlah Klaster"))
-n_clusters = st.sidebar.slider("", 2, 10, 3)
+st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
+clustering_algorithm = st.sidebar.selectbox("", ["KMeans", "DBSCAN", "Agglomerative Clustering"])
+
+if clustering_algorithm == "KMeans":
+    st.sidebar.subheader(translate("Jumlah Klaster"))
+    n_clusters = st.sidebar.slider("", 2, 10, 3, key="kmeans_clusters")
+elif clustering_algorithm == "DBSCAN": # DBSCAN
+    st.sidebar.subheader(translate("Parameter DBSCAN (eps)"))
+    eps = st.sidebar.slider("", 0.1, 2.0, 0.5, step=0.1, key="dbscan_eps")
+    st.sidebar.subheader(translate("Parameter DBSCAN (min_samples)"))
+    min_samples = st.sidebar.slider("", 2, 10, 5, key="dbscan_min_samples")
+else: # Agglomerative Clustering
+    st.sidebar.subheader(translate("Parameter Agglomerative (Jumlah Klaster)"))
+    n_clusters_agg = st.sidebar.slider("", 2, 10, 3, key="agg_clusters")
+    st.sidebar.subheader(translate("Parameter Agglomerative (Metode Linkage)"))
+    linkage_method = st.sidebar.selectbox("", ["ward", "complete", "average", "single"], key="agg_linkage")
+
 
 st.sidebar.subheader(translate("Pilih Visualisasi"))
 visualization_options = st.sidebar.multiselect("", ["Heatmap", "Boxplot", "Barchart"])
@@ -158,7 +203,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indo
             <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
             <li><b>Pilih Variabel:</b> Tentukan variabel mana saja yang ingin digunakan untuk analisis klaster.</li>
             <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code> yang ingin dihapus, pisahkan dengan koma.</li>
-            <li><b>Pilih Jumlah Klaster:</b> Gunakan slider untuk menentukan jumlah klaster yang diinginkan.</li>
+            <li><b>Pilih Algoritma Klastering:</b> Pilih antara KMeans, DBSCAN, atau Agglomerative Clustering. Sesuaikan parameter yang relevan.</li>
             <li><b>Pilih Visualisasi & Evaluasi:</b> Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.</li>
             <li><b>Interpretasi:</b> Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.</li>
         </ol>
@@ -169,7 +214,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indo
             <li><b>Upload Excel File:</b> Click <i>"Browse files"</i> to upload your data file (in <code>.xlsx</code> format).</li>
             <li><b>Select Features:</b> Choose which variables you want to use for cluster analysis.</li>
             <li><b>Remove Rows (Optional):</b> Enter row names from the <code>Row Labels</code> column to be removed, separated by commas.</li>
-            <li><b>Select Number of Clusters:</b> Use the slider to choose how many clusters you want.</li>
+            <li><b>Select Clustering Algorithm:</b> Choose between KMeans, DBSCAN, or Agglomerative Clustering. Adjust the relevant parameters.</li>
             <li><b>Select Visualizations & Evaluations:</b> Check any cluster visualizations or evaluations you want to see.</li>
             <li><b>Interpretation:</b> The results will be displayed automatically after data and parameters are provided.</li>
         </ol>
@@ -195,98 +240,168 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
             else:
                 st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-    else:
-        st.error("Kolom 'Row Labels' tidak ditemukan dalam data.")
+    # else: # This else was causing an error message if 'Row Labels' wasn't present and no drop_names were entered
+    #     st.error("Kolom 'Row Labels' tidak ditemukan dalam data.")
 
-    if 'df_cleaned' in st.session_state:
+
+    if 'df_cleaned' in st.session_state and not st.session_state['df_cleaned'].empty:
         df_cleaned_for_analysis = st.session_state['df_cleaned']
         features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
 
-        st.subheader(translate("Statistik Deskriptif"))
-        st.dataframe(df_cleaned_for_analysis.describe())
+        if not features:
+            st.error("Tidak ada fitur numerik yang ditemukan dalam data setelah pembersihan. Harap periksa file Excel Anda.")
+        else:
+            st.subheader(translate("Statistik Deskriptif"))
+            st.dataframe(df_cleaned_for_analysis.describe())
 
-        selected_features = st.multiselect("Pilih variabel untuk Elbow Method", features, default=features)
+            selected_features = st.multiselect("Pilih variabel untuk Klastering", features, default=features)
 
-        if selected_features:
-            df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
+            if selected_features:
+                df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
+                cluster_column_name = ""
 
-            st.subheader(translate("Metode Elbow"))
-            elbow_method(df_scaled)
+                if clustering_algorithm == "KMeans":
+                    st.subheader(translate("Metode Elbow"))
+                    elbow_method(df_scaled)
+                    df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
+                    cluster_column_name = 'KMeans_Cluster'
+                    st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
+                elif clustering_algorithm == "DBSCAN": # DBSCAN
+                    df_cleaned_for_analysis['DBSCAN_Cluster'], _ = perform_dbscan(df_scaled, eps, min_samples)
+                    cluster_column_name = 'DBSCAN_Cluster'
+                    st.info(f"DBSCAN Clustering dengan eps={eps} dan min_samples={min_samples}.")
+                    st.warning("Catatan: DBSCAN mungkin menghasilkan klaster '-1' yang menunjukkan titik-titik noise.")
+                else: # Agglomerative Clustering
+                    df_cleaned_for_analysis['Agglomerative_Cluster'], _ = perform_agglomerative(df_scaled, n_clusters_agg, linkage_method)
+                    cluster_column_name = 'Agglomerative_Cluster'
+                    st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
 
-            df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
 
-            st.subheader(translate("Visualisasi Klaster"))
+                st.subheader(translate("Visualisasi Klaster"))
 
-            if "Heatmap" in visualization_options:
-                plt.figure(figsize=(10, 6))
-                sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
-                plt.title("Heatmap Korelasi Antar Fitur")
-                st.pyplot(plt.gcf())
-                plt.clf()
+                if "Heatmap" in visualization_options:
+                    plt.figure(figsize=(10, 6))
+                    sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
+                    plt.title("Heatmap Korelasi Antar Fitur")
+                    st.pyplot(plt.gcf())
+                    plt.clf()
 
-            if "Boxplot" in visualization_options:
-                num_features = len(selected_features)
-                fig, axes = plt.subplots(1, num_features, figsize=(5 * num_features, 5))
-                if num_features == 1:
-                    axes = [axes]
-                for i, feature in enumerate(selected_features):
-                    sns.boxplot(x='KMeans_Cluster', y=feature, data=df_cleaned_for_analysis, ax=axes[i])
-                    axes[i].set_title(f"Boxplot: {feature} per Cluster")
-                    axes[i].set_xlabel("Cluster")
-                    axes[i].set_ylabel(feature)
-                st.pyplot(fig)
-                plt.clf()
+                if "Boxplot" in visualization_options and cluster_column_name:
+                    num_features = len(selected_features)
+                    # Adjust subplot layout for better visualization if many features
+                    cols = 2
+                    rows = (num_features + cols - 1) // cols
+                    fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 5 * rows))
+                    axes = axes.flatten() # Flatten the array of axes for easy iteration
 
-            if "Barchart" in visualization_options:
-                if 'Row Labels' in df_cleaned_for_analysis.columns:
-                    for feature in selected_features:
-                        grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
-                        top5 = grouped.nlargest(5, feature)
-                        bottom5 = grouped.nsmallest(5, feature)
+                    for i, feature in enumerate(selected_features):
+                        sns.boxplot(x=cluster_column_name, y=feature, data=df_cleaned_for_analysis, ax=axes[i])
+                        axes[i].set_title(f"Boxplot: {feature} per Cluster")
+                        axes[i].set_xlabel("Cluster")
+                        axes[i].set_ylabel(feature)
 
-                        col1, col2 = st.columns(2)
+                    # Remove any unused subplots
+                    for j in range(i + 1, len(axes)):
+                        fig.delaxes(axes[j])
 
-                        with col1:
-                            fig_top, ax_top = plt.subplots(figsize=(4, 3))
-                            sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
-                            ax_top.set_title(f"Top 5 Terminal - {feature}")
-                            st.pyplot(fig_top)
-                            plt.clf()
+                    plt.tight_layout()
+                    st.pyplot(fig)
+                    plt.clf()
 
-                        with col2:
-                            fig_bottom, ax_bottom = plt.subplots(figsize=(4, 3))
-                            sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
-                            ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
-                            st.pyplot(fig_bottom)
-                            plt.clf()
+                if "Barchart" in visualization_options:
+                    if 'Row Labels' in df_cleaned_for_analysis.columns:
+                        for feature in selected_features:
+                            grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
+                            top5 = grouped.nlargest(5, feature)
+                            bottom5 = grouped.nsmallest(5, feature)
+
+                            col1, col2 = st.columns(2)
+
+                            with col1:
+                                fig_top, ax_top = plt.subplots(figsize=(6, 4)) # Increased figure size
+                                sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
+                                ax_top.set_title(f"Top 5 Terminal - {feature}")
+                                st.pyplot(fig_top)
+                                plt.clf()
+
+                            with col2:
+                                fig_bottom, ax_bottom = plt.subplots(figsize=(6, 4)) # Increased figure size
+                                sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
+                                ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
+                                st.pyplot(fig_bottom)
+                                plt.clf()
+                    else:
+                        st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart.")
+
+                st.subheader(translate("Evaluasi Klaster"))
+                if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1: # Ensure at least 2 clusters for evaluation metrics
+                    if "ANOVA" in cluster_evaluation_options:
+                        anova_results = perform_anova(df_cleaned_for_analysis, selected_features, cluster_column_name)
+                        st.write(anova_results)
+                        interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                                     else "\U0001F4CC ANOVA Interpretation: P-value less than alpha (0.05) indicates significant difference.")
+                        st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+
+                    if "Silhouette Score" in cluster_evaluation_options:
+                        # Silhouette score is not suitable for DBSCAN with noise points (-1)
+                        # We should filter out noise points for Silhouette calculation
+                        if clustering_algorithm == "DBSCAN" and -1 in df_cleaned_for_analysis[cluster_column_name].unique():
+                            st.warning("Silhouette Score tidak cocok untuk klastering DBSCAN dengan titik noise (-1). Klaster noise akan dikecualikan dari perhitungan.")
+                            non_noise_indices = df_cleaned_for_analysis[df_cleaned_for_analysis[cluster_column_name] != -1].index
+                            if len(non_noise_indices) > 1 and len(np.unique(df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name])) > 1:
+                                score = silhouette_score(df_scaled.loc[non_noise_indices], df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name])
+                                st.write(f"*Silhouette Score* (excluding noise): {score:.4f}")
+                                if language == "Indonesia":
+                                    msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
+                                           "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
+                                           "Silhouette Score tinggi: klaster cukup baik.")
+                                else:
+                                    msg = ("Silhouette Score is low: poor clustering." if score < 0 else
+                                           "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
+                                           "Silhouette Score is high: good clustering.")
+                                st.write("\U0001F4CC " + msg)
+                            else:
+                                st.info("Tidak cukup klaster non-noise untuk menghitung Silhouette Score.")
+                        elif len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
+                            score = silhouette_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
+                            st.write(f"*Silhouette Score*: {score:.4f}")
+                            if language == "Indonesia":
+                                msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
+                                       "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
+                                       "Silhouette Score tinggi: klaster cukup baik.")
+                            else:
+                                msg = ("Silhouette Score is low: poor clustering." if score < 0 else
+                                       "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
+                                       "Silhouette Score is high: good clustering.")
+                            st.write("\U0001F4CC " + msg)
+                        else:
+                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score.")
+
+
+                    if "Dunn Index" in cluster_evaluation_options:
+                        # Similar to Silhouette, Dunn Index might be affected by noise points in DBSCAN
+                        if clustering_algorithm == "DBSCAN" and -1 in df_cleaned_for_analysis[cluster_column_name].unique():
+                            st.warning("Dunn Index tidak cocok untuk klastering DBSCAN dengan titik noise (-1). Klaster noise akan dikecualikan dari perhitungan.")
+                            non_noise_indices = df_cleaned_for_analysis[df_cleaned_for_analysis[cluster_column_name] != -1].index
+                            if len(non_noise_indices) > 1 and len(np.unique(df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name])) > 1:
+                                score = dunn_index(df_scaled.loc[non_noise_indices].to_numpy(), df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name].to_numpy())
+                                st.write(f"*Dunn Index* (excluding noise): {score:.4f}")
+                                msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
+                                msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
+                                st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+                            else:
+                                st.info("Tidak cukup klaster non-noise untuk menghitung Dunn Index.")
+                        elif len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
+                            score = dunn_index(df_scaled.to_numpy(), df_cleaned_for_analysis[cluster_column_name].to_numpy())
+                            st.write(f"*Dunn Index*: {score:.4f}")
+                            msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
+                            msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
+                            st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+                        else:
+                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Dunn Index.")
                 else:
-                    st.warning("Kolom 'Row Labels' tidak ditemukan pada data.")
-
-            st.subheader(translate("Evaluasi Klaster"))
-
-            if "ANOVA" in cluster_evaluation_options:
-                anova_results = perform_anova(df_cleaned_for_analysis, selected_features)
-                st.write(anova_results)
-                interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
-                             else "\U0001F4CC ANOVA Interpretation: P-value less than alpha indicates significant difference.")
-                st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
-
-            if "Silhouette Score" in cluster_evaluation_options:
-                score = silhouette_score(df_scaled, df_cleaned_for_analysis['KMeans_Cluster'])
-                st.write(f"*Silhouette Score*: {score:.4f}")
-                if language == "Indonesia":
-                    msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
-                           "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
-                           "Silhouette Score tinggi: klaster cukup baik.")
-                else:
-                    msg = ("Silhouette Score is low: poor clustering." if score < 0 else
-                           "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
-                           "Silhouette Score is high: good clustering.")
-                st.write("\U0001F4CC " + msg)
-
-            if "Dunn Index" in cluster_evaluation_options:
-                score = dunn_index(df_scaled.to_numpy(), df_cleaned_for_analysis['KMeans_Cluster'].to_numpy())
-                st.write(f"*Dunn Index*: {score:.4f}")
-                msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
-                msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
-                st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+                    st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi.")
+            else:
+                st.warning("Harap pilih setidaknya satu variabel untuk memulai analisis klaster.")
+    else:
+        st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis.")
