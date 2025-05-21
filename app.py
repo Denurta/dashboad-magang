@@ -88,15 +88,18 @@ def elbow_method(df_scaled):
     plt.plot(K, distortions, color='steelblue', marker='o', linestyle='-', markersize=8)
     plt.xlabel('Jumlah Klaster')
     plt.ylabel('Inertia')
-    plt.title('Metode Elbow')
+    plt.title('Metode Elbow (Khusus untuk K-Means)' if st.session_state.language == "Indonesia" else 'Elbow Method (Primarily for K-Means)')
     st.pyplot(plt.gcf())
     plt.clf()
-    st.info("\U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
+    st.info("\U0001F4CC " + ("Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan. Metode ini paling relevan untuk K-Means." if st.session_state.language == "Indonesia" else "The optimal elbow point is where the inertia decrease begins to slow down significantly. This method is most relevant for K-Means."))
+
 
 def perform_anova(df, features, cluster_col):
     anova_results = []
     for feature in features:
-        groups = [df[df[cluster_col] == k][feature] for k in df[cluster_col].unique()]
+        # Get unique cluster labels, excluding -1 for DBSCAN noise if present
+        unique_cluster_labels = [k for k in df[cluster_col].unique() if k != -1]
+        groups = [df[df[cluster_col] == k][feature] for k in unique_cluster_labels]
         # Filter out empty groups which can happen if a cluster has no data points
         groups = [g for g in groups if not g.empty]
         if len(groups) > 1: # ANOVA requires at least two groups
@@ -108,29 +111,35 @@ def perform_anova(df, features, cluster_col):
 
 
 def dunn_index(df_scaled, labels):
-    distances = squareform(pdist(df_scaled, metric='euclidean'))
-    unique_clusters = np.unique(labels)
+    # Filter out noise points if present
+    non_noise_indices = labels != -1
+    df_scaled_filtered = df_scaled[non_noise_indices]
+    labels_filtered = labels[non_noise_indices]
+
+    if len(np.unique(labels_filtered)) < 2 or len(df_scaled_filtered) < 2:
+        return np.nan # Not enough clusters or data points for Dunn Index
+
+    distances = squareform(pdist(df_scaled_filtered, metric='euclidean'))
+    unique_clusters = np.unique(labels_filtered)
     intra_cluster_distances = []
     inter_cluster_distances = []
 
     for cluster in unique_clusters:
-        points_in_cluster = df_scaled[labels == cluster]
-        if len(points_in_cluster) > 1:
-            intra_cluster_distances.append(np.max(pdist(points_in_cluster)))
+        points_in_cluster_idx = np.where(labels_filtered == cluster)[0]
+        if len(points_in_cluster_idx) > 1:
+            # Calculate maximum distance within the cluster
+            intra_cluster_distances.append(np.max(distances[np.ix_(points_in_cluster_idx, points_in_cluster_idx)]))
 
     if not intra_cluster_distances: # Handle case where all clusters have only one point or are empty
         return np.nan
 
     for i in range(len(unique_clusters)):
         for j in range(i + 1, len(unique_clusters)):
-            cluster_i = df_scaled[labels == unique_clusters[i]]
-            cluster_j = df_scaled[labels == unique_clusters[j]]
-            if len(cluster_i) > 0 and len(cluster_j) > 0:
-                # Calculate minimum distance between points in different clusters
-                # This needs to be clarified to calculate minimum distance between points from different clusters
-                # A more robust way would be to calculate all pairwise distances between points in cluster_i and cluster_j
-                min_dist_inter = np.min(pdist(np.vstack((cluster_i, cluster_j))))
-                inter_cluster_distances.append(min_dist_inter)
+            cluster_i_idx = np.where(labels_filtered == unique_clusters[i])[0]
+            cluster_j_idx = np.where(labels_filtered == unique_clusters[j])[0]
+            if len(cluster_i_idx) > 0 and len(cluster_j_idx) > 0:
+                # Calculate minimum distance between points from cluster_i and cluster_j
+                inter_cluster_distances.append(np.min(distances[np.ix_(cluster_i_idx, cluster_j_idx)]))
 
 
     if inter_cluster_distances and intra_cluster_distances:
@@ -140,6 +149,9 @@ def dunn_index(df_scaled, labels):
 # --- Sidebar & Bahasa ---
 st.sidebar.title("\u26f4 Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
+
+# Store language in session state for access in functions
+st.session_state.language = language
 
 def translate(text):
     translations = {
@@ -160,6 +172,7 @@ def translate(text):
         "Parameter DBSCAN (min_samples)": {"Indonesia": "Parameter DBSCAN (min_samples)", "English": "DBSCAN Parameter (min_samples)"},
         "Parameter Agglomerative (Jumlah Klaster)": {"Indonesia": "Parameter Agglomerative (Jumlah Klaster)", "English": "Agglomerative Parameter (Number of Clusters)"},
         "Parameter Agglomerative (Metode Linkage)": {"Indonesia": "Parameter Agglomerative (Metode Linkage)", "English": "Agglomerative Parameter (Linkage Method)"},
+        "Parameter KMeans (Jumlah Klaster)": {"Indonesia": "Parameter KMeans (Jumlah Klaster)", "English": "KMeans Parameter (Number of Clusters)"},
     }
     return translations.get(text, {}).get(language, text)
 
@@ -168,9 +181,9 @@ st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
 clustering_algorithm = st.sidebar.selectbox("", ["KMeans", "DBSCAN", "Agglomerative Clustering"])
 
 if clustering_algorithm == "KMeans":
-    st.sidebar.subheader(translate("Jumlah Klaster"))
+    st.sidebar.subheader(translate("Parameter KMeans (Jumlah Klaster)"))
     n_clusters = st.sidebar.slider("", 2, 10, 3, key="kmeans_clusters")
-elif clustering_algorithm == "DBSCAN": # DBSCAN
+elif clustering_algorithm == "DBSCAN":
     st.sidebar.subheader(translate("Parameter DBSCAN (eps)"))
     eps = st.sidebar.slider("", 0.1, 2.0, 0.5, step=0.1, key="dbscan_eps")
     st.sidebar.subheader(translate("Parameter DBSCAN (min_samples)"))
@@ -196,8 +209,8 @@ drop_button = st.sidebar.button(translate("Hapus Baris"))
 st.title(translate("Analisis Klaster Terminal"))
 
 # --- Panduan Penggunaan ---
-with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indonesia" else "\u2139\uFE0F Application Usage Guide"):
-    if language == "Indonesia":
+with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.language == "Indonesia" else "\u2139\uFE0F Application Usage Guide"):
+    if st.session_state.language == "Indonesia":
         st.markdown("""
         <ol>
             <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
@@ -240,8 +253,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
             else:
                 st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-    # else: # This else was causing an error message if 'Row Labels' wasn't present and no drop_names were entered
-    #     st.error("Kolom 'Row Labels' tidak ditemukan dalam data.")
+    # Removed the else clause here to prevent the error message from appearing if 'Row Labels' is missing but no rows are being dropped.
 
 
     if 'df_cleaned' in st.session_state and not st.session_state['df_cleaned'].empty:
@@ -254,15 +266,24 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
             st.subheader(translate("Statistik Deskriptif"))
             st.dataframe(df_cleaned_for_analysis.describe())
 
-            selected_features = st.multiselect("Pilih variabel untuk Klastering", features, default=features)
+            # Only allow selecting features for Elbow Method here if the data has numeric columns
+            selected_features_for_elbow = st.multiselect("Pilih variabel untuk Metode Elbow", features, default=features, key="features_for_elbow")
 
-            if selected_features:
-                df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
+            if selected_features_for_elbow:
+                df_scaled_for_elbow = normalize_data(df_cleaned_for_analysis, selected_features_for_elbow)
+                st.subheader(translate("Metode Elbow"))
+                elbow_method(df_scaled_for_elbow)
+            else:
+                st.warning("Pilih setidaknya satu variabel numerik untuk menampilkan Metode Elbow.")
+
+
+            selected_features_for_clustering = st.multiselect("Pilih variabel untuk Klastering", features, default=features, key="features_for_clustering")
+
+            if selected_features_for_clustering:
+                df_scaled = normalize_data(df_cleaned_for_analysis, selected_features_for_clustering)
                 cluster_column_name = ""
 
                 if clustering_algorithm == "KMeans":
-                    st.subheader(translate("Metode Elbow"))
-                    elbow_method(df_scaled)
                     df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
                     cluster_column_name = 'KMeans_Cluster'
                     st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
@@ -286,15 +307,15 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                     st.pyplot(plt.gcf())
                     plt.clf()
 
-                if "Boxplot" in visualization_options and cluster_column_name:
-                    num_features = len(selected_features)
+                if "Boxplot" in visualization_options and cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
+                    num_features = len(selected_features_for_clustering)
                     # Adjust subplot layout for better visualization if many features
                     cols = 2
                     rows = (num_features + cols - 1) // cols
                     fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 5 * rows))
                     axes = axes.flatten() # Flatten the array of axes for easy iteration
 
-                    for i, feature in enumerate(selected_features):
+                    for i, feature in enumerate(selected_features_for_clustering):
                         sns.boxplot(x=cluster_column_name, y=feature, data=df_cleaned_for_analysis, ax=axes[i])
                         axes[i].set_title(f"Boxplot: {feature} per Cluster")
                         axes[i].set_xlabel("Cluster")
@@ -307,10 +328,13 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                     plt.tight_layout()
                     st.pyplot(fig)
                     plt.clf()
+                elif "Boxplot" in visualization_options:
+                    st.info("Tidak cukup klaster (minimal 2) untuk menampilkan Boxplot.")
+
 
                 if "Barchart" in visualization_options:
                     if 'Row Labels' in df_cleaned_for_analysis.columns:
-                        for feature in selected_features:
+                        for feature in selected_features_for_clustering:
                             grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
                             top5 = grouped.nlargest(5, feature)
                             bottom5 = grouped.nsmallest(5, feature)
@@ -336,9 +360,9 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 st.subheader(translate("Evaluasi Klaster"))
                 if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1: # Ensure at least 2 clusters for evaluation metrics
                     if "ANOVA" in cluster_evaluation_options:
-                        anova_results = perform_anova(df_cleaned_for_analysis, selected_features, cluster_column_name)
+                        anova_results = perform_anova(df_cleaned_for_analysis, selected_features_for_clustering, cluster_column_name)
                         st.write(anova_results)
-                        interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if language == "Indonesia"
+                        interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
                                      else "\U0001F4CC ANOVA Interpretation: P-value less than alpha (0.05) indicates significant difference.")
                         st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
@@ -351,7 +375,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                             if len(non_noise_indices) > 1 and len(np.unique(df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name])) > 1:
                                 score = silhouette_score(df_scaled.loc[non_noise_indices], df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name])
                                 st.write(f"*Silhouette Score* (excluding noise): {score:.4f}")
-                                if language == "Indonesia":
+                                if st.session_state.language == "Indonesia":
                                     msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
                                            "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
                                            "Silhouette Score tinggi: klaster cukup baik.")
@@ -365,7 +389,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                         elif len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
                             score = silhouette_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
                             st.write(f"*Silhouette Score*: {score:.4f}")
-                            if language == "Indonesia":
+                            if st.session_state.language == "Indonesia":
                                 msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
                                        "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
                                        "Silhouette Score tinggi: klaster cukup baik.")
@@ -388,7 +412,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                                 st.write(f"*Dunn Index* (excluding noise): {score:.4f}")
                                 msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
                                 msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
-                                st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+                                st.write("\U0001F4CC " + (msg_id if st.session_state.language == "Indonesia" else msg_en))
                             else:
                                 st.info("Tidak cukup klaster non-noise untuk menghitung Dunn Index.")
                         elif len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
@@ -396,7 +420,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                             st.write(f"*Dunn Index*: {score:.4f}")
                             msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
                             msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
-                            st.write("\U0001F4CC " + (msg_id if language == "Indonesia" else msg_en))
+                            st.write("\U0001F4CC " + (msg_id if st.session_state.language == "Indonesia" else msg_en))
                         else:
                             st.info("Tidak cukup klaster (minimal 2) untuk menghitung Dunn Index.")
                 else:
