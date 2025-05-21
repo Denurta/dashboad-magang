@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering # Import AgglomerativeClustering
+from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score
@@ -173,6 +173,7 @@ def translate(text):
         "Parameter Agglomerative (Jumlah Klaster)": {"Indonesia": "Parameter Agglomerative (Jumlah Klaster)", "English": "Agglomerative Parameter (Number of Clusters)"},
         "Parameter Agglomerative (Metode Linkage)": {"Indonesia": "Parameter Agglomerative (Metode Linkage)", "English": "Agglomerative Parameter (Linkage Method)"},
         "Parameter KMeans (Jumlah Klaster)": {"Indonesia": "Parameter KMeans (Jumlah Klaster)", "English": "KMeans Parameter (Number of Clusters)"},
+        "Pilih Variabel untuk Analisis Klaster": {"Indonesia": "Pilih Variabel untuk Analisis Klaster", "English": "Select Variables for Cluster Analysis"},
     }
     return translations.get(text, {}).get(language, text)
 
@@ -214,7 +215,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.
         st.markdown("""
         <ol>
             <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
-            <li><b>Pilih Variabel:</b> Tentukan variabel mana saja yang ingin digunakan untuk analisis klaster.</li>
+            <li><b>Pilih Variabel:</b> Tentukan variabel numerik mana saja yang ingin digunakan untuk analisis klaster (Metode Elbow dan klastering).</li>
             <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code> yang ingin dihapus, pisahkan dengan koma.</li>
             <li><b>Pilih Algoritma Klastering:</b> Pilih antara KMeans, DBSCAN, atau Agglomerative Clustering. Sesuaikan parameter yang relevan.</li>
             <li><b>Pilih Visualisasi & Evaluasi:</b> Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.</li>
@@ -225,7 +226,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.
         st.markdown("""
         <ol>
             <li><b>Upload Excel File:</b> Click <i>"Browse files"</i> to upload your data file (in <code>.xlsx</code> format).</li>
-            <li><b>Select Features:</b> Choose which variables you want to use for cluster analysis.</li>
+            <li><b>Select Variables:</b> Choose which numerical variables you want to use for cluster analysis (Elbow Method and clustering).</li>
             <li><b>Remove Rows (Optional):</b> Enter row names from the <code>Row Labels</code> column to be removed, separated by commas.</li>
             <li><b>Select Clustering Algorithm:</b> Choose between KMeans, DBSCAN, or Agglomerative Clustering. Adjust the relevant parameters.</li>
             <li><b>Select Visualizations & Evaluations:</b> Check any cluster visualizations or evaluations you want to see.</li>
@@ -253,8 +254,6 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
             else:
                 st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-    # Removed the else clause here to prevent the error message from appearing if 'Row Labels' is missing but no rows are being dropped.
-
 
     if 'df_cleaned' in st.session_state and not st.session_state['df_cleaned'].empty:
         df_cleaned_for_analysis = st.session_state['df_cleaned']
@@ -266,28 +265,23 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
             st.subheader(translate("Statistik Deskriptif"))
             st.dataframe(df_cleaned_for_analysis.describe())
 
-            # Only allow selecting features for Elbow Method here if the data has numeric columns
-            selected_features_for_elbow = st.multiselect("Pilih variabel untuk Metode Elbow", features, default=features, key="features_for_elbow")
+            # Unified feature selection for both Elbow Method and Clustering
+            selected_features = st.multiselect(translate("Pilih Variabel untuk Analisis Klaster"), features, default=features, key="selected_features_all")
 
-            if selected_features_for_elbow:
-                df_scaled_for_elbow = normalize_data(df_cleaned_for_analysis, selected_features_for_elbow)
+            if selected_features:
+                df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
+
+                # Always show Elbow Method with the selected features
                 st.subheader(translate("Metode Elbow"))
-                elbow_method(df_scaled_for_elbow)
-            else:
-                st.warning("Pilih setidaknya satu variabel numerik untuk menampilkan Metode Elbow.")
+                elbow_method(df_scaled)
 
-
-            selected_features_for_clustering = st.multiselect("Pilih variabel untuk Klastering", features, default=features, key="features_for_clustering")
-
-            if selected_features_for_clustering:
-                df_scaled = normalize_data(df_cleaned_for_analysis, selected_features_for_clustering)
                 cluster_column_name = ""
 
                 if clustering_algorithm == "KMeans":
                     df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
                     cluster_column_name = 'KMeans_Cluster'
                     st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
-                elif clustering_algorithm == "DBSCAN": # DBSCAN
+                elif clustering_algorithm == "DBSCAN":
                     df_cleaned_for_analysis['DBSCAN_Cluster'], _ = perform_dbscan(df_scaled, eps, min_samples)
                     cluster_column_name = 'DBSCAN_Cluster'
                     st.info(f"DBSCAN Clustering dengan eps={eps} dan min_samples={min_samples}.")
@@ -308,20 +302,18 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                     plt.clf()
 
                 if "Boxplot" in visualization_options and cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
-                    num_features = len(selected_features_for_clustering)
-                    # Adjust subplot layout for better visualization if many features
+                    num_features = len(selected_features)
                     cols = 2
                     rows = (num_features + cols - 1) // cols
                     fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 5 * rows))
-                    axes = axes.flatten() # Flatten the array of axes for easy iteration
+                    axes = axes.flatten()
 
-                    for i, feature in enumerate(selected_features_for_clustering):
+                    for i, feature in enumerate(selected_features):
                         sns.boxplot(x=cluster_column_name, y=feature, data=df_cleaned_for_analysis, ax=axes[i])
                         axes[i].set_title(f"Boxplot: {feature} per Cluster")
                         axes[i].set_xlabel("Cluster")
                         axes[i].set_ylabel(feature)
 
-                    # Remove any unused subplots
                     for j in range(i + 1, len(axes)):
                         fig.delaxes(axes[j])
 
@@ -334,7 +326,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
 
                 if "Barchart" in visualization_options:
                     if 'Row Labels' in df_cleaned_for_analysis.columns:
-                        for feature in selected_features_for_clustering:
+                        for feature in selected_features:
                             grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
                             top5 = grouped.nlargest(5, feature)
                             bottom5 = grouped.nsmallest(5, feature)
@@ -342,14 +334,14 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                             col1, col2 = st.columns(2)
 
                             with col1:
-                                fig_top, ax_top = plt.subplots(figsize=(6, 4)) # Increased figure size
+                                fig_top, ax_top = plt.subplots(figsize=(6, 4))
                                 sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
                                 ax_top.set_title(f"Top 5 Terminal - {feature}")
                                 st.pyplot(fig_top)
                                 plt.clf()
 
                             with col2:
-                                fig_bottom, ax_bottom = plt.subplots(figsize=(6, 4)) # Increased figure size
+                                fig_bottom, ax_bottom = plt.subplots(figsize=(6, 4))
                                 sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
                                 ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
                                 st.pyplot(fig_bottom)
@@ -358,17 +350,15 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                         st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart.")
 
                 st.subheader(translate("Evaluasi Klaster"))
-                if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1: # Ensure at least 2 clusters for evaluation metrics
+                if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
                     if "ANOVA" in cluster_evaluation_options:
-                        anova_results = perform_anova(df_cleaned_for_analysis, selected_features_for_clustering, cluster_column_name)
+                        anova_results = perform_anova(df_cleaned_for_analysis, selected_features, cluster_column_name)
                         st.write(anova_results)
                         interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
                                      else "\U0001F4CC ANOVA Interpretation: P-value less than alpha (0.05) indicates significant difference.")
                         st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
                     if "Silhouette Score" in cluster_evaluation_options:
-                        # Silhouette score is not suitable for DBSCAN with noise points (-1)
-                        # We should filter out noise points for Silhouette calculation
                         if clustering_algorithm == "DBSCAN" and -1 in df_cleaned_for_analysis[cluster_column_name].unique():
                             st.warning("Silhouette Score tidak cocok untuk klastering DBSCAN dengan titik noise (-1). Klaster noise akan dikecualikan dari perhitungan.")
                             non_noise_indices = df_cleaned_for_analysis[df_cleaned_for_analysis[cluster_column_name] != -1].index
@@ -403,7 +393,6 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
 
 
                     if "Dunn Index" in cluster_evaluation_options:
-                        # Similar to Silhouette, Dunn Index might be affected by noise points in DBSCAN
                         if clustering_algorithm == "DBSCAN" and -1 in df_cleaned_for_analysis[cluster_column_name].unique():
                             st.warning("Dunn Index tidak cocok untuk klastering DBSCAN dengan titik noise (-1). Klaster noise akan dikecualikan dari perhitungan.")
                             non_noise_indices = df_cleaned_for_analysis[df_cleaned_for_analysis[cluster_column_name] != -1].index
@@ -426,6 +415,6 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                 else:
                     st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi.")
             else:
-                st.warning("Harap pilih setidaknya satu variabel untuk memulai analisis klaster.")
+                st.warning("Harap pilih setidaknya satu variabel numerik untuk memulai analisis klaster.")
     else:
         st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis.")
