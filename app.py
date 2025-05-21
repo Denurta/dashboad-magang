@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
+from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score
@@ -66,11 +66,6 @@ def perform_kmeans(df_scaled, n_clusters):
     clusters = kmeans.fit_predict(df_scaled)
     return clusters, kmeans
 
-def perform_dbscan(df_scaled, eps, min_samples):
-    dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-    clusters = dbscan.fit_predict(df_scaled)
-    return clusters, dbscan
-
 def perform_agglomerative(df_scaled, n_clusters_agg, linkage_method):
     agg_clustering = AgglomerativeClustering(n_clusters=n_clusters_agg, linkage=linkage_method)
     clusters = agg_clustering.fit_predict(df_scaled)
@@ -97,50 +92,40 @@ def elbow_method(df_scaled):
 def perform_anova(df, features, cluster_col):
     anova_results = []
     for feature in features:
-        # Get unique cluster labels, excluding -1 for DBSCAN noise if present
-        unique_cluster_labels = [k for k in df[cluster_col].unique() if k != -1]
+        unique_cluster_labels = [k for k in df[cluster_col].unique()]
         groups = [df[df[cluster_col] == k][feature] for k in unique_cluster_labels]
-        # Filter out empty groups which can happen if a cluster has no data points
         groups = [g for g in groups if not g.empty]
-        if len(groups) > 1: # ANOVA requires at least two groups
+        if len(groups) > 1:
             f_stat, p_value = f_oneway(*groups)
             anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
         else:
-            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan}) # Handle cases with 0 or 1 group
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
     return pd.DataFrame(anova_results)
 
 
 def dunn_index(df_scaled, labels):
-    # Filter out noise points if present
-    non_noise_indices = labels != -1
-    df_scaled_filtered = df_scaled[non_noise_indices]
-    labels_filtered = labels[non_noise_indices]
+    if len(np.unique(labels)) < 2 or len(df_scaled) < 2:
+        return np.nan
 
-    if len(np.unique(labels_filtered)) < 2 or len(df_scaled_filtered) < 2:
-        return np.nan # Not enough clusters or data points for Dunn Index
-
-    distances = squareform(pdist(df_scaled_filtered, metric='euclidean'))
-    unique_clusters = np.unique(labels_filtered)
+    distances = squareform(pdist(df_scaled, metric='euclidean'))
+    unique_clusters = np.unique(labels)
     intra_cluster_distances = []
     inter_cluster_distances = []
 
     for cluster in unique_clusters:
-        points_in_cluster_idx = np.where(labels_filtered == cluster)[0]
+        points_in_cluster_idx = np.where(labels == cluster)[0]
         if len(points_in_cluster_idx) > 1:
-            # Calculate maximum distance within the cluster
             intra_cluster_distances.append(np.max(distances[np.ix_(points_in_cluster_idx, points_in_cluster_idx)]))
 
-    if not intra_cluster_distances: # Handle case where all clusters have only one point or are empty
+    if not intra_cluster_distances:
         return np.nan
 
     for i in range(len(unique_clusters)):
         for j in range(i + 1, len(unique_clusters)):
-            cluster_i_idx = np.where(labels_filtered == unique_clusters[i])[0]
-            cluster_j_idx = np.where(labels_filtered == unique_clusters[j])[0]
+            cluster_i_idx = np.where(labels == unique_clusters[i])[0]
+            cluster_j_idx = np.where(labels == unique_clusters[j])[0]
             if len(cluster_i_idx) > 0 and len(cluster_j_idx) > 0:
-                # Calculate minimum distance between points from cluster_i and cluster_j
                 inter_cluster_distances.append(np.min(distances[np.ix_(cluster_i_idx, cluster_j_idx)]))
-
 
     if inter_cluster_distances and intra_cluster_distances:
         return np.min(inter_cluster_distances) / np.max(intra_cluster_distances)
@@ -150,7 +135,6 @@ def dunn_index(df_scaled, labels):
 st.sidebar.title("\u26f4 Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
 
-# Store language in session state for access in functions
 st.session_state.language = language
 
 def translate(text):
@@ -168,8 +152,6 @@ def translate(text):
         "Evaluasi Klaster": {"Indonesia": "Evaluasi Klaster", "English": "Cluster Evaluation"},
         "Upload Data untuk Analisis": {"Indonesia": "Upload Data untuk Analisis", "English": "Upload Data for Analysis"},
         "Pilih Algoritma Klastering": {"Indonesia": "Pilih Algoritma Klastering", "English": "Select Clustering Algorithm"},
-        "Parameter DBSCAN (eps)": {"Indonesia": "Parameter DBSCAN (eps)", "English": "DBSCAN Parameter (eps)"},
-        "Parameter DBSCAN (min_samples)": {"Indonesia": "Parameter DBSCAN (min_samples)", "English": "DBSCAN Parameter (min_samples)"},
         "Parameter Agglomerative (Jumlah Klaster)": {"Indonesia": "Parameter Agglomerative (Jumlah Klaster)", "English": "Agglomerative Parameter (Number of Clusters)"},
         "Parameter Agglomerative (Metode Linkage)": {"Indonesia": "Parameter Agglomerative (Metode Linkage)", "English": "Agglomerative Parameter (Linkage Method)"},
         "Parameter KMeans (Jumlah Klaster)": {"Indonesia": "Parameter KMeans (Jumlah Klaster)", "English": "KMeans Parameter (Number of Clusters)"},
@@ -179,16 +161,11 @@ def translate(text):
 
 # --- Sidebar ---
 st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
-clustering_algorithm = st.sidebar.selectbox("", ["KMeans", "DBSCAN", "Agglomerative Clustering"])
+clustering_algorithm = st.sidebar.selectbox("", ["KMeans", "Agglomerative Clustering"])
 
 if clustering_algorithm == "KMeans":
     st.sidebar.subheader(translate("Parameter KMeans (Jumlah Klaster)"))
     n_clusters = st.sidebar.slider("", 2, 10, 3, key="kmeans_clusters")
-elif clustering_algorithm == "DBSCAN":
-    st.sidebar.subheader(translate("Parameter DBSCAN (eps)"))
-    eps = st.sidebar.slider("", 0.1, 2.0, 0.5, step=0.1, key="dbscan_eps")
-    st.sidebar.subheader(translate("Parameter DBSCAN (min_samples)"))
-    min_samples = st.sidebar.slider("", 2, 10, 5, key="dbscan_min_samples")
 else: # Agglomerative Clustering
     st.sidebar.subheader(translate("Parameter Agglomerative (Jumlah Klaster)"))
     n_clusters_agg = st.sidebar.slider("", 2, 10, 3, key="agg_clusters")
@@ -217,7 +194,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.
             <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
             <li><b>Pilih Variabel:</b> Tentukan variabel numerik mana saja yang ingin digunakan untuk analisis klaster (Metode Elbow dan klastering).</li>
             <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code> yang ingin dihapus, pisahkan dengan koma.</li>
-            <li><b>Pilih Algoritma Klastering:</b> Pilih antara KMeans, DBSCAN, atau Agglomerative Clustering. Sesuaikan parameter yang relevan.</li>
+            <li><b>Pilih Algoritma Klastering:</b> Pilih antara KMeans atau Agglomerative Clustering. Sesuaikan parameter yang relevan.</li>
             <li><b>Pilih Visualisasi & Evaluasi:</b> Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.</li>
             <li><b>Interpretasi:</b> Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.</li>
         </ol>
@@ -228,7 +205,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.
             <li><b>Upload Excel File:</b> Click <i>"Browse files"</i> to upload your data file (in <code>.xlsx</code> format).</li>
             <li><b>Select Variables:</b> Choose which numerical variables you want to use for cluster analysis (Elbow Method and clustering).</li>
             <li><b>Remove Rows (Optional):</b> Enter row names from the <code>Row Labels</code> column to be removed, separated by commas.</li>
-            <li><b>Select Clustering Algorithm:</b> Choose between KMeans, DBSCAN, or Agglomerative Clustering. Adjust the relevant parameters.</li>
+            <li><b>Select Clustering Algorithm:</b> Choose between KMeans or Agglomerative Clustering. Adjust the relevant parameters.</li>
             <li><b>Select Visualizations & Evaluations:</b> Check any cluster visualizations or evaluations you want to see.</li>
             <li><b>Interpretation:</b> The results will be displayed automatically after data and parameters are provided.</li>
         </ol>
@@ -265,13 +242,11 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
             st.subheader(translate("Statistik Deskriptif"))
             st.dataframe(df_cleaned_for_analysis.describe())
 
-            # Unified feature selection for both Elbow Method and Clustering
             selected_features = st.multiselect(translate("Pilih Variabel untuk Analisis Klaster"), features, default=features, key="selected_features_all")
 
             if selected_features:
                 df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
 
-                # Always show Elbow Method with the selected features
                 st.subheader(translate("Metode Elbow"))
                 elbow_method(df_scaled)
 
@@ -281,11 +256,6 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                     df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
                     cluster_column_name = 'KMeans_Cluster'
                     st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
-                elif clustering_algorithm == "DBSCAN":
-                    df_cleaned_for_analysis['DBSCAN_Cluster'], _ = perform_dbscan(df_scaled, eps, min_samples)
-                    cluster_column_name = 'DBSCAN_Cluster'
-                    st.info(f"DBSCAN Clustering dengan eps={eps} dan min_samples={min_samples}.")
-                    st.warning("Catatan: DBSCAN mungkin menghasilkan klaster '-1' yang menunjukkan titik-titik noise.")
                 else: # Agglomerative Clustering
                     df_cleaned_for_analysis['Agglomerative_Cluster'], _ = perform_agglomerative(df_scaled, n_clusters_agg, linkage_method)
                     cluster_column_name = 'Agglomerative_Cluster'
@@ -359,24 +329,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                         st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
                     if "Silhouette Score" in cluster_evaluation_options:
-                        if clustering_algorithm == "DBSCAN" and -1 in df_cleaned_for_analysis[cluster_column_name].unique():
-                            st.warning("Silhouette Score tidak cocok untuk klastering DBSCAN dengan titik noise (-1). Klaster noise akan dikecualikan dari perhitungan.")
-                            non_noise_indices = df_cleaned_for_analysis[df_cleaned_for_analysis[cluster_column_name] != -1].index
-                            if len(non_noise_indices) > 1 and len(np.unique(df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name])) > 1:
-                                score = silhouette_score(df_scaled.loc[non_noise_indices], df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name])
-                                st.write(f"*Silhouette Score* (excluding noise): {score:.4f}")
-                                if st.session_state.language == "Indonesia":
-                                    msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
-                                           "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
-                                           "Silhouette Score tinggi: klaster cukup baik.")
-                                else:
-                                    msg = ("Silhouette Score is low: poor clustering." if score < 0 else
-                                           "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
-                                           "Silhouette Score is high: good clustering.")
-                                st.write("\U0001F4CC " + msg)
-                            else:
-                                st.info("Tidak cukup klaster non-noise untuk menghitung Silhouette Score.")
-                        elif len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
+                        if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
                             score = silhouette_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
                             st.write(f"*Silhouette Score*: {score:.4f}")
                             if st.session_state.language == "Indonesia":
@@ -393,18 +346,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
 
 
                     if "Dunn Index" in cluster_evaluation_options:
-                        if clustering_algorithm == "DBSCAN" and -1 in df_cleaned_for_analysis[cluster_column_name].unique():
-                            st.warning("Dunn Index tidak cocok untuk klastering DBSCAN dengan titik noise (-1). Klaster noise akan dikecualikan dari perhitungan.")
-                            non_noise_indices = df_cleaned_for_analysis[df_cleaned_for_analysis[cluster_column_name] != -1].index
-                            if len(non_noise_indices) > 1 and len(np.unique(df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name])) > 1:
-                                score = dunn_index(df_scaled.loc[non_noise_indices].to_numpy(), df_cleaned_for_analysis.loc[non_noise_indices, cluster_column_name].to_numpy())
-                                st.write(f"*Dunn Index* (excluding noise): {score:.4f}")
-                                msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
-                                msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
-                                st.write("\U0001F4CC " + (msg_id if st.session_state.language == "Indonesia" else msg_en))
-                            else:
-                                st.info("Tidak cukup klaster non-noise untuk menghitung Dunn Index.")
-                        elif len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
+                        if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
                             score = dunn_index(df_scaled.to_numpy(), df_cleaned_for_analysis[cluster_column_name].to_numpy())
                             st.write(f"*Dunn Index*: {score:.4f}")
                             msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
