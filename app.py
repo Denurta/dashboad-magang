@@ -3,13 +3,13 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN # Added for other models
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
-import plotly.express as px # Still needed for Plotly Express (e.g., for future interactive charts if added)
+import plotly.express as px # Needed for interactive plots
 # from sklearn.decomposition import PCA # Removed as PCA visualization is no longer desired
 
 # --- Styling CSS ---
@@ -242,11 +242,11 @@ def translate(text):
         "Tidak ada baris dengan nama tersebut yang ditemukan.": {"Indonesia": "Tidak ada baris dengan nama tersebut yang ditemukan.", "English": "No rows with such names were found."},
         "P-Value < 0.05 menunjukkan perbedaan signifikan antar klaster untuk variabel tersebut.": {"Indonesia": "P-Value < 0.05 menunjukkan perbedaan signifikan antar klaster untuk variabel tersebut.", "English": "P-Value < 0.05 indicates a significant difference between clusters for that variable."},
         "P-Value > 0.05 menunjukkan tidak terdapat perbedaan signifikan antar klaster untuk variabel tersebut.": {"Indonesia": "P-Value > 0.05 menunjukkan tidak terdapat perbedaan signifikan antar klaster untuk variabel tersebut.", "English": "P-Value > 0.05 indicates no significant difference between clusters for that variable."},
-        "Silhouette Score rendah: klaster kurang baik.": {"Indonesia": "Silhouette Score rendah: klaster kurang baik.", "English": "Low Silhouette Score: poor clusters."},
-        "Silhouette Score sedang: kualitas klaster sedang.": {"Indonesia": "Silhouette Score sedang: kualitas klaster sedang.", "English": "Moderate Silhouette Score: medium cluster quality."},
-        "Silhouette Score tinggi: klaster cukup baik.": {"Indonesia": "Silhouette Score tinggi: klaster cukup baik.", "English": "High Silhouette Score: good clusters."},
-        "Dunn Index tinggi: pemisahan antar klaster baik.": {"Indonesia": "Dunn Index tinggi: pemisahan antar klaster baik.", "English": "High Dunn Index: good separation between clusters."},
-        "Dunn Index rendah: klaster saling tumpang tindih.": {"Indonesia": "Dunn Index rendah: klaster saling tumpang tindih.", "English": "Low Dunn Index: clusters overlap."},
+        "Silhouette Score rendah: klaster kurang baik." : {"Indonesia": "Silhouette Score rendah: klaster kurang baik.", "English": "Low Silhouette Score: poor clusters."},
+        "Silhouette Score sedang: kualitas klaster sedang." : {"Indonesia": "Silhouette Score sedang: kualitas klaster sedang.", "English": "Moderate Silhouette Score: medium cluster quality."},
+        "Silhouette Score tinggi: klaster cukup baik." : {"Indonesia": "Silhouette Score tinggi: klaster cukup baik.", "English": "High Silhouette Score: good clusters."},
+        "Dunn Index tinggi: pemisahan antar klaster baik." : {"Indonesia": "Dunn Index tinggi: pemisahan antar klaster baik.", "English": "High Dunn Index: good separation between clusters."},
+        "Dunn Index rendah: klaster saling tumpang tindih." : {"Indonesia": "Dunn Index rendah: klaster saling tumpang tindih.", "English": "Low Dunn Index: clusters overlap."},
         "Kolom 'Row Labels' tidak ditemukan pada data.": {"Indonesia": "Kolom 'Row Labels' tidak ditemukan pada data.", "English": "Column 'Row Labels' not found in data."},
         "Pilih variabel untuk Elbow Method": {"Indonesia": "Pilih variabel untuk Elbow Method", "English": "Select variables for Elbow Method"},
         "Pilih fitur untuk menjalankan ANOVA.": {"Indonesia": "Pilih fitur untuk menjalankan ANOVA.", "English": "Select features to run ANOVA."},
@@ -258,7 +258,7 @@ def translate(text):
 st.sidebar.subheader(translate("Pilih Model Klastering"))
 cluster_model_name = st.sidebar.selectbox(
     "",
-    ('KMeans', 'AgglomerativeClustering', 'DBSCAN'),
+    ('KMeans', 'AgglomerativeClustering', 'DBSCAN'), # Added AgglomerativeClustering and DBSCAN
     key="cluster_model_select"
 )
 
@@ -291,14 +291,20 @@ drop_button = st.sidebar.button(translate("Hapus Baris"), key="drop_button_sideb
 # --- Tampilan Utama ---
 st.title(translate("Analisis Klaster Terminal"))
 
-# --- Panduan Penggunaan ---
+---
+
+### Panduan Penggunaan Aplikasi
+
+With the new clustering models, here's an updated guide for your users:
+
+```python
 with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indonesia" else "\u2139\uFE0F Application Usage Guide"):
     if language == "Indonesia":
         st.markdown("""
         <ol>
             <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
-            <li><b>Pilih Model Klastering:</b> Di sidebar, pilih model klastering yang ingin digunakan (KMeans, AgglomerativeClustering, atau DBSCAN).</li>
-            <li><b>Atur Parameter Klastering:</b> Sesuaikan parameter sesuai model yang dipilih (misal: Jumlah Klaster untuk KMeans/Agglomerative, atau Radius & Sampel Minimum untuk DBSCAN).</li>
+            <li><b>Pilih Model Klastering:</b> Di sidebar, pilih model klastering yang ingin digunakan (<b>KMeans</b>, <b>AgglomerativeClustering</b>, atau <b>DBSCAN</b>).</li>
+            <li><b>Atur Parameter Klastering:</b> Sesuaikan parameter sesuai model yang dipilih (misal: "Jumlah Klaster" untuk KMeans/Agglomerative, atau "Radius Lingkungan (eps)" dan "Jumlah Sampel Minimum (min_samples)" untuk DBSCAN).</li>
             <li><b>Pilih Variabel:</b> Tentukan variabel numerik mana saja yang ingin digunakan untuk analisis klaster.</li>
             <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code> yang ingin dihapus, pisahkan dengan koma.</li>
             <li><b>Jalankan Klastering:</b> Klik tombol <i>"Jalankan Klastering"</i> di sidebar.</li>
@@ -310,8 +316,8 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indo
         st.markdown("""
         <ol>
             <li><b>Upload Excel File:</b> Click <i>"Browse files"</i> to upload your data file (in <code>.xlsx</code> format).</li>
-            <li><b>Select Clustering Model:</b> In the sidebar, choose the clustering model you want to use (KMeans, AgglomerativeClustering, or DBSCAN).</li>
-            <li><b>Adjust Clustering Parameters:</b> Adjust parameters specific to the chosen model (e.g., Number of Clusters for KMeans/Agglomerative, or Radius & Minimum Samples for DBSCAN).</li>
+            <li><b>Select Clustering Model:</b> In the sidebar, choose the clustering model you want to use (<b>KMeans</b>, <b>AgglomerativeClustering</b>, or <b>DBSCAN</b>).</li>
+            <li><b>Adjust Clustering Parameters:</b> Adjust parameters specific to the chosen model (e.g., "Number of Clusters" for KMeans/Agglomerative, or "Neighborhood Radius (eps)" and "Minimum Samples (min_samples)" for DBSCAN).</li>
             <li><b>Select Features:</b> Choose which numerical variables you want to use for cluster analysis.</li>
             <li><b>Remove Rows (Optional):</b> Enter row names from the <code>Row Labels</code> column to be removed, separated by commas.</li>
             <li><b>Run Clustering:</b> Click the <i>"Run Clustering"</i> button in the sidebar.</li>
@@ -319,7 +325,6 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if language == "Indo
             <li><b>Interpretation:</b> The results will be displayed automatically after clustering is performed.</li>
         </ol>
         """, unsafe_allow_html=True)
-
 # Main Application Logic
 def app_main():
     # Initialize session state variables if they don't exist
