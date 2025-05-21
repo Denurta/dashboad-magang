@@ -9,8 +9,8 @@ from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
-import plotly.express as px
-from sklearn.decomposition import PCA
+import plotly.express as px # Still needed for Plotly Express (e.g., for future interactive charts if added)
+# from sklearn.decomposition import PCA # Removed as PCA visualization is no longer desired
 
 # --- Styling CSS ---
 st.markdown(""" <style>
@@ -125,8 +125,8 @@ def elbow_method(df_scaled):
     plt.xlabel('Jumlah Klaster')
     plt.ylabel('Inertia')
     plt.title('Metode Elbow')
-    st.pyplot(plt.gcf())
-    plt.clf() # Clear the plot to prevent overlapping in Streamlit
+    st.pyplot(plt.gcf()) # Display the matplotlib figure in Streamlit
+    plt.clf() # Clear the current figure to prevent it from displaying in future runs
     st.info("\U0001F4CC Titik elbow terbaik adalah pada jumlah klaster di mana penurunan inertia mulai melambat secara signifikan.")
 
 def perform_anova(df, features, cluster_column_name):
@@ -277,6 +277,7 @@ elif cluster_model_name == 'DBSCAN':
     min_samples_sidebar = st.sidebar.slider("", min_value=1, max_value=20, value=5, key="min_samples_slider")
 
 st.sidebar.subheader(translate("Pilih Visualisasi"))
+# Removed "PCA" from the options
 visualization_options = st.sidebar.multiselect("", ["Heatmap", "Boxplot", "Barchart"], key="viz_options")
 
 st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
@@ -378,6 +379,7 @@ def app_main():
         )
         st.session_state['selected_features_for_clustering'] = selected_features_for_clustering
 
+
         if selected_features_for_clustering:
             df_selected_for_clustering = df_cleaned[selected_features_for_clustering]
             df_scaled = normalize_data(df_selected_for_clustering, selected_features_for_clustering)
@@ -427,35 +429,8 @@ def app_main():
 
         if st.session_state['clusters_available'] and 'Cluster' in st.session_state['df_cleaned'].columns:
             df_with_clusters = st.session_state['df_cleaned']
-            df_scaled_for_viz = normalize_data(df_with_clusters[st.session_state['selected_features_for_clustering']], st.session_state['selected_features_for_clustering'])
-
-            # PCA Visualization (always show if applicable)
-            if len(st.session_state['selected_features_for_clustering']) > 1:
-                st.write("### Visualisasi Klaster 2D (PCA)")
-                try:
-                    df_pca_viz = df_scaled_for_viz.copy()
-                    clusters_for_pca = df_with_clusters['Cluster'].copy()
-
-                    # Filter out noise points (-1) for PCA visualization for better clarity
-                    if -1 in clusters_for_pca.unique() and len(clusters_for_pca[clusters_for_pca == -1]) > 0:
-                        st.info("Catatan: Titik noise (klaster -1) dari DBSCAN tidak akan ditampilkan dalam visualisasi PCA untuk kejelasan.")
-                        df_pca_viz = df_pca_viz[clusters_for_pca != -1]
-                        clusters_for_pca = clusters_for_pca[clusters_for_pca != -1]
-
-                    if len(df_pca_viz) > 1: # Ensure enough data points for PCA
-                        pca = PCA(n_components=2)
-                        components = pca.fit_transform(df_pca_viz)
-                        pca_df = pd.DataFrame(data = components, columns = ['PC1', 'PC2'])
-                        pca_df['Cluster'] = clusters_for_pca.astype(str) # Convert to string for discrete colors
-                        if 'Row Labels' in df_with_clusters.columns:
-                            pca_df['Row Labels'] = df_with_clusters.loc[clusters_for_pca.index, 'Row Labels'] # Match indices
-
-                        fig = px.scatter(pca_df, x="PC1", y="PC2", color="Cluster", hover_data=['Row Labels'] if 'Row Labels' in df_with_clusters.columns else None)
-                        st.plotly_chart(fig)
-                    else:
-                        st.warning("Terlalu sedikit data tersisa setelah memfilter noise untuk visualisasi PCA.")
-                except Exception as e:
-                    st.warning(translate(f"Tidak dapat membuat visualisasi PCA: {e}. Pastikan data Anda sesuai untuk PCA."))
+            # Data used for plotting should be the original (unscaled) features for better interpretability
+            # df_scaled_for_viz = normalize_data(df_with_clusters[st.session_state['selected_features_for_clustering']], st.session_state['selected_features_for_clustering']) # This was used for PCA
 
             # Conditional Visualizations based on user selection
             if visualization_options:
@@ -469,7 +444,10 @@ def app_main():
                         df_heatmap = df_with_clusters[df_with_clusters['Cluster'] != -1].copy() # Exclude noise cluster
                         if len(df_heatmap['Cluster'].unique()) > 1 and len(st.session_state['selected_features_for_clustering']) > 0:
                             try:
-                                cluster_means = df_heatmap.groupby('Cluster')[st.session_state['selected_features_for_clustering']].mean()
+                                # For heatmap, it's often more useful to show means of original (or scaled) features
+                                # Using scaled features to show relative importance across clusters
+                                df_scaled_for_heatmap = normalize_data(df_heatmap[st.session_state['selected_features_for_clustering']], st.session_state['selected_features_for_clustering'])
+                                cluster_means = df_scaled_for_heatmap.groupby(df_heatmap['Cluster']).mean() # Group by the original (non-filtered) cluster labels
                                 fig_heatmap = px.imshow(cluster_means,
                                                         labels=dict(x="Fitur", y="Klaster", color="Nilai Rata-rata"),
                                                         x=cluster_means.columns,
