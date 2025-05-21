@@ -194,7 +194,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.
             <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
             <li><b>Pilih Variabel:</b> Tentukan variabel numerik mana saja yang ingin digunakan untuk analisis klaster (Metode Elbow dan klastering).</li>
             <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code> yang ingin dihapus, pisahkan dengan koma.</li>
-            <li><b>Pilih Algoritma Klastering:</b> Pilih antara <code>KMeans</code> atau <code>Agglomerative Clustering</code>. Sesuaikan parameter yang relevan.</li>
+            <li><b>Pilih Algoritma Klastering:</b> Pilih antara KMeans atau Agglomerative Clustering. Sesuaikan parameter yang relevan.</li>
             <li><b>Pilih Visualisasi & Evaluasi:</b> Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.</li>
             <li><b>Interpretasi:</b> Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.</li>
         </ol>
@@ -333,13 +333,23 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                             score = silhouette_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
                             st.write(f"*Silhouette Score*: {score:.4f}")
                             if st.session_state.language == "Indonesia":
-                                msg = ("Silhouette Score rendah: klaster kurang baik." if score < 0 else
-                                       "Silhouette Score sedang: kualitas klaster sedang." if score <= 0.5 else
-                                       "Silhouette Score tinggi: klaster cukup baik.")
-                            else:
-                                msg = ("Silhouette Score is low: poor clustering." if score < 0 else
-                                       "Silhouette Score is moderate: medium quality clustering." if score <= 0.5 else
-                                       "Silhouette Score is high: good clustering.")
+                                if score >= 0.71:
+                                    msg = "Struktur klaster yang dihasilkan sangat kuat. Objek sangat cocok dengan klaster-nya sendiri dan tidak cocok dengan klaster tetangga."
+                                elif score >= 0.51:
+                                    msg = "Struktur klaster yang dihasilkan baik. Objek cocok dengan klaster-nya dan terpisah dengan baik dari klaster lain."
+                                elif score >= 0.26:
+                                    msg = "Struktur klaster yang dihasilkan lemah. Mungkin dapat diterima, tetapi perlu dipertimbangkan bahwa objek mungkin berada di antara klaster."
+                                else:
+                                    msg = "Klaster tidak terstruktur dengan baik. Objek mungkin lebih cocok ditempatkan pada klaster lain daripada klaster saat ini."
+                            else: # English
+                                if score >= 0.71:
+                                    msg = "The resulting cluster structure is very strong. Objects fit well within their own cluster and are poorly matched to neighboring clusters."
+                                elif score >= 0.51:
+                                    msg = "The resulting cluster structure is good. Objects fit well within their cluster and are well separated from other clusters."
+                                elif score >= 0.26:
+                                    msg = "The resulting cluster structure is weak. It might be acceptable, but consider that objects might be between clusters."
+                                else:
+                                    msg = "Clusters are not well-structured. Objects might be better placed in another cluster than their current one."
                             st.write("\U0001F4CC " + msg)
                         else:
                             st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score.")
@@ -349,9 +359,17 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                         if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
                             score = dunn_index(df_scaled.to_numpy(), df_cleaned_for_analysis[cluster_column_name].to_numpy())
                             st.write(f"*Dunn Index*: {score:.4f}")
-                            msg_id = "Dunn Index tinggi: pemisahan antar klaster baik." if score > 1 else "Dunn Index rendah: klaster saling tumpang tindih."
-                            msg_en = "Dunn Index is high: good separation between clusters." if score > 1 else "Dunn Index is low: clusters overlap."
-                            st.write("\U0001F4CC " + (msg_id if st.session_state.language == "Indonesia" else msg_en))
+                            if st.session_state.language == "Indonesia":
+                                if score > 1: # Assuming >1 implies good separation based on common interpretations of Dunn Index, though specific ranges vary.
+                                    msg = "Dunn Index tinggi: pemisahan antar klaster baik dan klaster padat (anggota klaster saling berdekatan)."
+                                else:
+                                    msg = "Dunn Index rendah: klaster mungkin saling tumpang tindih atau tidak padat. Semakin tinggi nilainya, semakin baik."
+                            else: # English
+                                if score > 1:
+                                    msg = "High Dunn Index: good separation between clusters and dense clusters (members are close to each other)."
+                                else:
+                                    msg = "Low Dunn Index: clusters might overlap or are not dense. The higher the value, the better."
+                            st.write("\U0001F4CC " + (msg))
                         else:
                             st.info("Tidak cukup klaster (minimal 2) untuk menghitung Dunn Index.")
                 else:
