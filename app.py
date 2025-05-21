@@ -156,6 +156,11 @@ def translate(text):
         "Parameter Agglomerative (Metode Linkage)": {"Indonesia": "Parameter Agglomerative (Metode Linkage)", "English": "Agglomerative Parameter (Linkage Method)"},
         "Parameter KMeans (Jumlah Klaster)": {"Indonesia": "Parameter KMeans (Jumlah Klaster)", "English": "KMeans Parameter (Number of Clusters)"},
         "Pilih Variabel untuk Analisis Klaster": {"Indonesia": "Pilih Variabel untuk Analisis Klaster", "English": "Select Variables for Cluster Analysis"},
+        "Penjelasan Metode Linkage": {"Indonesia": "Penjelasan Metode Linkage", "English": "Explanation of Linkage Methods"},
+        "Ward": {"Indonesia": "**Ward:** Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": "**Ward:** Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
+        "Complete": {"Indonesia": "**Complete (Maximum Linkage):** Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "**Complete (Maximum Linkage):** Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
+        "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
+        "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
     }
     return translations.get(text, {}).get(language, text)
 
@@ -171,6 +176,17 @@ else: # Agglomerative Clustering
     n_clusters_agg = st.sidebar.slider("", 2, 10, 3, key="agg_clusters")
     st.sidebar.subheader(translate("Parameter Agglomerative (Metode Linkage)"))
     linkage_method = st.sidebar.selectbox("", ["ward", "complete", "average", "single"], key="agg_linkage")
+
+    # Add explanation for linkage methods directly below the selectbox
+    with st.sidebar.expander(translate("Penjelasan Metode Linkage")):
+        st.write(translate("Ward"))
+        st.write(translate("Complete"))
+        st.write(translate("Average"))
+        st.write(translate("Single"))
+        if st.session_state.language == "Indonesia":
+            st.info("Penting juga untuk diingat bahwa tidak ada satu metrik validasi klaster yang sempurna. Seringkali, kombinasi beberapa metrik dan pemahaman domain data Anda akan memberikan penilaian terbaik terhadap kualitas hasil klasterisasi.")
+        else:
+            st.info("It is also important to remember that no single cluster validation metric is perfect. Often, a combination of several metrics and understanding your data's domain will provide the best assessment of clustering quality.")
 
 
 st.sidebar.subheader(translate("Pilih Visualisasi"))
@@ -360,13 +376,14 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                             score = dunn_index(df_scaled.to_numpy(), df_cleaned_for_analysis[cluster_column_name].to_numpy())
                             st.write(f"*Dunn Index*: {score:.4f}")
                             if st.session_state.language == "Indonesia":
-                                if score > 1: # Assuming >1 implies good separation based on common interpretations of Dunn Index, though specific ranges vary.
-                                    msg = "Dunn Index tinggi: pemisahan antar klaster baik dan klaster padat (anggota klaster saling berdekatan)."
+                                # Dunn Index interpretation based on general principle: higher is better
+                                if score > 1: # This is a general guide, actual 'good' threshold can vary by dataset.
+                                    msg = "Dunn Index tinggi: pemisahan antar klaster baik dan klaster padat (anggota klaster saling berdekatan). Semakin tinggi nilainya, semakin baik."
                                 else:
                                     msg = "Dunn Index rendah: klaster mungkin saling tumpang tindih atau tidak padat. Semakin tinggi nilainya, semakin baik."
                             else: # English
                                 if score > 1:
-                                    msg = "High Dunn Index: good separation between clusters and dense clusters (members are close to each other)."
+                                    msg = "High Dunn Index: good separation between clusters and dense clusters (members are close to each other). The higher the value, the better."
                                 else:
                                     msg = "Low Dunn Index: clusters might overlap or are not dense. The higher the value, the better."
                             st.write("\U0001F4CC " + (msg))
