@@ -11,7 +11,7 @@ import numpy as np
 # --- SET PAGE CONFIG (MUST BE AT THE VERY TOP) ---
 st.set_page_config(
     page_title="Pelindo Terminal Analysis",
-    page_icon="🚢",
+    page_icon="🚢", # Ikon kapal tetap ada di sini
     layout="wide"
 )
 
@@ -47,60 +47,50 @@ li {
     border-radius: 10px;
     margin-bottom: 20px;
 }
-/* Style for top navigation buttons container to center them */
-div.stButton {
+
+/* Container for top navigation buttons to center them */
+.centered-buttons-container {
     display: flex;
-    justify-content: center; /* Center buttons horizontally */
-    width: 100%; /* Ensure the div takes full width */
-    margin-bottom: 20px; /* Add some space below the buttons */
+    justify-content: center; /* Centers the content (buttons) */
+    width: 100%; /* Ensures the container takes full width */
+    margin-bottom: 20px; /* Space below the buttons */
+    gap: 30px; /* Space between the buttons */
 }
 
 /* Style for individual top navigation buttons */
-div.stButton > button {
+.centered-buttons-container .stButton > button {
     font-size: 1.2em;
     font-weight: bold;
     color: white; /* Text color white for red button */
     background-color: #DC3545; /* Red color (Bootstrap 'danger' red) */
     border: 2px solid #DC3545; /* Red border */
     border-radius: 5px;
-    padding: 10px 20px;
-    margin: 0 15px; /* Space between buttons, 0 top/bottom margin */
+    padding: 10px 25px; /* Increase padding for slightly larger buttons */
     box-shadow: 2px 2px 5px rgba(0,0,0,0.2); /* Subtle shadow */
     transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
 }
-div.stButton > button:hover {
+.centered-buttons-container .stButton > button:hover {
     background-color: #C82333; /* Darker red on hover */
     border-color: #C82333;
     transform: translateY(-2px); /* Slight lift effect */
-}
-/* Ensure the button group itself is centered */
-.stHorizontalRadio {
-    display: flex;
-    justify-content: center;
-    width: 100%;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # --- Session State Initialization ---
-# Initialize ALL session state variables used by widgets
-# This ensures they exist on the very first run
 if 'language' not in st.session_state: st.session_state.language = "Indonesia"
 if 'data_uploaded' not in st.session_state: st.session_state.data_uploaded = False
 if 'df_original' not in st.session_state: st.session_state.df_original = pd.DataFrame()
 if 'df_cleaned' not in st.session_state: st.session_state.df_cleaned = pd.DataFrame()
-
-# Initialize session state for sidebar widgets, including the "Hapus Baris" text_area
 if 'clustering_algorithm_sidebar' not in st.session_state: st.session_state.clustering_algorithm_sidebar = "KMeans"
 if 'kmeans_clusters_sidebar' not in st.session_state: st.session_state.kmeans_clusters_sidebar = 2
 if 'agg_clusters_sidebar' not in st.session_state: st.session_state.agg_clusters_sidebar = 2
 if 'agg_linkage_sidebar' not in st.session_state: st.session_state.agg_linkage_sidebar = "ward"
 if 'visualization_options_sidebar' not in st.session_state: st.session_state.visualization_options_sidebar = []
 if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_state.cluster_evaluation_options_sidebar = []
-if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = '' # Initialize text_area value
-# New flag for button click action
+if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = ''
 if 'execute_drop_action' not in st.session_state: st.session_state.execute_drop_action = False
-if 'current_page' not in st.session_state: st.session_state.current_page = "Home" # New state for page navigation
+if 'current_page' not in st.session_state: st.session_state.current_page = "Home"
 
 # --- Translation Function ---
 def translate(text):
@@ -215,7 +205,8 @@ def perform_anova(df, features, cluster_col):
 # --- Page Functions ---
 
 def home_page():
-    st.title(translate("Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis"))
+    # Nama aplikasi tetap ada di sini
+    st.title("🚢 " + translate("Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis"))
 
     st.markdown(f"""
     <div class="home-page-container">
@@ -469,9 +460,10 @@ def clustering_analysis_page_content():
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
 
-# Container untuk tombol navigasi agar bisa di tengah
-st.markdown('<div class="stButton">', unsafe_allow_html=True)
-col_home, col_clustering = st.columns(2) # Gunakan 2 kolom untuk menempatkan 2 tombol berdampingan
+# Pembungkus untuk menengahkan tombol
+st.markdown('<div class="centered-buttons-container">', unsafe_allow_html=True)
+# Menggunakan st.columns untuk menempatkan tombol berdampingan di dalam container tengah
+col_home, col_clustering = st.columns(2) 
 
 with col_home:
     if st.button(translate("Home"), key="btn_home"):
@@ -481,9 +473,9 @@ with col_clustering:
         st.session_state.current_page = "Clustering Analysis"
 st.markdown('</div>', unsafe_allow_html=True) # Tutup container tombol
 
-st.markdown("---") # Separator below buttons
+st.markdown("---") # Separator di bawah tombol
 
-# Render the sidebar for the current page selection and global controls
+# Render sidebar
 st.sidebar.title("Navigation")
 
 st.sidebar.radio(
@@ -495,7 +487,6 @@ st.sidebar.radio(
 
 st.sidebar.markdown("---")
 
-# Conditionally render clustering-specific controls in the sidebar
 if st.session_state.current_page == "Clustering Analysis":
     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
     st.sidebar.selectbox(
@@ -509,7 +500,7 @@ if st.session_state.current_page == "Clustering Analysis":
             value=st.session_state.kmeans_clusters_sidebar,
             key="kmeans_clusters_sidebar"
         )
-    else: # Agglomerative Clustering
+    else:
         st.sidebar.slider(
             translate("Parameter Agglomerative (Jumlah Klaster)"), 2, 10,
             value=st.session_state.agg_clusters_sidebar,
@@ -541,7 +532,6 @@ if st.session_state.current_page == "Clustering Analysis":
         key="cluster_evaluation_options_sidebar"
     )
 
-    # --- "Hapus Baris" Section in Sidebar ---
     st.sidebar.subheader(translate("Hapus Baris"))
     st.sidebar.text_area(
         translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"),
@@ -553,7 +543,6 @@ if st.session_state.current_page == "Clustering Analysis":
         key="trigger_drop_button_click",
         on_click=lambda: st.session_state.update(execute_drop_action=True)
     )
-
 
 # Display the selected page content
 if st.session_state.current_page == "Home":
