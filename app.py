@@ -75,7 +75,7 @@ li {
 }
 /* Adjust spacing for columns if needed, though gap on wrapper or column itself is better */
 .centered-buttons-wrapper .st-emotion-cache-1pxczgcb { /* Targeting the Streamlit columns internal div */
-    gap: 30px; /* Add gap between columns if necessary, or apply it to the buttons themselves */
+    gap: 30px; /* Add gap between columns if necessary */
 }
 
 </style>
@@ -124,10 +124,20 @@ def translate(text):
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
         "Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis": {"Indonesia": "Selamat Datang di Analisis PT Pelindo Terminal Petikemas Surabaya", "English": "Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis"},
+        # Terjemahan baru untuk About Section
         "About PT Pelindo Terminal Petikemas Surabaya": {"Indonesia": "Tentang PT Pelindo Terminal Petikemas Surabaya", "English": "About PT Pelindo Terminal Petikemas Surabaya"},
-        "About Text 1": {"Indonesia": "PT Pelindo Terminal Petikemas (SPTP), anak perusahaan PT Pelabuhan Indonesia (Pelindo), adalah salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia.", "English": "PT Pelindo Terminal Petikemas (SPTP), a subsidiary of PT Pelabuhan Indonesia (Pelindo), is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."},
-        "About Text 2": {"Indonesia": "Berlokasi di Surabaya, Jawa Timur, **Terminal Petikemas Surabaya** berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari wilayah timur Indonesia. Terminal ini dilengkapi dengan fasilitas dan teknologi modern untuk menangani berbagai jenis kargo peti kemas secara efisien dan aman.", "English": "Located in Surabaya, East Java, the **Petikemas Surabaya Terminal** serves as a vital gateway for trade, facilitating the flow of goods to and from the eastern part of Indonesia. It is equipped with modern facilities and technology to handle various types of container cargo efficiently and safely."},
-        "About Text 3": {"Indonesia": "Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.", "English": "Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."},
+        "About Pelindo Terminal Petikemas Text 1": {
+            "Indonesia": "PT Pelindo Terminal Petikemas (SPTP) adalah **Subholding Pelindo Terminal Petikemas**, bagian dari PT Pelabuhan Indonesia (Pelindo), dan merupakan salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia.",
+            "English": "PT Pelindo Terminal Petikemas (SPTP) is the **Subholding Pelindo Terminal Petikemas**, part of PT Pelabuhan Indonesia (Pelindo), and is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."
+        },
+        "About Pelindo Terminal Petikemas Text 2": {
+            "Indonesia": "Berlokasi di Surabaya, Jawa Timur, **Terminal Petikemas Surabaya** berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari wilayah timur Indonesia. Terminal ini dilengkapi dengan fasilitas dan teknologi modern untuk menangani berbagai jenis kargo peti kemas secara efisien dan aman.",
+            "English": "Located in Surabaya, East Java, the **Petikemas Surabaya Terminal** serves as a vital gateway for trade, facilitating the flow of goods to and from the eastern part of Indonesia. It is equipped with modern facilities and technology to handle various types of container cargo efficiently and safely."
+        },
+        "About Pelindo Terminal Petikemas Text 3": {
+            "Indonesia": "Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
+            "English": "Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
+        },
         "Our Vision": {"Indonesia": "Visi Kami", "English": "Our Vision"},
         "Vision Text": {"Indonesia": "Menjadi operator ekosistem logistik dan pelabuhan terintegrasi kelas dunia, mendorong konektivitas dan pertumbuhan ekonomi.", "English": "To be a world-class integrated logistics and port ecosystem operator, driving connectivity and economic growth."},
         "Our Mission": {"Indonesia": "Misi Kami", "English": "Our Mission"},
@@ -216,13 +226,13 @@ def home_page():
     <div class="home-page-container">
         <h3>{translate("About PT Pelindo Terminal Petikemas Surabaya")}</h3>
         <p>
-            {translate("About Text 1")}
+            {translate("About Pelindo Terminal Petikemas Text 1")}
         </p>
         <p>
-            {translate("About Text 2")}
+            {translate("About Pelindo Terminal Petikemas Text 2")}
         </p>
         <p>
-            {translate("About Text 3")}
+            {translate("About Pelindo Terminal Petikemas Text 3")}
         </p>
     </div>
     """, unsafe_allow_html=True)
