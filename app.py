@@ -79,6 +79,7 @@ if 'agg_linkage_sidebar' not in st.session_state: st.session_state.agg_linkage_s
 if 'visualization_options_sidebar' not in st.session_state: st.session_state.visualization_options_sidebar = []
 if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_state.cluster_evaluation_options_sidebar = []
 if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = '' # Initialize text_area value
+# No need to explicitly initialize drop_button_sidebar state to False, its key handles it.
 
 
 # --- Translation Function ---
@@ -226,7 +227,8 @@ def handle_row_deletion_logic():
     if st.session_state.data_uploaded and st.session_state.get('drop_button_sidebar', False):
         if 'Row Labels' not in st.session_state.df_cleaned.columns:
             st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-            st.session_state['drop_button_sidebar'] = False # Reset button state
+            # Important: Reset the button state immediately after processing this error, too.
+            st.session_state['drop_button_sidebar'] = False
             return
 
         current_df = st.session_state.df_cleaned.copy()
@@ -239,14 +241,13 @@ def handle_row_deletion_logic():
 
             rows_deleted = initial_rows - df_after_drop.shape[0]
             
-            # --- FIX FOR SYNTAX ERROR ---
-            # Ensure proper indentation and clear blocks
+            # --- FIXED SYNTAX ERROR HERE ---
             if rows_deleted > 0:
                 st.session_state['df_cleaned'] = df_after_drop # Update the cleaned DataFrame in session state
                 st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
-            else: # This is the `else` block that was causing issues. Re-aligned.
+            else:
                 st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-            # --- END FIX ---
+            # --- END FIXED SYNTAX ERROR ---
 
         else:
             st.warning("Silakan masukkan nama baris yang ingin dihapus.")
@@ -533,4 +534,7 @@ if page_selection == "Clustering Analysis":
 if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
+    # Call the content function for the clustering page
+    # The handle_row_deletion_logic will now correctly check st.session_state.drop_button_sidebar
+    # because the button's value is managed by its key in session state.
     clustering_analysis_page_content()
