@@ -6,8 +6,7 @@ import seaborn as sns
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import f_oneway
-from sklearn.metrics import silhouette_score
-from scipy.spatial.distance import pdist, squareform
+from sklearn.metrics import silhouette_score, fowlkes_mallows_score # Added fowlkes_mallows_score
 import numpy as np
 
 # --- Styling CSS ---
@@ -102,35 +101,6 @@ def perform_anova(df, features, cluster_col):
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
     return pd.DataFrame(anova_results)
 
-
-def dunn_index(df_scaled, labels):
-    if len(np.unique(labels)) < 2 or len(df_scaled) < 2:
-        return np.nan
-
-    distances = squareform(pdist(df_scaled, metric='euclidean'))
-    unique_clusters = np.unique(labels)
-    intra_cluster_distances = []
-    inter_cluster_distances = []
-
-    for cluster in unique_clusters:
-        points_in_cluster_idx = np.where(labels == cluster)[0]
-        if len(points_in_cluster_idx) > 1:
-            intra_cluster_distances.append(np.max(distances[np.ix_(points_in_cluster_idx, points_in_cluster_idx)]))
-
-    if not intra_cluster_distances:
-        return np.nan
-
-    for i in range(len(unique_clusters)):
-        for j in range(i + 1, len(unique_clusters)):
-            cluster_i_idx = np.where(labels == unique_clusters[i])[0]
-            cluster_j_idx = np.where(labels == unique_clusters[j])[0]
-            if len(cluster_i_idx) > 0 and len(cluster_j_idx) > 0:
-                inter_cluster_distances.append(np.min(distances[np.ix_(cluster_i_idx, cluster_j_idx)]))
-
-    if inter_cluster_distances and intra_cluster_distances:
-        return np.min(inter_cluster_distances) / np.max(intra_cluster_distances)
-    return np.nan
-
 # --- Sidebar & Bahasa ---
 st.sidebar.title("\u26f4 Clustering Terminal")
 language = st.sidebar.radio("Pilih Bahasa", ["Indonesia", "English"])
@@ -161,6 +131,9 @@ def translate(text):
         "Complete": {"Indonesia": "**Complete (Maximum Linkage):** Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "**Complete (Maximum Linkage):** Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
         "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
+        # New translations for Fowlkes-Mallows Index
+        "Fowlkes-Mallows Index": {"Indonesia": "Fowlkes-Mallows Index", "English": "Fowlkes-Mallows Index"},
+        "Interpretasi Fowlkes-Mallows Index": {"Indonesia": "Interpretasi Fowlkes-Mallows Index: Indeks ini mengukur kesamaan antara dua klasterisasi, dengan nilai 1 menunjukkan kesamaan sempurna dan 0 menunjukkan tidak ada kesamaan. Sebagai metrik eksternal, membutuhkan 'label kebenaran dasar' (ground truth) yang tidak tersedia di sini. Nilai yang ditampilkan adalah ilustratif atau memerlukan penyesuaian interpretasi.", "English": "Fowlkes-Mallows Index Interpretation: This index measures the similarity between two clusterings, with a value of 1 indicating perfect similarity and 0 indicating no similarity. As an external metric, it requires 'ground truth labels' which are not available here. The displayed value is illustrative or requires adjusted interpretation."},
     }
     return translations.get(text, {}).get(language, text)
 
@@ -193,7 +166,7 @@ st.sidebar.subheader(translate("Pilih Visualisasi"))
 visualization_options = st.sidebar.multiselect("", ["Heatmap", "Boxplot", "Barchart"])
 
 st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
-cluster_evaluation_options = st.sidebar.multiselect("", ["ANOVA", "Silhouette Score", "Dunn Index"])
+cluster_evaluation_options = st.sidebar.multiselect("", ["ANOVA", "Silhouette Score", translate("Fowlkes-Mallows Index")]) # Updated here
 
 st.sidebar.subheader(translate("Hapus Baris"))
 drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), key="drop_names")
@@ -307,7 +280,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                     st.pyplot(fig)
                     plt.clf()
                 elif "Boxplot" in visualization_options:
-                    st.info("Tidak cukup klaster (minimal 2) untuk menampilkan Boxplot.")
+                    st.info("Tidak cukup klaster (minimal 2) untuk menampilkan Boxplot." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to display Boxplot.")
 
 
                 if "Barchart" in visualization_options:
@@ -333,7 +306,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                                 st.pyplot(fig_bottom)
                                 plt.clf()
                     else:
-                        st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart.")
+                        st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found in data for barchart visualization.")
 
                 st.subheader(translate("Evaluasi Klaster"))
                 if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
@@ -341,7 +314,7 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                         anova_results = perform_anova(df_cleaned_for_analysis, selected_features, cluster_column_name)
                         st.write(anova_results)
                         interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
-                                     else "\U0001F4CC ANOVA Interpretation: P-value less than alpha (0.05) indicates significant difference.")
+                                      else "\U0001F4CC ANOVA Interpretation: P-value less than alpha (0.05) indicates significant difference.")
                         st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
                     if "Silhouette Score" in cluster_evaluation_options:
@@ -368,30 +341,24 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                                     msg = "Clusters are not well-structured. Objects might be better placed in another cluster than their current one."
                             st.write("\U0001F4CC " + msg)
                         else:
-                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score.")
+                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Silhouette Score.")
 
 
-                    if "Dunn Index" in cluster_evaluation_options:
+                    # Fowlkes-Mallows Index block
+                    if translate("Fowlkes-Mallows Index") in cluster_evaluation_options:
                         if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
-                            score = dunn_index(df_scaled.to_numpy(), df_cleaned_for_analysis[cluster_column_name].to_numpy())
-                            st.write(f"*Dunn Index*: {score:.4f}")
-                            if st.session_state.language == "Indonesia":
-                                # Dunn Index interpretation based on general principle: higher is better
-                                if score > 1: # This is a general guide, actual 'good' threshold can vary by dataset.
-                                    msg = "Dunn Index tinggi: pemisahan antar klaster baik dan klaster padat (anggota klaster saling berdekatan). Semakin tinggi nilainya, semakin baik."
-                                else:
-                                    msg = "Dunn Index rendah: klaster mungkin saling tumpang tindih atau tidak padat. Semakin tinggi nilainya, semakin baik."
-                            else: # English
-                                if score > 1:
-                                    msg = "High Dunn Index: good separation between clusters and dense clusters (members are close to each other). The higher the value, the better."
-                                else:
-                                    msg = "Low Dunn Index: clusters might overlap or are not dense. The higher the value, the better."
-                            st.write("\U0001F4CC " + (msg))
+                            # Fowlkes-Mallows Index is an EXTERNAL validation metric.
+                            # It requires 'true labels' (ground truth) to be meaningful.
+                            # Since this application doesn't provide a mechanism to input true labels,
+                            # a numerically meaningful Fowlkes-Mallows Index cannot be calculated for
+                            # internal validation in the standard way.
+                            st.warning(translate("Interpretasi Fowlkes-Mallows Index"))
+                            st.write(f"*{translate('Fowlkes-Mallows Index')}*: N/A (requires true labels)")
                         else:
-                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Dunn Index.")
+                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Fowlkes-Mallows Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Fowlkes-Mallows Index.")
                 else:
-                    st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi.")
+                    st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) or no clusters detected for evaluation.")
             else:
-                st.warning("Harap pilih setidaknya satu variabel numerik untuk memulai analisis klaster.")
+                st.warning("Harap pilih setidaknya satu variabel numerik untuk memulai analisis klaster." if st.session_state.language == "Indonesia" else "Please select at least one numeric variable to start cluster analysis.")
     else:
-        st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis.")
+        st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
