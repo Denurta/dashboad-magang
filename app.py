@@ -47,20 +47,37 @@ li {
     border-radius: 10px;
     margin-bottom: 20px;
 }
-/* Style for top navigation buttons */
-.stButton > button {
-    font-size: 1.2em; /* Make the label larger */
+/* Style for top navigation buttons container to center them */
+div.stButton {
+    display: flex;
+    justify-content: center; /* Center buttons horizontally */
+    width: 100%; /* Ensure the div takes full width */
+    margin-bottom: 20px; /* Add some space below the buttons */
+}
+
+/* Style for individual top navigation buttons */
+div.stButton > button {
+    font-size: 1.2em;
     font-weight: bold;
-    color: #1E3A5F;
-    background-color: rgba(255, 255, 255, 0.7);
-    border: 2px solid #1E3A5F;
+    color: white; /* Text color white for red button */
+    background-color: #DC3545; /* Red color (Bootstrap 'danger' red) */
+    border: 2px solid #DC3545; /* Red border */
     border-radius: 5px;
     padding: 10px 20px;
-    margin-right: 15px; /* Space between buttons */
+    margin: 0 15px; /* Space between buttons, 0 top/bottom margin */
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2); /* Subtle shadow */
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
 }
-.stButton > button:hover {
-    background-color: #1E3A5F;
-    color: white;
+div.stButton > button:hover {
+    background-color: #C82333; /* Darker red on hover */
+    border-color: #C82333;
+    transform: translateY(-2px); /* Slight lift effect */
+}
+/* Ensure the button group itself is centered */
+.stHorizontalRadio {
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -123,7 +140,6 @@ def translate(text):
         "Mission Item 1": {"Indonesia": "Menyediakan layanan pelabuhan yang efisien dan berkelanjutan untuk mendukung ekosistem logistik nasional.", "English": "Providing efficient and sustainable port services to support the national logistics ecosystem."},
         "Mission Item 2": {"Indonesia": "Mengembangkan bisnis pelabuhan yang tangguh dan inovatif melalui sinergi dan kolaborasi.", "English": "Developing a robust and innovative port business through synergy and collaboration."},
         "Mission Item 3": {"Indonesia": "Menciptakan nilai tambah bagi para pemangku kepentingan dengan tetap menjaga kelestarian lingkungan.", "English": "Creating added value for stakeholders while maintaining environmental sustainability."},
-        "Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics.": {"Indonesia": "Navigasi ke bagian 'Analisis Klaster' untuk mengunggah data Anda dan melakukan analisis klaster pada metrik terminal.", "English": "Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics."},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
     }
@@ -453,14 +469,17 @@ def clustering_analysis_page_content():
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
 
-# TOP NAVIGATION (Buttons)
-col_home, col_clustering = st.columns([1, 1])
+# Container untuk tombol navigasi agar bisa di tengah
+st.markdown('<div class="stButton">', unsafe_allow_html=True)
+col_home, col_clustering = st.columns(2) # Gunakan 2 kolom untuk menempatkan 2 tombol berdampingan
+
 with col_home:
     if st.button(translate("Home"), key="btn_home"):
         st.session_state.current_page = "Home"
 with col_clustering:
     if st.button(translate("Clustering Analysis"), key="btn_clustering_analysis"):
         st.session_state.current_page = "Clustering Analysis"
+st.markdown('</div>', unsafe_allow_html=True) # Tutup container tombol
 
 st.markdown("---") # Separator below buttons
 
