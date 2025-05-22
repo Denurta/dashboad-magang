@@ -47,7 +47,19 @@ li {
     border-radius: 10px;
     margin-bottom: 20px;
 }
-/* No specific top navigation style needed anymore if using sidebar for main nav */
+/* Style for top navigation radio buttons */
+.stRadio > label {
+    font-size: 1.2em; /* Make the label larger */
+    font-weight: bold;
+    color: #1E3A5F;
+}
+.stRadio > div[role="radiogroup"] {
+    flex-direction: row; /* Arrange radio buttons horizontally */
+    gap: 20px; /* Space them out */
+    padding-bottom: 20px; /* Add some space below */
+    border-bottom: 1px solid #ddd; /* A subtle separator */
+    margin-bottom: 20px; /* Space after separator */
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -62,6 +74,13 @@ if 'df_cleaned' not in st.session_state:
     st.session_state.df_cleaned = pd.DataFrame()
 if 'drop_names_input_val' not in st.session_state:
     st.session_state['drop_names_input_val'] = '' # Initialize for the text_area value persistence
+# Initialize sidebar values so they are always present in session_state
+if 'clustering_algorithm_sidebar' not in st.session_state: st.session_state.clustering_algorithm_sidebar = "KMeans"
+if 'kmeans_clusters_sidebar' not in st.session_state: st.session_state.kmeans_clusters_sidebar = 2
+if 'agg_clusters_sidebar' not in st.session_state: st.session_state.agg_clusters_sidebar = 2
+if 'agg_linkage_sidebar' not in st.session_state: st.session_state.agg_linkage_sidebar = "ward"
+if 'visualization_options_sidebar' not in st.session_state: st.session_state.visualization_options_sidebar = []
+if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_state.cluster_evaluation_options_sidebar = []
 
 
 # --- Translation Function ---
@@ -199,10 +218,10 @@ def home_page():
     </div>
     """, unsafe_allow_html=True)
 
-    st.info("Navigate to the 'Clustering Analysis' section in the sidebar to upload your data and perform cluster analysis on terminal metrics.")
+    st.info("Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics.")
 
 
-def clustering_analysis_content():
+def clustering_analysis_page_content():
     st.title(translate("Analisis Klaster Terminal"))
 
     # --- Usage Guide ---
@@ -238,7 +257,7 @@ def clustering_analysis_content():
     if st.session_state.data_uploaded:
         df_cleaned = st.session_state['df_cleaned']
 
-        # Sidebar elements for drop rows
+        # Drop rows logic remains
         if 'Row Labels' in df_cleaned.columns:
             drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), value=st.session_state.drop_names_input_val, key="drop_names_input_val")
             drop_button = st.sidebar.button(translate("Hapus Baris"))
@@ -275,43 +294,23 @@ def clustering_analysis_content():
 
                     cluster_column_name = ""
 
-                    # --- SIDEBAR WIDGETS FOR CLUSTERING (ALWAYS VISIBLE WHEN ON THIS PAGE) ---
-                    st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
-                    clustering_algorithm = st.sidebar.selectbox("Algoritma", ["KMeans", "Agglomerative Clustering"], key="algo_select_clustering_page")
+                    # --- CLUSTERING ALGORITHM AND PARAMETERS (READ FROM GLOBAL SIDEBAR STATE) ---
+                    clustering_algorithm = st.session_state.clustering_algorithm_sidebar # Use global state
+                    n_clusters = st.session_state.kmeans_clusters_sidebar # Use global state
+                    n_clusters_agg = st.session_state.agg_clusters_sidebar # Use global state
+                    linkage_method = st.session_state.agg_linkage_sidebar # Use global state
 
                     if clustering_algorithm == "KMeans":
-                        st.sidebar.subheader(translate("Parameter KMeans (Jumlah Klaster)"))
-                        n_clusters = st.sidebar.slider("Jumlah Klaster", 2, 10, 2, key="kmeans_clusters_clustering_page")
                         df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
                         cluster_column_name = 'KMeans_Cluster'
                         st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
                     else: # Agglomerative Clustering
-                        st.sidebar.subheader(translate("Parameter Agglomerative (Jumlah Klaster)"))
-                        n_clusters_agg = st.sidebar.slider("Jumlah Klaster", 2, 10, 2, key="agg_clusters_clustering_page")
-                        st.sidebar.subheader(translate("Parameter Agglomerative (Metode Linkage)"))
-                        linkage_method = st.sidebar.selectbox("Metode Linkage", ["ward", "complete", "average", "single"], key="agg_linkage_clustering_page")
-
-                        with st.sidebar.expander(translate("Penjelasan Metode Linkage")):
-                            st.write(translate("Ward"))
-                            st.write(translate("Complete"))
-                            st.write(translate("Average"))
-                            st.write(translate("Single"))
-                            if st.session_state.language == "Indonesia":
-                                st.info("Penting juga untuk diingat bahwa tidak ada satu metrik validasi klaster yang sempurna. Seringkali, kombinasi beberapa metrik dan pemahaman domain data Anda akan memberikan penilaian terbaik terhadap kualitas hasil klasterisasi.")
-                            else:
-                                st.info("It is also important to remember that no single cluster validation metric is perfect. Often, a combination of several metrics and understanding your data's domain will provide the best assessment of clustering quality.")
-
                         df_cleaned_for_analysis['Agglomerative_Cluster'], _ = perform_agglomerative(df_scaled, n_clusters_agg, linkage_method)
                         cluster_column_name = 'Agglomerative_Cluster'
                         st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
 
-                    st.sidebar.subheader(translate("Pilih Visualisasi"))
-                    visualization_options = st.sidebar.multiselect("Visualisasi", ["Heatmap", "Boxplot", "Barchart"], key="vis_options_clustering_page")
-
-                    st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
-                    cluster_evaluation_options = st.sidebar.multiselect("Evaluasi", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index")], key="eval_options_clustering_page")
-                    # --- END OF SIDEBAR WIDGETS FOR CLUSTERING ---
-
+                    # --- VISUALIZATION OPTIONS (READ FROM GLOBAL SIDEBAR STATE) ---
+                    visualization_options = st.session_state.visualization_options_sidebar # Use global state
 
                     st.subheader(translate("Visualisasi Klaster"))
 
@@ -370,6 +369,9 @@ def clustering_analysis_content():
                         else:
                             st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found in data for barchart visualization.")
 
+                    # --- EVALUATION OPTIONS (READ FROM GLOBAL SIDEBAR STATE) ---
+                    cluster_evaluation_options = st.session_state.cluster_evaluation_options_sidebar # Use global state
+
                     st.subheader(translate("Evaluasi Klaster"))
                     if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
                         if "ANOVA" in cluster_evaluation_options:
@@ -420,20 +422,72 @@ def clustering_analysis_content():
             st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
 
 
-# --- Main Application Logic ---
-# Sidebar for main page navigation
-st.sidebar.title("Navigation")
-page_selection = st.sidebar.radio("Go to", ["Home", "Clustering Analysis"], key="main_page_radio")
+# --- Main Application Logic (Page Selection and Sidebar Rendering) ---
 
-# Language selector is kept in the sidebar, accessible from both pages
-st.sidebar.markdown("---") # Separator for clarity
-st.sidebar.radio(translate("Pilih Bahasa"), ["Indonesia", "English"], key="language_selector", on_change=lambda: st.session_state.__setitem__('language', st.session_state.language_selector))
+# TOP NAVIGATION (Horizontal Radio Buttons)
+page_selection = st.radio(
+    "Select Page", # This is the label for the radio group
+    ["Home", "Clustering Analysis"],
+    key="top_navigation_radio",
+    horizontal=True # Make them appear horizontally
+)
+
+# Render the sidebar for the current page selection
+if page_selection == "Clustering Analysis":
+    st.sidebar.title("\u26f4 Clustering Terminal") # Title for clustering sidebar
+
+    # Define sidebar widgets and store their values in session state
+    # These must be defined and assigned to session state *globally* or in the active page branch
+    st.session_state.clustering_algorithm_sidebar = st.sidebar.selectbox(
+        translate("Pilih Algoritma Klastering"), ["KMeans", "Agglomerative Clustering"], key="algo_select_sidebar"
+    )
+
+    if st.session_state.clustering_algorithm_sidebar == "KMeans":
+        st.session_state.kmeans_clusters_sidebar = st.sidebar.slider(
+            translate("Parameter KMeans (Jumlah Klaster)"), 2, 10, st.session_state.kmeans_clusters_sidebar, key="kmeans_clusters_sidebar"
+        )
+    else: # Agglomerative Clustering
+        st.session_state.agg_clusters_sidebar = st.sidebar.slider(
+            translate("Parameter Agglomerative (Jumlah Klaster)"), 2, 10, st.session_state.agg_clusters_sidebar, key="agg_clusters_sidebar"
+        )
+        st.session_state.agg_linkage_sidebar = st.sidebar.selectbox(
+            translate("Parameter Agglomerative (Metode Linkage)"), ["ward", "complete", "average", "single"], key="agg_linkage_sidebar"
+        )
+        with st.sidebar.expander(translate("Penjelasan Metode Linkage")):
+            st.write(translate("Ward"))
+            st.write(translate("Complete"))
+            st.write(translate("Average"))
+            st.write(translate("Single"))
+            if st.session_state.language == "Indonesia":
+                st.info("Penting juga untuk diingat bahwa tidak ada satu metrik validasi klaster yang sempurna. Seringkali, kombinasi beberapa metrik dan pemahaman domain data Anda akan memberikan penilaian terbaik terhadap kualitas hasil klasterisasi.")
+            else:
+                st.info("It is also important to remember that no single cluster validation metric is perfect. Often, a combination of several metrics and understanding your data's domain will provide the best assessment of clustering quality.")
+
+    st.session_state.visualization_options_sidebar = st.sidebar.multiselect(
+        translate("Pilih Visualisasi"), ["Heatmap", "Boxplot", "Barchart"], key="vis_options_sidebar"
+    )
+
+    st.session_state.cluster_evaluation_options_sidebar = st.sidebar.multiselect(
+        translate("Pilih Evaluasi Klaster"), ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index")], key="eval_options_sidebar"
+    )
+
+    # Drop rows is unique as it depends on uploaded data and is a direct action
+    # The actual text_area and button are called within clustering_analysis_page_content
+    # after data is loaded. We keep it inside the content function as its visibility depends on data.
+    # st.sidebar.subheader(translate("Hapus Baris")) # Title for drop rows section (optional, can be moved if needed)
+
+# Global Language Selector (always in sidebar)
+st.sidebar.markdown("---") # Separator
+st.sidebar.radio(
+    translate("Pilih Bahasa"),
+    ["Indonesia", "English"],
+    key="language_selector",
+    on_change=lambda: st.session_state.__setitem__('language', st.session_state.language_selector)
+)
 
 
 # Display the selected page content
 if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
-    # Call the content function for the clustering page
-    # All relevant sidebar controls will be rendered inside this function
-    clustering_analysis_content()
+    clustering_analysis_page_content()
