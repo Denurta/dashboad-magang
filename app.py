@@ -329,33 +329,24 @@ def elbow_method(df_scaled):
 def perform_anova(df, features, cluster_col):
     """
     Performs ANOVA test for each feature across clusters.
-    Includes robust checks for numerical data, sufficient data points, and variance.
-    Prints detailed warnings for debugging.
+    This version attempts to run ANOVA even if a group has only 1 member,
+    by removing the `nunique() > 1` check.
+    WARNING: ANOVA with single-member groups is statistically invalid.
+    Results for such features should not be interpreted meaningfully.
     """
     if df.empty or not features or cluster_col not in df.columns:
         return pd.DataFrame()
     
     anova_results = []
     
-    # Create a local copy to avoid modifying the original df_current_analysis directly with pd.to_numeric
-    # This also helps ensure that `df_copy` itself is cacheable if `df` is from cache.
     df_copy = df.copy()
 
     for feature in features:
-        # Step 1: Ensure feature column is numeric, coercing errors to NaN
-        # This is crucial for handling mixed types or non-numeric strings
         df_copy[feature] = pd.to_numeric(df_copy[feature], errors='coerce')
-
-        # Drop rows where the feature value or cluster label is NaN
-        # This ensures we only work with complete cases for ANOVA for the specific feature.
         df_feature_cluster_filtered = df_copy[[feature, cluster_col]].dropna()
 
-        # Get unique cluster labels from the filtered data
-        # Only consider cluster labels that actually exist after data cleaning and filtering for the current feature.
         unique_cluster_labels = df_feature_cluster_filtered[cluster_col].unique()
         
-        # Ensure there are at least two unique clusters with valid data points for this feature
-        # (This is the primary condition for ANOVA validity)
         if len(unique_cluster_labels) < 2:
             st.warning(
                 f"ANOVA Warning for '{feature}': Less than 2 distinct clusters "
@@ -363,49 +354,39 @@ def perform_anova(df, features, cluster_col):
                 "Skipping ANOVA."
             )
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
-            continue # Skip to next feature
+            continue 
 
         groups = []
         is_feature_valid_for_anova = True
         for k in unique_cluster_labels:
-            # Select data for the current cluster and feature
             group_data = df_feature_cluster_filtered[df_feature_cluster_filtered[cluster_col] == k][feature]
             
-            # Conditions for a valid group for ANOVA:
-            # 1. Has at least 2 data points (required for variance calculation)
-            # 2. Has more than 1 unique value (i.e., not constant, also required for variance)
-            if len(group_data) > 1 and group_data.nunique() > 1:
+            # MODIFICATION: Allowing groups with only 1 data point.
+            # The 'nunique() > 1' check has been removed.
+            # WARNING: This compromises the statistical validity of ANOVA for such groups.
+            if len(group_data) >= 1: # Group must have at least 1 data point
                 groups.append(group_data)
             else:
-                # If a group is invalid (e.g., only one data point or all data points are identical),
-                # ANOVA for this feature across ALL clusters cannot be performed robustly.
                 st.warning(
                     f"ANOVA Warning for '{feature}' in Cluster '{k}': "
-                    f"Insufficient data (Count: {len(group_data)}, Unique Values: {group_data.nunique()}). "
+                    f"No data points found for this feature in this cluster. "
                     "Skipping ANOVA for this feature."
                 )
                 is_feature_valid_for_anova = False
-                break # Exit inner loop, as ANOVA cannot be performed meaningfully for this feature
+                break 
 
-        if is_feature_valid_for_anova and len(groups) >= 2: # Ensure we collected at least two *valid* groups after all checks
+        if is_feature_valid_for_anova and len(groups) >= 2: 
             try:
                 f_stat, p_value = f_oneway(*groups)
                 anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
             except ValueError as e:
-                # This might catch issues if `f_oneway` still fails even after checks
-                # (e.g., if all groups have identical means, which results in zero between-group variance)
                 st.error(f"ANOVA Error: ValueError for feature '{feature}': {e}. "
-                         "This usually means the data still lacks sufficient variation across groups for ANOVA. Setting to NaN.")
+                         "This often occurs if groups have zero variance (all values identical) or other statistical issues. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             except Exception as e:
-                # Catch any other unexpected errors during f_oneway
                 st.error(f"ANOVA Error: An unexpected error occurred for feature '{feature}': {e}. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
         else:
-            # This 'else' block ensures that if `is_feature_valid_for_anova` became False
-            # (due to a problematic group) or if `len(unique_cluster_labels) < 2` was true
-            # initially, the feature explicitly gets NaN results.
-            # We add a check to avoid duplicate entries if 'continue' was hit earlier.
             if not any(entry.get("Variabel") == feature for entry in anova_results): 
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             
