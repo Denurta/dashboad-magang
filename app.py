@@ -224,6 +224,7 @@ def home_page():
 # Helper function to handle row deletion logic
 def handle_row_deletion_logic():
     # Only proceed if data is uploaded AND the button was clicked
+    # The button state is directly updated by its key in session state
     if st.session_state.data_uploaded and st.session_state.get('drop_button_sidebar', False):
         if 'Row Labels' not in st.session_state.df_cleaned.columns:
             st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
@@ -237,18 +238,19 @@ def handle_row_deletion_logic():
 
         if names_to_drop: # Only proceed if names are provided
             df_after_drop = current_df[~current_df['Row Labels'].isin(names_to_drop)].reset_index(drop=True)
-
+            
             rows_deleted = initial_rows - df_after_drop.shape[0]
             if rows_deleted > 0:
                 st.session_state['df_cleaned'] = df_after_drop # Update the cleaned DataFrame in session state
                 st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
-            else:
+            else: # This is the `else` block that was causing issues
                 st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
         else:
             st.warning("Silakan masukkan nama baris yang ingin dihapus.")
-
+            
         # Reset the button state immediately after processing to prevent re-trigger on next rerun
-        st.session_state['drop_button_sidebar'] = False # This effectively "unclicks" the button for the next run
+        # This is CRUCIAL for buttons
+        st.session_state['drop_button_sidebar'] = False
 
 
 def clustering_analysis_page_content():
@@ -432,11 +434,11 @@ def clustering_analysis_page_content():
                             else:
                                 st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Davies-Bouldin Index.")
                     else:
-                        st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) or no clusters detected for evaluation.")
+                        st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
                 else:
                     st.warning("Harap pilih setidaknya satu variabel numerik untuk memulai analisis klaster." if st.session_state.language == "Indonesia" else "Please select at least one numeric variable to start cluster analysis.")
-        else:
-            st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
+    else:
+        st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
 
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
@@ -508,19 +510,18 @@ if page_selection == "Clustering Analysis":
         key="cluster_evaluation_options_sidebar"
     )
 
-    # --- "Hapus Baris" Section in Sidebar when on Clustering Analysis Page ---
+    # --- "Hapus Baris" Section in Sidebar ---
     st.sidebar.subheader(translate("Hapus Baris"))
     st.sidebar.text_area(
         translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"),
         value=st.session_state.drop_names_input_val,
         key="drop_names_input_val" # This key updates st.session_state.drop_names_input_val
     )
-    # The button click sets a flag in session state that the content function checks
-    # The important change is here: using 'on_change' callback
+    # The button click sets a flag in session state using on_click
     st.sidebar.button(
         translate("Hapus Baris"),
         key="drop_button_sidebar", # Key for the button
-        on_click=lambda: st.session_state.update(drop_button_sidebar=True) # Set state when clicked
+        on_click=lambda: st.session_state.update(drop_button_sidebar=True) # Set state to True when clicked
     )
 
 
@@ -528,4 +529,5 @@ if page_selection == "Clustering Analysis":
 if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
+    # Call the content function for the clustering page
     clustering_analysis_page_content()
