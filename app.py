@@ -138,27 +138,46 @@ def translate(text):
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
-            "Indonesia": "<code>SPTP (Subholding Pelindo Terminal Petikemas)</code>, bagian dari PT Pelabuhan Indonesia (Pelindo), adalah salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemikemas di berbagai pelabuhan strategis di seluruh Indonesia.",
-            "English": "<code>SPTP (Subholding Pelindo Terminal Petikemas)</code>, part of PT Pelabuhan Indonesia (Pelindo), is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."
+            "Indonesia": "Berdirinya Pelindo sebagai perusahaan hasil integrasi ini adalah inisiatif strategis pemerintah selaku pemegang saham untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat. Konektivitas maritim baik keterhubungan antar pelabuhan-pelabuhan di dalam negeri, maupun antara pelabuhan di dalam dan luar negeri akan meningkat.",
+            "English": "The establishment of Pelindo as an integrated company is a strategic initiative by the government, as a shareholder, to realize stronger national connectivity and logistics ecosystem networks. Maritime connectivity, both between domestic ports and between domestic and international ports, will improve."
         },
         "About SPTP Text 2": {
-            "Indonesia": "Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari berbagai wilayah di Indonesia. Dilengkapi dengan fasilitas dan teknologi modern untuk menangani berbagai jenis kargo peti kemas secara efisien dan aman.",
-            "English": "This terminal serves as a vital gateway for trade, facilitating the flow of goods to and from various regions in Indonesia. It is equipped with modern facilities and technology to handle various types of container cargo efficiently and safely."
+            "Indonesia": "Dengan memiliki kendali strategis yang lebih baik dan didukung oleh kemampuan finansial yang kuat, operasional bisnis Pelindo menjadi lebih terkoordinasi, terstandar, dan efisien sehingga akan memberi keuntungan bagi masyarakat khususnya pengguna jasa.",
+            "English": "By having better strategic control and supported by strong financial capabilities, Pelindo's business operations become more coordinated, standardized, and efficient, which will benefit the public, especially service users."
         },
         "About SPTP Text 3": {
-            "Indonesia": "Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
-            "English": "Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
+            "Indonesia": "Saat ini, integrasi Pelindo dibagi menjadi empat (4) unit bisnis (sub-holding) di antaranya **PT Pelindo Multi Terminal**, **PT Pelindo Solusi Logistik**, **PT Pelindo Terminal Petikemas**, dan **PT Pelindo Jasa Maritim**.",
+            "English": "Currently, Pelindo's integration is divided into four (4) business units (sub-holdings), including **PT Pelindo Multi Terminal**, **PT Pelindo Solusi Logistik**, **PT Pelindo Terminal Petikemas**, and **PT Pelindo Jasa Maritim**."
+        },
+        "About SPTP Text 4": {
+            "Indonesia": "Pelindo Terminal Petikemas atau **Pelindo TPK** merupakan operator terminal yang memberikan pelayanan petikemas dengan sistem jaringan yang terintegrasi dan terstandar. Di bawah naungan operator pelabuhan terbesar di Indonesia, kami memiliki peran strategis dalam mendorong pertumbuhan dan pemerataan ekonomi nasional.",
+            "English": "Pelindo Terminal Petikemas or **Pelindo TPK** is a terminal operator that provides container services with an integrated and standardized network system. Under the largest port operator in Indonesia, we have a strategic role in driving national economic growth and equity."
         },
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
-        # UPDATED VISION HERE
         "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
         "Our Mission": {"Indonesia": "Misi", "English": "Mission"},
-        # UPDATED MISSION ITEMS HERE
         "Mission Item 1": {"Indonesia": "Mendukung ekosistem petikemas yang terintegrasi melalui keunggulan operasional", "English": "Supporting an integrated container ecosystem through operational excellence"},
         "Mission Item 2": {"Indonesia": "Optimalisasi jaringan", "English": "Network optimization"},
         "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
+        "Short History": {"Indonesia": "Sejarah Singkat", "English": "Short History"},
+        "History Text 1": {
+            "Indonesia": "Indonesia memiliki sejarah panjang sebagai negara maritim. Di masa lalu, kerajaan-kerajaan maritim nusantara seperti Sriwijaya, Majapahit, kerajaan di Maluku pernah memegang kunci jalur perdagangan dunia lewat rempah-rempah. Pedagang-pedagang dari Gujarat dan China mengambil rempah-rempah dari Kepulauan Maluku lalu mengirimkannya melalui kapal-kapal dagang menuju Cina, Semenanjung Arab, Eropa, hingga ke Madagaskar.",
+            "English": "Indonesia has a long history as a maritime nation. In the past, maritime kingdoms of the archipelago such as Sriwijaya, Majapahit, and kingdoms in Maluku held the key to world trade routes through spices. Traders from Gujarat and China took spices from the Maluku Islands and shipped them via merchant ships to China, the Arabian Peninsula, Europe, and even Madagascar."
+        },
+        "History Text 2": {
+            "Indonesia": "Pelabuhan-pelabuhan kecil di Indonesia menjadi tempat persinggahan dan pusat perdagangan yang mempertemukan para pedagang dari berbagai bangsa, sehingga menjadi bandar niaga yang besar. Hal ini melatari lahirnya Pelabuhan Indonesia di era kemerdekaan.",
+            "English": "Small ports in Indonesia became transit points and trade centers that brought together traders from various nations, thus becoming large trading hubs. This laid the foundation for the birth of Pelabuhan Indonesia (Indonesian Ports) in the era of independence."
+        },
+        "History Text 3": {
+            "Indonesia": "Sebelumnya, untuk mengelola kepelabuhanan di Indonesia, dibentuk 4 Pelindo yang terbagi berdasar wilayah yang berbeda. Merger atau integrasi keempat Pelindo menjadi satu Pelindo yang kemudian diberi nama **PT Pelabuhan Indonesia**. Pelindo II bertindak sebagai holding induk (perusahaan induk) dan ke-3 Pelindo (I, III, IV) bertindak sebagai sub-holding. Pembentukan sub-holding yang mengelola klaster-klaster usaha ditujukan untuk meningkatkan kapasitas pelayanan Pelindo dan efisiensi usaha.",
+            "English": "Previously, to manage port operations in Indonesia, four Pelindo entities were formed, divided based on different regions. The merger or integration of these four Pelindo entities resulted in a single Pelindo, which was then named **PT Pelabuhan Indonesia**. Pelindo II acted as the parent holding company, and the other three Pelindo entities (I, III, IV) acted as sub-holdings. The formation of sub-holdings managing business clusters was aimed at increasing Pelindo's service capacity and business efficiency."
+        },
+        "History Text 4": {
+            "Indonesia": "Pada tahun 2012 berdasarkan gagasan dari Kementerian BUMN, Pelindo I, II, III, dan IV melakukan konsorsium untuk mendirikan **PT Terminal Petikemas Indonesia (PT TPI)** dan mulai beroperasi secara aktif pada tahun 2014. Namun, seiring dilakukannya integrasi Pelindo yang dilaksanakan pada tanggal 1 Oktober 2021, maka PT TPI berganti nama menjadi **PT Pelindo Terminal Petikemas** berdasarkan akta perubahan nama yang diterbitkan pada tanggal 11 Oktober 2021 yang saat ini menjadi salah satu sub-holding integrasi Pelindo.",
+            "English": "In 2012, based on an idea from the Ministry of SOEs, Pelindo I, II, III, and IV formed a consortium to establish **PT Terminal Petikemas Indonesia (PT TPI)**, which began active operations in 2014. However, with the Pelindo integration carried out on October 1, 2021, PT TPI changed its name to **PT Pelindo Terminal Petikemas** based on a deed of name change issued on October 11, 2021, which is now one of Pelindo's integrated sub-holdings."
+        },
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -285,6 +304,19 @@ def home_page():
         <p>
             {translate("About SPTP Text 3")}
         </p>
+        <p>
+            {translate("About SPTP Text 4")}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.header(translate("Short History"))
+    st.markdown(f"""
+    <div class="home-page-container">
+        <p>{translate("History Text 1")}</p>
+        <p>{translate("History Text 2")}</p>
+        <p>{translate("History Text 3")}</p>
+        <p>{translate("History Text 4")}</p>
     </div>
     """, unsafe_allow_html=True)
 
