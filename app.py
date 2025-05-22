@@ -161,23 +161,6 @@ def translate(text):
         "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
-        "Short History": {"Indonesia": "Sejarah Singkat SPTP", "English": "Short History of SPTP"}, # Updated title
-        "History Text 1": {
-            "Indonesia": "Indonesia memiliki sejarah panjang sebagai negara maritim, dengan pelabuhan-pelabuhan yang menjadi pusat perdagangan penting sejak era kerajaan. Untuk mengelola kepelabuhanan, sebelumnya dibentuk 4 Pelindo yang terbagi berdasar wilayah.",
-            "English": "Indonesia has a long history as a maritime nation, with ports serving as important trade centers since the era of kingdoms. To manage port operations, four Pelindo entities were previously formed, divided by region."
-        },
-        "History Text 2": {
-            "Indonesia": "Pada tahun 2012, berdasarkan gagasan Kementerian BUMN, Pelindo I, II, III, dan IV melakukan konsorsium untuk mendirikan **PT Terminal Petikemas Indonesia (PT TPI)**. Perusahaan ini mulai beroperasi secara aktif pada tahun 2014, menandai langkah awal dalam spesialisasi layanan peti kemas.",
-            "English": "In 2012, based on an idea from the Ministry of SOEs, Pelindo I, II, III, and IV formed a consortium to establish **PT Terminal Petikemas Indonesia (PT TPI)**. This company began active operations in 2014, marking the initial step in container service specialization."
-        },
-        "History Text 3": {
-            "Indonesia": "Seiring dengan integrasi Pelindo yang dilaksanakan pada tanggal 1 Oktober 2021, PT TPI kemudian berganti nama menjadi **PT Pelindo Terminal Petikemas** berdasarkan akta perubahan nama yang diterbitkan pada tanggal 11 Oktober 2021. Sejak saat itu, Pelindo Terminal Petikemas menjadi salah satu sub-holding utama dalam struktur Pelindo yang terintegrasi, dengan fokus penuh pada pengelolaan dan pengembangan terminal peti kemas nasional.",
-            "English": "Following the Pelindo integration carried out on October 1, 2021, PT TPI was subsequently renamed **PT Pelindo Terminal Petikemas** based on a deed of name change issued on October 11, 2021. Since then, Pelindo Terminal Petikemas has become one of the main sub-holdings within the integrated Pelindo structure, with a full focus on national container terminal management and development."
-        },
-        "History Text 4": { # This text is now removed
-            "Indonesia": "", 
-            "English": ""
-        },
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
