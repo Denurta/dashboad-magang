@@ -187,21 +187,17 @@ def translate(text):
         },
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
         "Methodology Item 1": {
-            "Indonesia": "💡  K-Means Clustering  digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
-            "English": "💡  K-Means Clustering  is used to group terminals with similar operational characteristics."
+            "Indonesia": "💡  K-Means dan Agglomerative Clustering  digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
+            "English": "💡  K-Means and Agglomerative Clustering is used to group terminals with similar operational characteristics."
         },
-        # New item for Agglomerative Clustering
-        "Methodology Item Agglomerative": {
-            "Indonesia": "💡  Agglomerative Clustering  membangun hierarki klaster secara bertahap, menggabungkan klaster terdekat hingga mencapai jumlah klaster yang diinginkan. Ini berguna untuk memahami struktur data pada berbagai tingkat granularitas.",
-            "English": "💡  Agglomerative Clustering  builds a hierarchy of clusters iteratively, merging the closest clusters until the desired number of clusters is reached. This is useful for understanding data structure at different levels of granularity."
-        },
+
         "Methodology Item Elbow": { # Renamed for clarity in markdown
             "Indonesia": "📉  Metode Elbow  membantu menentukan jumlah klaster yang optimal.",
             "English": "📉 The  Elbow Method  helps determine the optimal number of clusters."
         },
         "Methodology Item Silhouette": { # Renamed for clarity in markdown
-            "Indonesia": "✅  Silhouette Score  dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
-            "English": "✅  Silhouette Score  is calculated to evaluate how well terminals are grouped."
+            "Indonesia": "✅  Silhouette Score dan Davies-Bouldin Index (DBI) digunakan untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "✅  Silhouette Score and Davies-Bouldin Index (DBI) is used to evaluate how well terminals are grouped."
         },
         "Methodology Item DBI": { # Added DBI explanation to Methodology section
             "Indonesia": "📊  Davies-Bouldin Index (DBI)  adalah metrik untuk mengevaluasi kualitas klaster. Nilai DBI yang mendekati 0 menunjukkan klaster yang lebih terpisah dan lebih padat.",
