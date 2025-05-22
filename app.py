@@ -79,7 +79,8 @@ if 'agg_linkage_sidebar' not in st.session_state: st.session_state.agg_linkage_s
 if 'visualization_options_sidebar' not in st.session_state: st.session_state.visualization_options_sidebar = []
 if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_state.cluster_evaluation_options_sidebar = []
 if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = '' # Initialize text_area value
-# For buttons, their key automatically manages their True/False state.
+# New flag for button click action
+if 'execute_drop_action' not in st.session_state: st.session_state.execute_drop_action = False
 
 
 # --- Translation Function ---
@@ -222,17 +223,17 @@ def home_page():
 
 # Helper function to handle row deletion logic
 def handle_row_deletion_logic():
-    # Check if the button was clicked based on its key's state
-    # st.session_state['drop_button_sidebar'] will be True if clicked, False otherwise.
-    if st.session_state.get('drop_button_sidebar', False):
+    # We check if the action flag is set in session state.
+    # This flag is set by the button's on_click callback.
+    if st.session_state.get('execute_drop_action', False):
         if not st.session_state.data_uploaded:
             st.warning("Silakan unggah data terlebih dahulu untuk menggunakan fitur hapus baris.")
-            st.session_state['drop_button_sidebar'] = False # Reset button state
+            st.session_state['execute_drop_action'] = False # Reset flag
             return
 
         if 'Row Labels' not in st.session_state.df_cleaned.columns:
             st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-            st.session_state['drop_button_sidebar'] = False # Reset button state
+            st.session_state['execute_drop_action'] = False # Reset flag
             return
 
         current_df = st.session_state.df_cleaned.copy()
@@ -253,8 +254,8 @@ def handle_row_deletion_logic():
         else:
             st.warning("Silakan masukkan nama baris yang ingin dihapus.")
             
-        # CRUCIAL: Reset the button state immediately after processing to prevent re-trigger on next rerun
-        st.session_state['drop_button_sidebar'] = False
+        # CRUCIAL: Reset the action flag immediately after processing to prevent re-trigger on next rerun
+        st.session_state['execute_drop_action'] = False
 
 
 def clustering_analysis_page_content():
@@ -291,8 +292,9 @@ def clustering_analysis_page_content():
         st.info("\u26A0\uFE0F " + translate("Upload Data untuk Analisis"))
 
     # Process row deletion if button was clicked AND data is loaded
-    # This must run BEFORE any data is displayed, as it modifies df_cleaned
-    # The check for button click is now inside handle_row_deletion_logic itself.
+    # This must run before any data is displayed, as it modifies df_cleaned
+    # The check for button click is now inside handle_row_deletion_logic itself,
+    # which checks the 'execute_drop_action' flag.
     handle_row_deletion_logic()
 
     # Remaining analysis logic (reads from sidebar state which is set globally)
@@ -522,10 +524,14 @@ if page_selection == "Clustering Analysis":
         value=st.session_state.drop_names_input_val,
         key="drop_names_input_val" # This key updates st.session_state.drop_names_input_val
     )
-    # The button click updates its own key in session state. We do NOT use on_click here.
+    # The button click sets a flag in session state using on_click.
+    # The button itself *does not have its own key here* for this specific case,
+    # as its click action is managed by the separate 'execute_drop_action' flag.
+    # We name the button label for clarity.
     st.sidebar.button(
         translate("Hapus Baris"),
-        key="drop_button_sidebar" # This key alone will set st.session_state.drop_button_sidebar to True on click
+        key="trigger_drop_button_click", # Use a *new* key for the button to avoid conflict
+        on_click=lambda: st.session_state.update(execute_drop_action=True) # Set custom flag for processing
     )
 
 
@@ -534,5 +540,4 @@ if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
     # Call the content function for the clustering page
-    # The handle_row_deletion_logic will check st.session_state.drop_button_sidebar
     clustering_analysis_page_content()
