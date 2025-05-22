@@ -127,10 +127,10 @@ def translate(text):
         "Parameter KMeans (Jumlah Klaster)": {"Indonesia": "Parameter KMeans (Jumlah Klaster)", "English": "KMeans Parameter (Number of Clusters)"},
         "Pilih Variabel untuk Analisis Klaster": {"Indonesia": "Pilih Variabel untuk Analisis Klaster", "English": "Select Variables for Cluster Analysis"},
         "Penjelasan Metode Linkage": {"Indonesia": "Penjelasan Metode Linkage", "English": "Explanation of Linkage Methods"},
-        "Ward": {"Indonesia": "Ward: Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": "Ward: Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
-        "Complete": {"Indonesia": "Complete (Maximum Linkage): Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "Complete (Maximum Linkage): Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
-        "Average": {"Indonesia": "Average (Average Linkage): Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "Average (Average Linkage): Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
-        "Single": {"Indonesia": "Single (Minimum Linkage): Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "Single (Minimum Linkage): Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
+        "Ward": {"Indonesia": "**Ward:** Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": "**Ward:** Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
+        "Complete": {"Indonesia": "**Complete (Maximum Linkage):** Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "**Complete (Maximum Linkage):** Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
+        "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
+        "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
         
@@ -167,37 +167,41 @@ def translate(text):
         },
         "Performance Variables Title": {"Indonesia": "⚙️ Variabel Kinerja yang Dianalisis", "English": "⚙️ Performance Variables Analyzed"},
         "ET/BT Variable": {
-            "Indonesia": "🔹 ET/BT (Efisiensi Waktu Operasional): Rasio antara waktu efektif dan waktu sandar kapal. Semakin tinggi, semakin efisien aktivitas bongkar muat.",
-            "English": "🔹 ET/BT (Operational Time Efficiency): Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
+            "Indonesia": "🔹 **ET/BT (Efisiensi Waktu Operasional)**: Rasio antara waktu efektif dan waktu sandar kapal. Semakin tinggi, semakin efisien aktivitas bongkar muat.",
+            "English": "🔹 **ET/BT (Operational Time Efficiency)**: Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
         },
         "BSH/BT Variable": {
-            "Indonesia": "🔹 BSH/BT (Produktivitas Waktu Sandar): Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
-            "English": "🔹 BSH/BT (Berth Time Productivity): Measures how many containers are unloaded per hour while the ship is at the berth."
+            "Indonesia": "🔹 **BSH/BT (Produktivitas Waktu Sandar)**: Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
+            "English": "🔹 **BSH/BT (Berth Time Productivity)**: Measures how many containers are unloaded per hour while the ship is at the berth."
         },
         "BCH/ET Variable": {
-            "Indonesia": "🔹 BCH/ET (Produktivitas Waktu Efektif): Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
-            "English": "🔹 BCH/ET (Effective Time Productivity): Indicates productivity per hour during the actual operational working time."
+            "Indonesia": "🔹 **BCH/ET (Produktivitas Waktu Efektif)**: Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
+            "English": "🔹 **BCH/ET (Effective Time Productivity)**: Indicates productivity per hour during the actual operational working time."
         },
         "Standardization Note": {
             "Indonesia": "Sebelum analisis dilakukan, semua variabel distandarisasi agar memiliki skala yang setara, sehingga proses pengelompokan dapat dilakukan secara objektif.",
             "English": "Before analysis, all variables are standardized to have an equivalent scale, enabling objective clustering."
         },
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
-        "Methodology Item 1": {
-            "Indonesia": "💡 K-Means Clustering digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
-            "English": "💡 K-Means Clustering is used to group terminals with similar operational characteristics."
+        "Methodology Item 1": { # Updated to include K-Means explanation
+            "Indonesia": "💡 **K-Means Clustering**: Sebuah algoritma partisional yang membagi data menjadi 'K' kelompok yang telah ditentukan. Tujuannya adalah meminimalkan variasi intra-cluster dan memaksimalkan variasi antar-cluster.",
+            "English": "💡 **K-Means Clustering**: A partitioning algorithm that divides data into 'K' predefined clusters. Its goal is to minimize intra-cluster variation and maximize inter-cluster variation."
         },
-        "Methodology Item 2": {
-            "Indonesia": "📉 Metode Elbow membantu menentukan jumlah klaster yang optimal.",
-            "English": "📉 The Elbow Method helps determine the optimal number of clusters."
+        "Methodology Item 2": { # Updated to include Agglomerative explanation
+            "Indonesia": "💡 **Agglomerative Clustering**: Sebuah algoritma hierarkis yang memulai dengan setiap titik data sebagai klaster individual, kemudian menggabungkan klaster secara berpasangan hingga mencapai jumlah klaster yang diinginkan. Ini membangun hierarki klaster secara bottom-up.",
+            "English": "💡 **Agglomerative Clustering**: A hierarchical algorithm that starts with each data point as an individual cluster, then iteratively merges pairs of clusters until the desired number of clusters is achieved. It builds a hierarchy of clusters from the bottom up."
         },
         "Methodology Item 3": {
-            "Indonesia": "✅ Silhouette Score dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
-            "English": "✅ Silhouette Score is calculated to evaluate how well terminals are grouped."
+            "Indonesia": "📉 **Metode Elbow** membantu menentukan jumlah klaster yang optimal.",
+            "English": "📉 The **Elbow Method** helps determine the optimal number of clusters."
         },
         "Methodology Item 4": {
-            "Indonesia": "🧪 Uji ANOVA satu arah dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
-            "English": "🧪 One-way ANOVA test is performed to see if there are significant differences between clusters for each performance variable."
+            "Indonesia": "✅ **Silhouette Score** dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "✅ **Silhouette Score** is calculated to evaluate how well terminals are grouped."
+        },
+        "Methodology Item 5": { # New item for Davies-Bouldin Index explanation
+            "Indonesia": "🧪 **Davies-Bouldin Index (DBI)**: Sebuah metrik evaluasi klaster internal yang mengukur rasio antara dispersi intra-klaster (jarak rata-rata antara setiap titik dalam klaster dan centroid-nya) dan dispersi antar-klaster (jarak antara centroid klaster). **Nilai DBI yang lebih rendah (mendekati 0) menunjukkan pengelompokan yang lebih baik**, di mana klaster lebih kompak dan terpisah satu sama lain.",
+            "English": "🧪 **Davies-Bouldin Index (DBI)**: An internal cluster evaluation metric that measures the ratio of within-cluster dispersion (average distance between each point in a cluster and its centroid) to between-cluster separation (distance between cluster centroids). **Lower DBI values (closer to 0) indicate better clustering**, where clusters are more compact and well-separated from each other."
         },
         "Analysis Objective Section Title": {"Indonesia": "🎯 Tujuan Analisis", "English": "🎯 Analysis Objective"},
         "Analysis Objective Item 1": {
@@ -371,12 +375,13 @@ def home_page():
             <li>{translate("BCH/ET Variable")}</li>
         </ul>
         <p>{translate("Standardization Note")}</p>
-        <h4>{translate("Methodology Title")}</h4>
+        <h4>{translate("Metodologi Pengelompokan")}</h4>
         <ul>
             <li>{translate("Methodology Item 1")}</li>
             <li>{translate("Methodology Item 2")}</li>
             <li>{translate("Methodology Item 3")}</li>
             <li>{translate("Methodology Item 4")}</li>
+            <li>{translate("Methodology Item 5")}</li> {/* Added new item for DBI */}
         </ul>
         <h4>{translate("Analysis Objective Section Title")}</h4>
         <ul>
