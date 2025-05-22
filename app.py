@@ -186,7 +186,7 @@ def translate(text):
             "English": "Before analysis, all variables are standardized to have an equivalent scale, enabling objective clustering."
         },
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
-        "Methodology Item 1": {
+        "Methodology Item Clustering": {
             "Indonesia": "💡  K-Means dan Agglomerative Clustering  digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
             "English": "💡  K-Means and Agglomerative Clustering is used to group terminals with similar operational characteristics."
         },
@@ -195,14 +195,11 @@ def translate(text):
             "Indonesia": "📉  Metode Elbow  membantu menentukan jumlah klaster yang optimal.",
             "English": "📉 The  Elbow Method  helps determine the optimal number of clusters."
         },
-        "Methodology Item Silhouette": { # Renamed for clarity in markdown
+        "Methodology Item Evaluate": { # Renamed for clarity in markdown
             "Indonesia": "✅  Silhouette Score dan Davies-Bouldin Index (DBI) digunakan untuk mengevaluasi seberapa baik terminal dikelompokkan.",
             "English": "✅  Silhouette Score and Davies-Bouldin Index (DBI) is used to evaluate how well terminals are grouped."
         },
-        "Methodology Item DBI": { # Added DBI explanation to Methodology section
-            "Indonesia": "📊  Davies-Bouldin Index (DBI)  adalah metrik untuk mengevaluasi kualitas klaster. Nilai DBI yang mendekati 0 menunjukkan klaster yang lebih terpisah dan lebih padat.",
-            "English": "📊  Davies-Bouldin Index (DBI)  is a metric to evaluate cluster quality. DBI values closer to 0 indicate more separated and denser clusters."
-        },
+       
         "Methodology Item ANOVA": { # Renamed for clarity in markdown
             "Indonesia": "🧪  Uji ANOVA satu arah  dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
             "English": "🧪  One-way ANOVA test  is performed to see if there are significant differences between clusters for each performance variable."
