@@ -10,8 +10,8 @@ import numpy as np
 
 # --- SET PAGE CONFIG (MUST BE AT THE VERY TOP) ---
 st.set_page_config(
-    page_title="Pelindo Terminal Analysis",
-    page_icon="🚢", # Ikon kapal tetap ada di sini
+    page_title="SPTP Analysis", # Nama aplikasi di tab browser
+    page_icon="🚢",
     layout="wide"
 )
 
@@ -74,7 +74,7 @@ li {
     transform: translateY(-2px); /* Slight lift effect */
 }
 /* Adjust spacing for columns if needed, though gap on wrapper or column itself is better */
-.centered-buttons-wrapper .st-emotion-cache-1pxczgcb { /* Targeting the Streamlit columns internal div */
+.centered-buttons-wrapper .st-emotion-cache-1pxczgcb { /* Targeting the Streamlit columns internal div (Streamlit internal class might change) */
     gap: 30px; /* Add gap between columns if necessary */
 }
 
@@ -123,18 +123,19 @@ def translate(text):
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
-        "Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis": {"Indonesia": "Selamat Datang di Analisis PT Pelindo Terminal Petikemas Surabaya", "English": "Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis"},
-        # Terjemahan baru untuk About Section
-        "About PT Pelindo Terminal Petikemas Surabaya": {"Indonesia": "Tentang PT Pelindo Terminal Petikemas Surabaya", "English": "About PT Pelindo Terminal Petikemas Surabaya"},
-        "About Pelindo Terminal Petikemas Text 1": {
-            "Indonesia": "PT Pelindo Terminal Petikemas (SPTP) adalah **Subholding Pelindo Terminal Petikemas**, bagian dari PT Pelabuhan Indonesia (Pelindo), dan merupakan salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia.",
-            "English": "PT Pelindo Terminal Petikemas (SPTP) is the **Subholding Pelindo Terminal Petikemas**, part of PT Pelabuhan Indonesia (Pelindo), and is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."
+        
+        # --- TEKS YANG DIPERBARUI ---
+        "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
+        "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
+        "About SPTP Text 1": {
+            "Indonesia": "**SPTP (Subholding Pelindo Terminal Petikemas)**, bagian dari PT Pelabuhan Indonesia (Pelindo), adalah salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia.",
+            "English": "**SPTP (Subholding Pelindo Terminal Petikemas)**, part of PT Pelabuhan Indonesia (Pelindo), is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."
         },
-        "About Pelindo Terminal Petikemas Text 2": {
-            "Indonesia": "Berlokasi di Surabaya, Jawa Timur, **Terminal Petikemas Surabaya** berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari wilayah timur Indonesia. Terminal ini dilengkapi dengan fasilitas dan teknologi modern untuk menangani berbagai jenis kargo peti kemas secara efisien dan aman.",
-            "English": "Located in Surabaya, East Java, the **Petikemas Surabaya Terminal** serves as a vital gateway for trade, facilitating the flow of goods to and from the eastern part of Indonesia. It is equipped with modern facilities and technology to handle various types of container cargo efficiently and safely."
+        "About SPTP Text 2": {
+            "Indonesia": "Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari berbagai wilayah di Indonesia. Dilengkapi dengan fasilitas dan teknologi modern untuk menangani berbagai jenis kargo peti kemas secara efisien dan aman.",
+            "English": "This terminal serves as a vital gateway for trade, facilitating the flow of goods to and from various regions in Indonesia. It is equipped with modern facilities and technology to handle various types of container cargo efficiently and safely."
         },
-        "About Pelindo Terminal Petikemas Text 3": {
+        "About SPTP Text 3": {
             "Indonesia": "Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
             "English": "Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
@@ -219,20 +220,20 @@ def perform_anova(df, features, cluster_col):
 # --- Page Functions ---
 
 def home_page():
-    # Nama aplikasi dan ikon kapal tetap ada di sini
-    st.title("🚢 " + translate("Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis"))
+    # Judul utama aplikasi, sekarang fokus pada SPTP
+    st.title("🚢 " + translate("Welcome to SPTP Analysis"))
 
     st.markdown(f"""
     <div class="home-page-container">
-        <h3>{translate("About PT Pelindo Terminal Petikemas Surabaya")}</h3>
+        <h3>{translate("About SPTP")}</h3>
         <p>
-            {translate("About Pelindo Terminal Petikemas Text 1")}
+            {translate("About SPTP Text 1")}
         </p>
         <p>
-            {translate("About Pelindo Terminal Petikemas Text 2")}
+            {translate("About SPTP Text 2")}
         </p>
         <p>
-            {translate("About Pelindo Terminal Petikemas Text 3")}
+            {translate("About SPTP Text 3")}
         </p>
     </div>
     """, unsafe_allow_html=True)
