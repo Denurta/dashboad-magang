@@ -47,6 +47,19 @@ li {
     border-radius: 10px;
     margin-bottom: 20px;
 }
+/* Style for top navigation radio buttons */
+.stRadio > label {
+    font-size: 1.2em; /* Make the label larger */
+    font-weight: bold;
+    color: #1E3A5F;
+}
+.stRadio > div[role="radiogroup"] {
+    flex-direction: row; /* Arrange radio buttons horizontally */
+    gap: 20px; /* Space them out */
+    padding-bottom: 20px; /* Add some space below */
+    border-bottom: 1px solid #ddd; /* A subtle separator */
+    margin-bottom: 20px; /* Space after separator */
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -148,7 +161,6 @@ def elbow_method(df_scaled):
 def perform_anova(df, features, cluster_col):
     anova_results = []
     for feature in features:
-        # FIX: Corrected the syntax from `k k in` to `k in`
         unique_cluster_labels = [k for k in df[cluster_col].unique()]
         groups = [df[df[cluster_col] == k][feature] for k in unique_cluster_labels]
         groups = [g for g in groups if not g.empty]
@@ -419,13 +431,11 @@ def clustering_analysis_page():
 
 
 # --- Main Application Logic (Page Selection) ---
-# Sidebar for language and page navigation
-st.sidebar.title("Navigation")
-page_selection = st.sidebar.radio("Go to", ["Home", "Clustering Analysis"])
+# TOP NAVIGATION
+page_selection = st.radio("Go to", ["Home", "Clustering Analysis"], key="top_navigation_radio")
 
 # Language selector is kept in the sidebar, accessible from both pages
-st.sidebar.markdown("---")
-# Use a key to ensure Streamlit tracks the widget state properly across reruns
+st.sidebar.markdown("---") # Separator
 st.sidebar.radio(translate("Pilih Bahasa"), ["Indonesia", "English"], key="language_selector", on_change=lambda: st.session_state.__setitem__('language', st.session_state.language_selector))
 
 
