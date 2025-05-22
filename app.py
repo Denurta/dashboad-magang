@@ -333,16 +333,36 @@ def perform_anova(df, features, cluster_col):
     
     anova_results = []
     for feature in features:
-        unique_cluster_labels = [k for k in df[cluster_col].unique()]
-        groups = [df[df[cluster_col] == k][feature].dropna() for k in unique_cluster_labels]
-        # Filter out empty groups and groups with single unique value (ANOVA requires variance)
-        groups = [g for g in groups if len(g) > 1 and g.nunique() > 1] 
+        # Get unique cluster labels and filter out NaN cluster labels if any
+        unique_cluster_labels = [k for k in df[cluster_col].dropna().unique()]
+        
+        # Ensure there are at least two unique clusters to compare
+        if len(unique_cluster_labels) < 2:
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            continue # Skip to next feature if not enough clusters
 
-        if len(groups) > 1:
-            f_stat, p_value = f_oneway(*groups)
-            anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+        groups = []
+        for k in unique_cluster_labels:
+            group_data = df[df[cluster_col] == k][feature].dropna()
+            # Ensure each group has at least 2 data points AND some variance
+            if len(group_data) > 1 and group_data.nunique() > 1:
+                groups.append(group_data)
+            else:
+                # If a group is invalid, we can't run ANOVA for this feature robustly
+                # A more nuanced approach might be to skip just this group or indicate a warning
+                # For simplicity, we'll mark this feature's ANOVA as NaN
+                groups = [] # Clear valid groups to force NaN for this feature
+                break # Exit inner loop, set ANOVA for this feature to NaN
+
+        if len(groups) >= 2: # Ensure we have at least two valid groups after filtering
+            try:
+                f_stat, p_value = f_oneway(*groups)
+                anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
+            except ValueError: # Catch cases where f_oneway might still fail (e.g., all values are same in groups)
+                anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
         else:
-            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan}) # No valid groups for ANOVA
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            
     return pd.DataFrame(anova_results)
 
 
@@ -451,8 +471,6 @@ def handle_row_deletion_logic():
             
         if rows_deleted > 0:
             st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {', '.join(names_to_drop)}")
-            # Clear selected features if any removed rows impact them
-            # For simplicity, we just trigger a rerun if deletion happens, other widgets will react
             # No explicit rerun here, as changing session state for df_cleaned will naturally trigger it
             # This is generally preferred over direct st.rerun() in callbacks for cleaner state management
             pass
@@ -652,9 +670,13 @@ def clustering_analysis_page_content():
                 anova_results = perform_anova(df_current_analysis, selected_features, cluster_column_name)
                 if not anova_results.empty:
                     st.write(anova_results)
-                    interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
-                                  else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
-                    st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+                    # Check if any P-Value is not NaN before giving interpretation
+                    if not anova_results['P-Value'].isnull().all():
+                        interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
+                                      else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
+                        st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+                    else:
+                        st.info("Tidak ada hasil ANOVA yang valid untuk ditampilkan (mungkin tidak cukup variasi data dalam klaster atau klaster terlalu sedikit).")
                 else:
                     st.info("Tidak ada hasil ANOVA untuk ditampilkan (mungkin tidak cukup variasi data atau klaster).")
 
@@ -725,15 +747,13 @@ lang_col1, lang_col2 = st.sidebar.columns(2)
 # Function to set language without explicit st.rerun() in callback
 def set_language_callback(lang):
     st.session_state.language = lang
-    # Streamlit will naturally rerun when session state changes and is read elsewhere
-    # or when a widget is interacted with that influences other parts of the app.
+    # Streamlit will naturally rerun when session state changes and is read elsewhere.
+    # No explicit st.rerun() needed here to avoid "no-op" warning.
 
 with lang_col1:
     st.button(translate("Indonesia Button"), key="lang_id_button", help="Switch to Indonesian",
               on_click=set_language_callback, args=("Indonesia",),
               use_container_width=True,
-              # Streamlit doesn't natively support adding custom classes to buttons directly.
-              # The JS workaround below is one common way, but be aware of its limitations.
               )
 with lang_col2:
     st.button(translate("English Button"), key="lang_en_button", help="Switch to English",
