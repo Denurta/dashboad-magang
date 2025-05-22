@@ -209,8 +209,8 @@ def translate(text):
             "English": "Provide strategic insights to support service improvement."
         },
         "Analysis Objective Item 3": {
-            "Indonesia": "Membantu pengelola pelabuhan dalam mengambil keputusan berbasis bukti, misalnya dalam penyesuaian jadwal, peningkatan infrastruktur, atau alokasi sumber daya.",
-            "English": "Assist port managers in making evidence-based decisions, such as adjusting schedules, improving infrastructure, or allocating resources."
+            "Indonesia": "Membantu pengelola pelabuhan dalam mengambil keputusan berbasis data, misalnya peningkatan infrastruktur atau alokasi sumber daya.",
+            "English": "Assist port managers in making evidence-based decisions, such as improving infrastructure, or allocating resources."
         },
     }
     return translations.get(text, {}).get(st.session_state.language, text)
