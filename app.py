@@ -134,7 +134,7 @@ def translate(text):
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
         
-        # --- TEKS YANG DIPERBARUI UNTUK FOKUS KE SPTP ---
+        # --- TEKS UNTUK FOKUS KE SPTP, SEJARAH DIHAPUS ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
@@ -149,10 +149,8 @@ def translate(text):
             "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis SPTP menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
             "English": "With improved strategic control and strong financial capabilities, SPTP's business operations are more coordinated, standardized, and efficient, benefiting both the public and service users. Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
-        "About SPTP Text 4": { # This text is now removed from 'About SPTP' and moved to 'Short History'
-            "Indonesia": "", 
-            "English": ""
-        },
+        # "About SPTP Text 4" and all "History Text" keys are removed from translations
+        
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
         "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
         "Our Mission": {"Indonesia": "Misi", "English": "Mission"},
@@ -161,6 +159,7 @@ def translate(text):
         "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
+        # "Short History" key and its translations are removed
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -290,14 +289,15 @@ def home_page():
     </div>
     """, unsafe_allow_html=True)
 
-    st.header(translate("Short History"))
-    st.markdown(f"""
-    <div class="home-page-container">
-        <p>{translate("History Text 1")}</p>
-        <p>{translate("History Text 2")}</p>
-        <p>{translate("History Text 3")}</p>
-    </div>
-    """, unsafe_allow_html=True) # History Text 4 removed from here
+    # Removed the "Short History" section completely
+    # st.header(translate("Short History"))
+    # st.markdown(f"""
+    # <div class="home-page-container">
+    #     <p>{translate("History Text 1")}</p>
+    #     <p>{translate("History Text 2")}</p>
+    #     <p>{translate("History Text 3")}</p>
+    # </div>
+    # """, unsafe_allow_html=True)
 
     st.header(translate("Our Vision"))
     st.markdown(f"""
