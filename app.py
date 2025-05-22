@@ -170,10 +170,10 @@ clustering_algorithm = st.sidebar.selectbox("", ["KMeans", "Agglomerative Cluste
 
 if clustering_algorithm == "KMeans":
     st.sidebar.subheader(translate("Parameter KMeans (Jumlah Klaster)"))
-    n_clusters = st.sidebar.slider("", 2, 10, 3, key="kmeans_clusters")
+    n_clusters = st.sidebar.slider("", 2, 10, 2, key="kmeans_clusters")
 else: # Agglomerative Clustering
     st.sidebar.subheader(translate("Parameter Agglomerative (Jumlah Klaster)"))
-    n_clusters_agg = st.sidebar.slider("", 2, 10, 3, key="agg_clusters")
+    n_clusters_agg = st.sidebar.slider("", 2, 10, 2, key="agg_clusters")
     st.sidebar.subheader(translate("Parameter Agglomerative (Metode Linkage)"))
     linkage_method = st.sidebar.selectbox("", ["ward", "complete", "average", "single"], key="agg_linkage")
 
