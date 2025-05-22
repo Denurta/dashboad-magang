@@ -128,8 +128,8 @@ def translate(text):
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
-            "Indonesia": "**SPTP (Subholding Pelindo Terminal Petikemas)**, bagian dari PT Pelabuhan Indonesia (Pelindo), adalah salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia.",
-            "English": "**SPTP (Subholding Pelindo Terminal Petikemas)**, part of PT Pelabuhan Indonesia (Pelindo), is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."
+            "Indonesia": "<code>SPTP (Subholding Pelindo Terminal Petikemas)</code>, bagian dari PT Pelabuhan Indonesia (Pelindo), adalah salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia.",
+            "English": "<code>SPTP (Subholding Pelindo Terminal Petikemas)</code>, part of PT Pelabuhan Indonesia (Pelindo), is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."
         },
         "About SPTP Text 2": {
             "Indonesia": "Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari berbagai wilayah di Indonesia. Dilengkapi dengan fasilitas dan teknologi modern untuk menangani berbagai jenis kargo peti kemas secara efisien dan aman.",
