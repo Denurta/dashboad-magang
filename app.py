@@ -47,19 +47,7 @@ li {
     border-radius: 10px;
     margin-bottom: 20px;
 }
-/* Style for top navigation radio buttons */
-.stRadio > label {
-    font-size: 1.2em; /* Make the label larger */
-    font-weight: bold;
-    color: #1E3A5F;
-}
-.stRadio > div[role="radiogroup"] {
-    flex-direction: row; /* Arrange radio buttons horizontally */
-    gap: 20px; /* Space them out */
-    padding-bottom: 20px; /* Add some space below */
-    border-bottom: 1px solid #ddd; /* A subtle separator */
-    margin-bottom: 20px; /* Space after separator */
-}
+/* No specific top navigation style needed anymore if using sidebar for main nav */
 </style>
 """, unsafe_allow_html=True)
 
@@ -74,6 +62,7 @@ if 'df_cleaned' not in st.session_state:
     st.session_state.df_cleaned = pd.DataFrame()
 if 'drop_names_input_val' not in st.session_state:
     st.session_state['drop_names_input_val'] = '' # Initialize for the text_area value persistence
+
 
 # --- Translation Function ---
 def translate(text):
@@ -213,7 +202,7 @@ def home_page():
     st.info("Navigate to the 'Clustering Analysis' section in the sidebar to upload your data and perform cluster analysis on terminal metrics.")
 
 
-def clustering_analysis_page():
+def clustering_analysis_content():
     st.title(translate("Analisis Klaster Terminal"))
 
     # --- Usage Guide ---
@@ -249,6 +238,7 @@ def clustering_analysis_page():
     if st.session_state.data_uploaded:
         df_cleaned = st.session_state['df_cleaned']
 
+        # Sidebar elements for drop rows
         if 'Row Labels' in df_cleaned.columns:
             drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), value=st.session_state.drop_names_input_val, key="drop_names_input_val")
             drop_button = st.sidebar.button(translate("Hapus Baris"))
@@ -285,7 +275,7 @@ def clustering_analysis_page():
 
                     cluster_column_name = ""
 
-                    # --- SIDEBAR WIDGETS FOR CLUSTERING ANALYSIS PAGE ONLY ---
+                    # --- SIDEBAR WIDGETS FOR CLUSTERING (ALWAYS VISIBLE WHEN ON THIS PAGE) ---
                     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
                     clustering_algorithm = st.sidebar.selectbox("Algoritma", ["KMeans", "Agglomerative Clustering"], key="algo_select_clustering_page")
 
@@ -320,7 +310,7 @@ def clustering_analysis_page():
 
                     st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
                     cluster_evaluation_options = st.sidebar.multiselect("Evaluasi", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index")], key="eval_options_clustering_page")
-                    # --- END OF SIDEBAR WIDGETS FOR CLUSTERING ANALYSIS PAGE ---
+                    # --- END OF SIDEBAR WIDGETS FOR CLUSTERING ---
 
 
                     st.subheader(translate("Visualisasi Klaster"))
@@ -430,12 +420,13 @@ def clustering_analysis_page():
             st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
 
 
-# --- Main Application Logic (Page Selection) ---
-# TOP NAVIGATION
-page_selection = st.radio("Go to", ["Home", "Clustering Analysis"], key="top_navigation_radio")
+# --- Main Application Logic ---
+# Sidebar for main page navigation
+st.sidebar.title("Navigation")
+page_selection = st.sidebar.radio("Go to", ["Home", "Clustering Analysis"], key="main_page_radio")
 
 # Language selector is kept in the sidebar, accessible from both pages
-st.sidebar.markdown("---") # Separator
+st.sidebar.markdown("---") # Separator for clarity
 st.sidebar.radio(translate("Pilih Bahasa"), ["Indonesia", "English"], key="language_selector", on_change=lambda: st.session_state.__setitem__('language', st.session_state.language_selector))
 
 
@@ -443,4 +434,6 @@ st.sidebar.radio(translate("Pilih Bahasa"), ["Indonesia", "English"], key="langu
 if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
-    clustering_analysis_page()
+    # Call the content function for the clustering page
+    # All relevant sidebar controls will be rendered inside this function
+    clustering_analysis_content()
