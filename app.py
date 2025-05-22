@@ -149,9 +149,9 @@ def translate(text):
             "Indonesia": "Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
             "English": "Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
-        "Our Vision": {"Indonesia": "Visi Kami", "English": "Our Vision"},
+        "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
         "Vision Text": {"Indonesia": "Menjadi operator ekosistem logistik dan pelabuhan terintegrasi kelas dunia, mendorong konektivitas dan pertumbuhan ekonomi.", "English": "To be a world-class integrated logistics and port ecosystem operator, driving connectivity and economic growth."},
-        "Our Mission": {"Indonesia": "Misi Kami", "English": "Our Mission"},
+        "Our Mission": {"Indonesia": "Misi", "English": "Mission"},
         "Mission Item 1": {"Indonesia": "Menyediakan layanan pelabuhan yang efisien dan berkelanjutan untuk mendukung ekosistem logistik nasional.", "English": "Providing efficient and sustainable port services to support the national logistics ecosystem."},
         "Mission Item 2": {"Indonesia": "Mengembangkan bisnis pelabuhan yang tangguh dan inovatif melalui sinergi dan kolaborasi.", "English": "Developing a robust and innovative port business through synergy and collaboration."},
         "Mission Item 3": {"Indonesia": "Menciptakan nilai tambah bagi para pemangku kepentingan dengan tetap menjaga kelestarian lingkungan.", "English": "Creating added value for stakeholders while maintaining environmental sustainability."},
