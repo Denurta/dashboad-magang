@@ -127,23 +127,23 @@ def translate(text):
         "Parameter KMeans (Jumlah Klaster)": {"Indonesia": "Parameter KMeans (Jumlah Klaster)", "English": "KMeans Parameter (Number of Clusters)"},
         "Pilih Variabel untuk Analisis Klaster": {"Indonesia": "Pilih Variabel untuk Analisis Klaster", "English": "Select Variables for Cluster Analysis"},
         "Penjelasan Metode Linkage": {"Indonesia": "Penjelasan Metode Linkage", "English": "Explanation of Linkage Methods"},
-        "Ward": {"Indonesia": "<code>Ward:</code> Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": "<code>Ward:</code> Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
-        "Complete": {"Indonesia": "<code>Complete (Maximum Linkage):</code> Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "<code>Complete (Maximum Linkage):</code> Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
-        "Average": {"Indonesia": "<code>Average (Average Linkage):</code> Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "<code>Average (Average Linkage):</code> Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
-        "Single": {"Indonesia": "<code>Single (Minimum Linkage):</code> Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "<code>Single (Minimum Linkage):</code> Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
+        "Ward": {"Indonesia": "**Ward:** Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": "**Ward:** Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
+        "Complete": {"Indonesia": "**Complete (Maximum Linkage):** Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "**Complete (Maximum Linkage):** Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
+        "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
+        "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         # UPDATED DBI INTERPRETATION
         "Interpretasi Davies-Bouldin Index": {
-            "Indonesia": "Nilai DBI yang mendekati <code>0</code> adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
-            "English": "DBI values closer to <code>0</code> are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) to between-cluster separation (how far clusters are from each other)."
+            "Indonesia": "Nilai DBI yang mendekati **0** adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
+            "English": "DBI values closer to **0** are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) to between-cluster separation (how far clusters are from each other)."
         },
         
         # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
-            "Indonesia": "Sebagai bagian dari integrasi Pelindo, </code> Suholding Pelindo Terminal Petikemas (SPTP)</code>  adalah operator terminal terkemuka di Indonesia yang berfokus pada pelayanan peti kemas. Berdirinya SPTP adalah inisiatif strategis untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat, khususnya dalam layanan peti kemas.",
-            "English": "As part of Pelindo's integration, </code> Suholding Pelindo Terminal Petikemas (SPTP)</code>  is a leading terminal operator in Indonesia focusing on container services. SPTP's establishment is a strategic initiative to realize stronger national connectivity and logistics ecosystem networks, specifically within container services."
+            "Indonesia": "Sebagai bagian dari integrasi Pelindo, <code> Suholding Pelindo Terminal Petikemas (SPTP)</code> adalah operator terminal terkemuka di Indonesia yang berfokus pada pelayanan peti kemas. Berdirinya SPTP adalah inisiatif strategis untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat, khususnya dalam layanan peti kemas.",
+            "English": "As part of Pelindo's integration, <code> Suholding Pelindo Terminal Petikemas (SPTP)</code> is a leading terminal operator in Indonesia focusing on container services. SPTP's establishment is a strategic initiative to realize stronger national connectivity and logistics ecosystem networks, specifically within container services."
         },
         "About SPTP Text 2": {
             "Indonesia": "SPTP memainkan peran krusial dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia. Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari berbagai wilayah secara efisien dan aman.",
@@ -166,21 +166,21 @@ def translate(text):
         # New text for the "Terminal Performance Analysis" section
         "Terminal Performance Analysis Title": {"Indonesia": "📊 Analisis Kinerja Terminal Peti Kemas", "English": "📊 Container Terminal Performance Analysis"},
         "Analysis Objective Text": {
-            "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma <code>K-Means Clustering<code>, serta mengevaluasi perbedaan antar kelompok melalui <code>Analisis ANOVA<code>.",
-            "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the <code>K-Means Clustering</code> algorithm, and evaluate differences between groups through <code>ANOVA Analysis<code>."
+            "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma **K-Means Clustering**, serta mengevaluasi perbedaan antar kelompok melalui **Analisis ANOVA**.",
+            "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the **K-Means Clustering** algorithm, and evaluate differences between groups through **ANOVA Analysis**."
         },
         "Performance Variables Title": {"Indonesia": "⚙️ Variabel Kinerja yang Dianalisis", "English": "⚙️ Performance Variables Analyzed"},
         "ET/BT Variable": {
-            "Indonesia": "🔹 <code>ET/BT (Efisiensi Waktu Operasional)<code>: Rasio antara waktu efektif dan waktu sandar kapal. Semakin tinggi, semakin efisien aktivitas bongkar muat.",
-            "English": "🔹 <code>ET/BT (Operational Time Efficiency)<code>: Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
+            "Indonesia": "🔹 **ET/BT (Efisiensi Waktu Operasional)**: Rasio antara waktu efektif dan waktu sandar kapal. Semakin tinggi, semakin efisien aktivitas bongkar muat.",
+            "English": "🔹 **ET/BT (Operational Time Efficiency)**: Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
         },
         "BSH/BT Variable": {
-            "Indonesia": "🔹 <code>BSH/BT (Produktivitas Waktu Sandar)<code>: Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
-            "English": "🔹 <code>BSH/BT (Berth Time Productivity)<code>: Measures how many containers are unloaded per hour while the ship is at the berth."
+            "Indonesia": "🔹 **BSH/BT (Produktivitas Waktu Sandar)**: Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
+            "English": "🔹 **BSH/BT (Berth Time Productivity)**: Measures how many containers are unloaded per hour while the ship is at the berth."
         },
         "BCH/ET Variable": {
-            "Indonesia": "🔹 <code>BCH/ET (Produktivitas Waktu Efektif)<code>: Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
-            "English": "🔹 <code>BCH/ET (Effective Time Productivity)<code>: Indicates productivity per hour during the actual operational working time."
+            "Indonesia": "🔹 **BCH/ET (Produktivitas Waktu Efektif)**: Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
+            "English": "🔹 **BCH/ET (Effective Time Productivity)**: Indicates productivity per hour during the actual operational working time."
         },
         "Standardization Note": {
             "Indonesia": "Sebelum analisis dilakukan, semua variabel distandarisasi agar memiliki skala yang setara, sehingga proses pengelompokan dapat dilakukan secara objektif.",
@@ -188,25 +188,25 @@ def translate(text):
         },
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
         "Methodology Item 1": {
-            "Indonesia": "💡 <code>K-Means Clustering</code> digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
-            "English": "💡 <code>K-Means Clustering</code> is used to group terminals with similar operational characteristics."
+            "Indonesia": "💡 **K-Means Clustering** digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
+            "English": "💡 **K-Means Clustering** is used to group terminals with similar operational characteristics."
         },
         # ADDED Agglomerative Clustering explanation here
         "Methodology Item Agglomerative": {
-            "Indonesia": "💡 <code>Agglomerative Clustering</code> membangun hierarki klaster secara bertahap, menggabungkan klaster terdekat hingga mencapai jumlah klaster yang diinginkan. Metode ini berguna untuk memahami struktur data pada berbagai tingkat granularitas.",
-            "English": "💡 <code>Agglomerative Clustering</code> builds a hierarchy of clusters iteratively, merging the closest clusters until the desired number of clusters is reached. This method is useful for understanding data structure at different levels of granularity."
+            "Indonesia": "💡 **Agglomerative Clustering** membangun hierarki klaster secara bertahap, menggabungkan klaster terdekat hingga mencapai jumlah klaster yang diinginkan. Metode ini berguna untuk memahami struktur data pada berbagai tingkat granularitas.",
+            "English": "💡 **Agglomerative Clustering** builds a hierarchy of clusters iteratively, merging the closest clusters until the desired number of clusters is reached. This method is useful for understanding data structure at different levels of granularity."
         },
         "Methodology Item 2": {
-            "Indonesia": "📉 <code>Metode Elbow</code> membantu menentukan jumlah klaster yang optimal.",
-            "English": "📉 The <code>Elbow Method</code> helps determine the optimal number of clusters."
+            "Indonesia": "📉 **Metode Elbow** membantu menentukan jumlah klaster yang optimal.",
+            "English": "📉 The **Elbow Method** helps determine the optimal number of clusters."
         },
         "Methodology Item 3": {
-            "Indonesia": "✅ <code>Silhouette Score</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
-            "English": "✅ <code>Silhouette Score</code> is calculated to evaluate how well terminals are grouped."
+            "Indonesia": "✅ **Silhouette Score** dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "✅ **Silhouette Score** is calculated to evaluate how well terminals are grouped."
         },
         "Methodology Item 4": {
-            "Indonesia": "🧪 <code>Uji ANOVA satu arah</code> dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
-            "English": "🧪 <code>One-way ANOVA test</code> is performed to see if there are significant differences between clusters for each performance variable."
+            "Indonesia": "🧪 **Uji ANOVA satu arah** dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
+            "English": "🧪 **One-way ANOVA test** is performed to see if there are significant differences between clusters for each performance variable."
         },
         "Analysis Objective Section Title": {"Indonesia": "🎯 Tujuan Analisis", "English": "🎯 Analysis Objective"},
         "Analysis Objective Item 1": {
@@ -452,10 +452,10 @@ def clustering_analysis_page_content():
         if st.session_state.language == "Indonesia":
             st.markdown("""
             <ol>
-                <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code> ).</li>
+                <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
                 <li><b>Pilih Variabel:</b> Tentukan variabel numerik mana saja yang ingin digunakan untuk analisis klaster (Metode Elbow dan klastering).</li>
-                <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code>  yang ingin dihapus, pisahkan dengan koma.</li>
-                <li><b>Pilih Algoritma Klastering:</b> Pilih antara <code>KMeans</code>  atau <code>Agglomerative Clustering</code> . Sesuaikan parameter yang relevan.</li>
+                <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code> yang ingin dihapus, pisahkan dengan koma.</li>
+                <li><b>Pilih Algoritma Klastering:</b> Pilih antara <code>KMeans</code> atau <code>Agglomerative Clustering</code>. Sesuaikan parameter yang relevan.</li>
                 <li><b>Pilih Visualisasi & Evaluasi:</b> Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.</li>
                 <li><b>Interpretasi:</b> Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.</li>
             </ol>
@@ -463,10 +463,10 @@ def clustering_analysis_page_content():
         else:
             st.markdown("""
             <ol>
-                <li><b>Upload Excel File:</b> Click <i>"Browse files"</i> to upload your data file (in <code>.xlsx</code>  format).</li>
+                <li><b>Upload Excel File:</b> Click <i>"Browse files"</i> to upload your data file (in <code>.xlsx</code> format).</li>
                 <li><b>Select Variables:</b> Choose which numerical variables you want to use for cluster analysis (Elbow Method and clustering).</li>
-                <li><b>Remove Rows (Optional):</b> Enter row names from the <code>Row Labels</code>  column to be removed, separated by commas.</li>
-                <li><b>Select Clustering Algorithm:</b> Choose between <code>KMeans</code>  or <code>Agglomerative Clustering</code> . Adjust the relevant parameters.</li>
+                <li><b>Remove Rows (Optional):</b> Enter row names from the <code>Row Labels</code> column to be removed, separated by commas.</li>
+                <li><b>Select Clustering Algorithm:</b> Choose between <code>KMeans</code> or <code>Agglomerative Clustering</code>. Adjust the relevant parameters.</li>
                 <li><b>Select Visualizations & Evaluations:</b> Check any cluster visualizations or evaluations you want to see.</li>
                 <li><b>Interpretation:</b> The results will be displayed automatically after data and parameters are provided.</li>
             </ol>
