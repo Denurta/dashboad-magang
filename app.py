@@ -64,21 +64,25 @@ li {
 """, unsafe_allow_html=True)
 
 # --- Session State Initialization ---
-# Initialize ALL session state variables used by widgets
-# This ensures they exist on the very first run
-if 'language' not in st.session_state: st.session_state.language = "Indonesia"
-if 'data_uploaded' not in st.session_state: st.session_state.data_uploaded = False
-if 'df_original' not in st.session_state: st.session_state.df_original = pd.DataFrame()
-if 'df_cleaned' not in st.session_state: st.session_state.df_cleaned = pd.DataFrame()
-
-# Initialize session state for sidebar widgets, including the "Hapus Baris" text_area
+if 'language' not in st.session_state:
+    st.session_state.language = "Indonesia"
+if 'data_uploaded' not in st.session_state:
+    st.session_state.data_uploaded = False
+if 'df_original' not in st.session_state:
+    st.session_state.df_original = pd.DataFrame()
+if 'df_cleaned' not in st.session_state:
+    st.session_state.df_cleaned = pd.DataFrame()
+if 'drop_names_input_val' not in st.session_state:
+    st.session_state['drop_names_input_val'] = '' # Initialize for the text_area value persistence
+# Initialize sidebar values so they are always present in session_state
+# These values will be set by the widgets themselves via their keys
 if 'clustering_algorithm_sidebar' not in st.session_state: st.session_state.clustering_algorithm_sidebar = "KMeans"
 if 'kmeans_clusters_sidebar' not in st.session_state: st.session_state.kmeans_clusters_sidebar = 2
 if 'agg_clusters_sidebar' not in st.session_state: st.session_state.agg_clusters_sidebar = 2
 if 'agg_linkage_sidebar' not in st.session_state: st.session_state.agg_linkage_sidebar = "ward"
 if 'visualization_options_sidebar' not in st.session_state: st.session_state.visualization_options_sidebar = []
 if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_state.cluster_evaluation_options_sidebar = []
-if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = '' # Initialize text_area value
+
 
 # --- Translation Function ---
 def translate(text):
@@ -259,17 +263,15 @@ def clustering_analysis_page_content():
         df_cleaned_for_analysis = st.session_state['df_cleaned']
 
         # --- "Hapus Baris" logic within the content function ---
-        # The sidebar widgets for "Hapus Baris" are now defined in the main rendering block
-        # when page_selection is 'Clustering Analysis'. We read their state here.
         if 'Row Labels' in df_cleaned.columns:
-            # We don't redefine the widgets here, we just use their state
-            drop_names = st.session_state.drop_names_input_val
-            # The button's state is also in session state implicitly via its key
-            # We can check if the button was clicked on this rerun
-            # The 'drop_button_sidebar' key is set in the sidebar section.
-            
-            # The drop logic needs to be triggered by the button click
-            if st.session_state.get('drop_button_clicked_on_clustering_page', False):
+            drop_names = st.sidebar.text_area(
+                translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"),
+                value=st.session_state.drop_names_input_val,
+                key="drop_names_input_val_content" # Unique key for this instance
+            )
+            drop_button = st.sidebar.button(translate("Hapus Baris"), key="drop_button_content")
+
+            if drop_button:
                 names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
                 initial_rows = df_cleaned.shape[0]
                 df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
@@ -280,8 +282,6 @@ def clustering_analysis_page_content():
                     st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
                 else:
                     st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-                # Reset the button click state to avoid re-triggering on next rerun
-                st.session_state['drop_button_clicked_on_clustering_page'] = False
         # --- End "Hapus Baris" logic ---
 
 
@@ -401,7 +401,7 @@ def clustering_analysis_page_content():
                                     msg = "Struktur klaster yang dihasilkan baik. Objek cocok dengan klaster-nya dan terpisah dengan baik dari klaster lain."
                                 elif score >= 0.26:
                                     msg = "Struktur klaster yang dihasilkan lemah. Mungkin dapat diterima, tetapi perlu dipertimbangkan bahwa objek mungkin berada di antara klaster."
-                                else:
+                                else: # SyntaxError was here due to incorrect indentation or empty block
                                     msg = "Klaster tidak terstruktur dengan baik. Objek mungkin lebih cocok ditempatkan pada klaster lain daripada klaster saat ini."
                             else: # English
                                 if score >= 0.71:
@@ -414,7 +414,7 @@ def clustering_analysis_page_content():
                                     msg = "Clusters are not well-structured. Objects might be better placed in another cluster than their current one."
                             st.write("\U0001F4CC " + msg)
                         else:
-                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Silhouette Score.")
+                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Silhouette Score.")
 
                         if translate("Davies-Bouldin Index") in cluster_evaluation_options:
                             if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
@@ -424,7 +424,7 @@ def clustering_analysis_page_content():
                             else:
                                 st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Davies-Bouldin Index.")
                     else:
-                        st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
+                        st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) or no clusters detected for evaluation.")
                 else:
                     st.warning("Harap pilih setidaknya satu variabel numerik untuk memulai analisis klaster." if st.session_state.language == "Indonesia" else "Please select at least one numeric variable to start cluster analysis.")
         else:
@@ -502,24 +502,13 @@ if page_selection == "Clustering Analysis":
 
     # --- "Hapus Baris" Section in Sidebar when on Clustering Analysis Page ---
     st.sidebar.subheader(translate("Hapus Baris"))
-    # These widgets are now rendered in the sidebar ONLY when "Clustering Analysis" is selected.
-    # Their values are automatically stored in session state via their keys.
-    # The actual processing of the drop logic is within clustering_analysis_page_content.
-    st.sidebar.text_area(
-        translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"),
-        value=st.session_state.drop_names_input_val, # Use session state for persistence
-        key="drop_names_input_val" # This key updates st.session_state.drop_names_input_val
-    )
-    # The button click needs to be tracked separately if it triggers a complex operation
-    # that modifies session state and should only happen once per click.
-    if st.sidebar.button(translate("Hapus Baris"), key="drop_button_sidebar"):
-        # Set a flag in session state when the button is clicked
-        st.session_state['drop_button_clicked_on_clustering_page'] = True
-
+    # The actual text_area and button for "Hapus Baris" are rendered inside
+    # the clustering_analysis_page_content function because their functionality
+    # is tightly coupled with the uploaded data, which is only available there.
+    # The widgets will now appear when that page is active and the data is loaded.
 
 # Display the selected page content
 if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
-    # Call the content function for the clustering page
     clustering_analysis_page_content()
