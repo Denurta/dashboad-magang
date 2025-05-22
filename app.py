@@ -148,7 +148,8 @@ def elbow_method(df_scaled):
 def perform_anova(df, features, cluster_col):
     anova_results = []
     for feature in features:
-        unique_cluster_labels = [k for k k in df[cluster_col].unique()]
+        # FIX: Corrected the syntax from `k k in` to `k in`
+        unique_cluster_labels = [k for k in df[cluster_col].unique()]
         groups = [df[df[cluster_col] == k][feature] for k in unique_cluster_labels]
         groups = [g for g in groups if not g.empty]
         if len(groups) > 1:
@@ -273,7 +274,6 @@ def clustering_analysis_page():
                     cluster_column_name = ""
 
                     # --- SIDEBAR WIDGETS FOR CLUSTERING ANALYSIS PAGE ONLY ---
-                    # These widgets MUST be inside the function for the page they control
                     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
                     clustering_algorithm = st.sidebar.selectbox("Algoritma", ["KMeans", "Agglomerative Clustering"], key="algo_select_clustering_page")
 
