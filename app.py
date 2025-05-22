@@ -195,8 +195,8 @@ def translate(text):
             "English": "📉 The  Elbow Method  helps determine the optimal number of clusters."
         },
         "Methodology Item Evaluation Metrics": { # Combined Silhouette and DBI
-            "Indonesia": "✅  Silhouette Score  dan  Davies-Bouldin Index (DBI)  dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan. Nilai DBI yang mendekati 0 menunjukkan klaster yang lebih terpisah dan lebih padat.",
-            "English": "✅  Silhouette Score  and  Davies-Bouldin Index (DBI)  are calculated to evaluate how well terminals are grouped. DBI values closer to 0 indicate more separated and denser clusters."
+            "Indonesia": "✅  Silhouette Score  dan  Davies-Bouldin Index (DBI)  dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "✅  Silhouette Score  and  Davies-Bouldin Index (DBI)  are calculated to evaluate how well terminals are grouped."
         },
         "Methodology Item ANOVA": {
             "Indonesia": "🧪  Uji ANOVA satu arah  dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
