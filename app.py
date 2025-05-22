@@ -1,4 +1,4 @@
-import streamlit as st
+Fimport streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -165,8 +165,8 @@ def translate(text):
         # Text for the "Terminal Performance Analysis" section
         "Terminal Performance Analysis Title": {"Indonesia": "📊 Analisis Kinerja Terminal", "English": "📊 Terminal Performance Analysis"},
         "Analysis Objective Text": {
-            "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma K-Means Clustering, serta mengevaluasi perbedaan antar kelompok melalui Analisis ANOVA.",
-            "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the K-Means Clustering algorithm, and evaluate differences between groups through ANOVA Analysis."
+            "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma <code>K-Means</code> dan <code>Agglomerative Clustering</code>, serta mengevaluasi perbedaan antar kelompok melalui Analisis ANOVA.",
+            "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the <code>K-Means</code> and <code>Agglomerative Clustering</code> algorithm, and evaluate differences between groups through ANOVA Analysis."
         },
         "Performance Variables Title": {"Indonesia": "⚙️ Variabel Kinerja yang Dianalisis", "English": "⚙️ Performance Variables Analyzed"},
         "ET/BT Variable": {
