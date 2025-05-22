@@ -8,6 +8,13 @@ from scipy.stats import f_oneway
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 import numpy as np
 
+# --- SET PAGE CONFIG (MUST BE AT THE VERY TOP) ---
+st.set_page_config(
+    page_title="Pelindo Terminal Analysis",
+    page_icon="🚢",
+    layout="wide"
+)
+
 # --- Styling CSS ---
 st.markdown(""" <style>
 .stApp {
@@ -52,6 +59,8 @@ if 'df_original' not in st.session_state:
     st.session_state.df_original = pd.DataFrame()
 if 'df_cleaned' not in st.session_state:
     st.session_state.df_cleaned = pd.DataFrame()
+if 'drop_names_input_val' not in st.session_state:
+    st.session_state['drop_names_input_val'] = '' # Initialize for the text_area value persistence
 
 # --- Translation Function ---
 def translate(text):
@@ -139,7 +148,7 @@ def elbow_method(df_scaled):
 def perform_anova(df, features, cluster_col):
     anova_results = []
     for feature in features:
-        unique_cluster_labels = [k for k in df[cluster_col].unique()]
+        unique_cluster_labels = [k for k k in df[cluster_col].unique()]
         groups = [df[df[cluster_col] == k][feature] for k in unique_cluster_labels]
         groups = [g for g in groups if not g.empty]
         if len(groups) > 1:
@@ -228,25 +237,20 @@ def clustering_analysis_page():
         df_cleaned = st.session_state['df_cleaned']
 
         if 'Row Labels' in df_cleaned.columns:
-            # Need to get current drop_names from session state for consistent UI
-            current_drop_names_text = st.session_state.get('drop_names_input_val', '')
-            drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), value=current_drop_names_text, key="drop_names")
+            drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), value=st.session_state.drop_names_input_val, key="drop_names_input_val")
             drop_button = st.sidebar.button(translate("Hapus Baris"))
 
-            if drop_button and drop_names:
+            if drop_button:
                 names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
                 initial_rows = df_cleaned.shape[0]
                 df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
                 df_cleaned.reset_index(drop=True, inplace=True)
                 st.session_state['df_cleaned'] = df_cleaned
-                st.session_state['drop_names_input_val'] = drop_names # Store current text for persistence
                 rows_deleted = initial_rows - df_cleaned.shape[0]
                 if rows_deleted > 0:
                     st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
                 else:
                     st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-            elif 'drop_names_input_val' not in st.session_state:
-                 st.session_state['drop_names_input_val'] = '' # Initialize if not present
 
         if not st.session_state['df_cleaned'].empty:
             df_cleaned_for_analysis = st.session_state['df_cleaned']
@@ -268,21 +272,22 @@ def clustering_analysis_page():
 
                     cluster_column_name = ""
 
-                    # --- Sidebar Clustering Algorithm Selection ---
+                    # --- SIDEBAR WIDGETS FOR CLUSTERING ANALYSIS PAGE ONLY ---
+                    # These widgets MUST be inside the function for the page they control
                     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
-                    clustering_algorithm = st.sidebar.selectbox("Algoritma", ["KMeans", "Agglomerative Clustering"], key="algo_select_main")
+                    clustering_algorithm = st.sidebar.selectbox("Algoritma", ["KMeans", "Agglomerative Clustering"], key="algo_select_clustering_page")
 
                     if clustering_algorithm == "KMeans":
                         st.sidebar.subheader(translate("Parameter KMeans (Jumlah Klaster)"))
-                        n_clusters = st.sidebar.slider("Jumlah Klaster", 2, 10, 2, key="kmeans_clusters")
+                        n_clusters = st.sidebar.slider("Jumlah Klaster", 2, 10, 2, key="kmeans_clusters_clustering_page")
                         df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
                         cluster_column_name = 'KMeans_Cluster'
                         st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
                     else: # Agglomerative Clustering
                         st.sidebar.subheader(translate("Parameter Agglomerative (Jumlah Klaster)"))
-                        n_clusters_agg = st.sidebar.slider("Jumlah Klaster", 2, 10, 2, key="agg_clusters")
+                        n_clusters_agg = st.sidebar.slider("Jumlah Klaster", 2, 10, 2, key="agg_clusters_clustering_page")
                         st.sidebar.subheader(translate("Parameter Agglomerative (Metode Linkage)"))
-                        linkage_method = st.sidebar.selectbox("Metode Linkage", ["ward", "complete", "average", "single"], key="agg_linkage")
+                        linkage_method = st.sidebar.selectbox("Metode Linkage", ["ward", "complete", "average", "single"], key="agg_linkage_clustering_page")
 
                         with st.sidebar.expander(translate("Penjelasan Metode Linkage")):
                             st.write(translate("Ward"))
@@ -298,10 +303,14 @@ def clustering_analysis_page():
                         cluster_column_name = 'Agglomerative_Cluster'
                         st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
 
-
-                    # --- Visualisasi ---
                     st.sidebar.subheader(translate("Pilih Visualisasi"))
-                    visualization_options = st.sidebar.multiselect("Visualisasi", ["Heatmap", "Boxplot", "Barchart"], key="vis_options_main")
+                    visualization_options = st.sidebar.multiselect("Visualisasi", ["Heatmap", "Boxplot", "Barchart"], key="vis_options_clustering_page")
+
+                    st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
+                    cluster_evaluation_options = st.sidebar.multiselect("Evaluasi", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index")], key="eval_options_clustering_page")
+                    # --- END OF SIDEBAR WIDGETS FOR CLUSTERING ANALYSIS PAGE ---
+
+
                     st.subheader(translate("Visualisasi Klaster"))
 
                     if "Heatmap" in visualization_options:
@@ -359,11 +368,7 @@ def clustering_analysis_page():
                         else:
                             st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found in data for barchart visualization.")
 
-                    # --- Evaluasi Klaster ---
-                    st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
-                    cluster_evaluation_options = st.sidebar.multiselect("Evaluasi", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index")], key="eval_options_main")
                     st.subheader(translate("Evaluasi Klaster"))
-
                     if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
                         if "ANOVA" in cluster_evaluation_options:
                             anova_results = perform_anova(df_cleaned_for_analysis, selected_features, cluster_column_name)
@@ -414,22 +419,17 @@ def clustering_analysis_page():
 
 
 # --- Main Application Logic (Page Selection) ---
-st.set_page_config(
-    page_title="Pelindo Terminal Analysis",
-    page_icon="🚢",
-    layout="wide"
-)
-
 # Sidebar for language and page navigation
 st.sidebar.title("Navigation")
 page_selection = st.sidebar.radio("Go to", ["Home", "Clustering Analysis"])
 
 # Language selector is kept in the sidebar, accessible from both pages
 st.sidebar.markdown("---")
+# Use a key to ensure Streamlit tracks the widget state properly across reruns
 st.sidebar.radio(translate("Pilih Bahasa"), ["Indonesia", "English"], key="language_selector", on_change=lambda: st.session_state.__setitem__('language', st.session_state.language_selector))
 
 
-# Display the selected page
+# Display the selected page content
 if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
