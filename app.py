@@ -262,6 +262,29 @@ def clustering_analysis_page_content():
         # Ensure df_cleaned_for_analysis always points to the latest cleaned data
         df_cleaned_for_analysis = st.session_state['df_cleaned']
 
+        # --- "Hapus Baris" logic within the content function ---
+        if 'Row Labels' in df_cleaned.columns:
+            drop_names = st.sidebar.text_area(
+                translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"),
+                value=st.session_state.drop_names_input_val,
+                key="drop_names_input_val_content" # Unique key for this instance
+            )
+            drop_button = st.sidebar.button(translate("Hapus Baris"), key="drop_button_content")
+
+            if drop_button:
+                names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
+                initial_rows = df_cleaned.shape[0]
+                df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
+                df_cleaned.reset_index(drop=True, inplace=True)
+                st.session_state['df_cleaned'] = df_cleaned
+                rows_deleted = initial_rows - df_cleaned.shape[0]
+                if rows_deleted > 0:
+                    st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
+                else:
+                    st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
+        # --- End "Hapus Baris" logic ---
+
+
         features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
 
         if not features:
@@ -378,7 +401,7 @@ def clustering_analysis_page_content():
                                     msg = "Struktur klaster yang dihasilkan baik. Objek cocok dengan klaster-nya dan terpisah dengan baik dari klaster lain."
                                 elif score >= 0.26:
                                     msg = "Struktur klaster yang dihasilkan lemah. Mungkin dapat diterima, tetapi perlu dipertimbangkan bahwa objek mungkin berada di antara klaster."
-                                else:
+                                else: # SyntaxError was here due to incorrect indentation or empty block
                                     msg = "Klaster tidak terstruktur dengan baik. Objek mungkin lebih cocok ditempatkan pada klaster lain daripada klaster saat ini."
                             else: # English
                                 if score >= 0.71:
@@ -389,9 +412,9 @@ def clustering_analysis_page_content():
                                     msg = "The resulting cluster structure is weak. It might be acceptable, but consider that objects might be between clusters."
                                 else:
                                     msg = "Clusters are not well-structured. Objects might be better placed in another cluster than their current one."
-                                st.write("\U0001F4CC " + msg)
-                            else:
-                                st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Silhouette Score.")
+                            st.write("\U0001F4CC " + msg)
+                        else:
+                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Silhouette Score.")
 
                         if translate("Davies-Bouldin Index") in cluster_evaluation_options:
                             if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
@@ -401,7 +424,7 @@ def clustering_analysis_page_content():
                             else:
                                 st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Davies-Bouldin Index.")
                     else:
-                        st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
+                        st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) or no clusters detected for evaluation.")
                 else:
                     st.warning("Harap pilih setidaknya satu variabel numerik untuk memulai analisis klaster." if st.session_state.language == "Indonesia" else "Please select at least one numeric variable to start cluster analysis.")
         else:
@@ -477,16 +500,12 @@ if page_selection == "Clustering Analysis":
         key="cluster_evaluation_options_sidebar"
     )
 
-    # --- MOVE "Hapus Baris" HERE ---
-    # This ensures "Hapus Baris" subheader is shown correctly when on this page
+    # --- "Hapus Baris" Section in Sidebar when on Clustering Analysis Page ---
     st.sidebar.subheader(translate("Hapus Baris"))
-    # The text_area and button themselves are called within the content function
-    # because they need access to `df_cleaned` and interaction logic.
-    # We define the *keys* for them here to ensure their state persists.
-    # The actual rendering will happen when `clustering_analysis_page_content` is called.
-    # No need to explicitly call them here, but their keys are registered
-    # because `drop_names_input_val` is initialized in session state.
-
+    # The actual text_area and button for "Hapus Baris" are rendered inside
+    # the clustering_analysis_page_content function because their functionality
+    # is tightly coupled with the uploaded data, which is only available there.
+    # The widgets will now appear when that page is active and the data is loaded.
 
 # Display the selected page content
 if page_selection == "Home":
