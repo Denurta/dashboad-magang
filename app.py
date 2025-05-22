@@ -109,8 +109,7 @@ def translate(text):
         "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
-        "Interpretasi Davies-Bouldin Index": {"Indonesia": "Interpretasi Davies-Bouldin Index: Nilai DBI mendekati **0** menunjukkan klaster yang **terpisah dengan baik dan padat**, yang merupakan hasil klasterisasi yang optimal. Semakin tinggi nilai DBI, semakin buruk kualitas klasterisasi (klaster tumpang tindih atau tidak padat).", "English": "Davies-Bouldin Index Interpretation: A DBI value closer to **0** indicates **well-separated and dense clusters**, representing optimal clustering results. A higher DBI value suggests poorer clustering quality (overlapping or non-compact clusters)."},
-    }
+}
     return translations.get(text, {}).get(st.session_state.language, text)
 
 
