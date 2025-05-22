@@ -127,10 +127,10 @@ def translate(text):
         "Parameter KMeans (Jumlah Klaster)": {"Indonesia": "Parameter KMeans (Jumlah Klaster)", "English": "KMeans Parameter (Number of Clusters)"},
         "Pilih Variabel untuk Analisis Klaster": {"Indonesia": "Pilih Variabel untuk Analisis Klaster", "English": "Select Variables for Cluster Analysis"},
         "Penjelasan Metode Linkage": {"Indonesia": "Penjelasan Metode Linkage", "English": "Explanation of Linkage Methods"},
-        "Ward": {"Indonesia": "**Ward:** Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": "**Ward:** Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
-        "Complete": {"Indonesia": "**Complete (Maximum Linkage):** Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "**Complete (Maximum Linkage):** Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
-        "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
-        "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
+        "Ward": {"Indonesia": " Ward:  Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": " Ward:  Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
+        "Complete": {"Indonesia": " Complete (Maximum Linkage):  Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": " Complete (Maximum Linkage):  Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
+        "Average": {"Indonesia": " Average (Average Linkage):  Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": " Average (Average Linkage):  Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
+        "Single": {"Indonesia": " Single (Minimum Linkage):  Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": " Single (Minimum Linkage):  Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": { # Updated interpretation
             "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
@@ -170,16 +170,16 @@ def translate(text):
         },
         "Performance Variables Title": {"Indonesia": "⚙️ Variabel Kinerja yang Dianalisis", "English": "⚙️ Performance Variables Analyzed"},
         "ET/BT Variable": {
-            "Indonesia": "🔹 **ET/BT (Efisiensi Waktu Operasional)**: Rasio antara waktu efektif dan waktu sandar kapal. Semakin tinggi, semakin efisien aktivitas bongkar muat.",
-            "English": "🔹 **ET/BT (Operational Time Efficiency)**: Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
+            "Indonesia": "🔹  ET/BT (Efisiensi Waktu Operasional) : Rasio antara waktu efektif dan waktu sandar kapal. Semakin tinggi, semakin efisien aktivitas bongkar muat.",
+            "English": "🔹  ET/BT (Operational Time Efficiency) : Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
         },
         "BSH/BT Variable": {
-            "Indonesia": "🔹 **BSH/BT (Produktivitas Waktu Sandar)**: Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
-            "English": "🔹 **BSH/BT (Berth Time Productivity)**: Measures how many containers are unloaded per hour while the ship is at the berth."
+            "Indonesia": "🔹  BSH/BT (Produktivitas Waktu Sandar) : Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
+            "English": "🔹  BSH/BT (Berth Time Productivity) : Measures how many containers are unloaded per hour while the ship is at the berth."
         },
         "BCH/ET Variable": {
-            "Indonesia": "🔹 **BCH/ET (Produktivitas Waktu Efektif)**: Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
-            "English": "🔹 **BCH/ET (Effective Time Productivity)**: Indicates productivity per hour during the actual operational working time."
+            "Indonesia": "🔹  BCH/ET (Produktivitas Waktu Efektif) : Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
+            "English": "🔹  BCH/ET (Effective Time Productivity) : Indicates productivity per hour during the actual operational working time."
         },
         "Standardization Note": {
             "Indonesia": "Sebelum analisis dilakukan, semua variabel distandarisasi agar memiliki skala yang setara, sehingga proses pengelompokan dapat dilakukan secara objektif.",
@@ -187,29 +187,29 @@ def translate(text):
         },
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
         "Methodology Item 1": {
-            "Indonesia": "💡 **K-Means Clustering** digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
-            "English": "💡 **K-Means Clustering** is used to group terminals with similar operational characteristics."
+            "Indonesia": "💡  K-Means Clustering  digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
+            "English": "💡  K-Means Clustering  is used to group terminals with similar operational characteristics."
         },
         # New item for Agglomerative Clustering
         "Methodology Item Agglomerative": {
-            "Indonesia": "💡 **Agglomerative Clustering** membangun hierarki klaster secara bertahap, menggabungkan klaster terdekat hingga mencapai jumlah klaster yang diinginkan. Ini berguna untuk memahami struktur data pada berbagai tingkat granularitas.",
-            "English": "💡 **Agglomerative Clustering** builds a hierarchy of clusters iteratively, merging the closest clusters until the desired number of clusters is reached. This is useful for understanding data structure at different levels of granularity."
+            "Indonesia": "💡  Agglomerative Clustering  membangun hierarki klaster secara bertahap, menggabungkan klaster terdekat hingga mencapai jumlah klaster yang diinginkan. Ini berguna untuk memahami struktur data pada berbagai tingkat granularitas.",
+            "English": "💡  Agglomerative Clustering  builds a hierarchy of clusters iteratively, merging the closest clusters until the desired number of clusters is reached. This is useful for understanding data structure at different levels of granularity."
         },
         "Methodology Item Elbow": { # Renamed for clarity in markdown
-            "Indonesia": "📉 **Metode Elbow** membantu menentukan jumlah klaster yang optimal.",
-            "English": "📉 The **Elbow Method** helps determine the optimal number of clusters."
+            "Indonesia": "📉  Metode Elbow  membantu menentukan jumlah klaster yang optimal.",
+            "English": "📉 The  Elbow Method  helps determine the optimal number of clusters."
         },
         "Methodology Item Silhouette": { # Renamed for clarity in markdown
-            "Indonesia": "✅ **Silhouette Score** dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
-            "English": "✅ **Silhouette Score** is calculated to evaluate how well terminals are grouped."
+            "Indonesia": "✅  Silhouette Score  dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "✅  Silhouette Score  is calculated to evaluate how well terminals are grouped."
         },
         "Methodology Item DBI": { # Added DBI explanation to Methodology section
-            "Indonesia": "📊 **Davies-Bouldin Index (DBI)** adalah metrik untuk mengevaluasi kualitas klaster. Nilai DBI yang mendekati 0 menunjukkan klaster yang lebih terpisah dan lebih padat.",
-            "English": "📊 **Davies-Bouldin Index (DBI)** is a metric to evaluate cluster quality. DBI values closer to 0 indicate more separated and denser clusters."
+            "Indonesia": "📊  Davies-Bouldin Index (DBI)  adalah metrik untuk mengevaluasi kualitas klaster. Nilai DBI yang mendekati 0 menunjukkan klaster yang lebih terpisah dan lebih padat.",
+            "English": "📊  Davies-Bouldin Index (DBI)  is a metric to evaluate cluster quality. DBI values closer to 0 indicate more separated and denser clusters."
         },
         "Methodology Item ANOVA": { # Renamed for clarity in markdown
-            "Indonesia": "🧪 **Uji ANOVA satu arah** dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
-            "English": "🧪 **One-way ANOVA test** is performed to see if there are significant differences between clusters for each performance variable."
+            "Indonesia": "🧪  Uji ANOVA satu arah  dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
+            "English": "🧪  One-way ANOVA test  is performed to see if there are significant differences between clusters for each performance variable."
         },
         "Analysis Objective Section Title": {"Indonesia": "🎯 Tujuan Analisis", "English": "🎯 Analysis Objective"},
         "Analysis Objective Item 1": {
