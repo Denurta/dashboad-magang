@@ -197,7 +197,7 @@ def translate(text):
             "English": "🔹 <code>ET/BT (Operational Time Efficiency)</code> : Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
         },
         "BSH/BT Variable": {
-            "Indonesia": "🔹 <code>BSH/BT (Produktivitas Waktu Sandar)</code> : Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermoga.", # Typo: dermoga -> dermaga
+            "Indonesia": "🔹 <code>BSH/BT (Produktivitas Waktu Sandar)</code> : Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
             "English": "🔹 <code>BSH/BT (Berth Time Productivity)</code> : Measures how many containers are unloaded per hour per hour while the ship is at the berth."
         },
         "BCH/ET Variable": {
@@ -453,7 +453,9 @@ def handle_row_deletion_logic():
             st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {', '.join(names_to_drop)}")
             # Clear selected features if any removed rows impact them
             # For simplicity, we just trigger a rerun if deletion happens, other widgets will react
-            st.rerun() 
+            # No explicit rerun here, as changing session state for df_cleaned will naturally trigger it
+            # This is generally preferred over direct st.rerun() in callbacks for cleaner state management
+            pass
         else:
             st.info(f"Tidak ada baris dengan nama '{', '.join(names_to_drop)}' yang ditemukan untuk dihapus.")
             
@@ -720,35 +722,32 @@ st.sidebar.title("Navigation")
 # --- Language Selection Buttons ---
 lang_col1, lang_col2 = st.sidebar.columns(2)
 
-# Function to set language and rerun
-def set_language(lang):
+# Function to set language without explicit st.rerun() in callback
+def set_language_callback(lang):
     st.session_state.language = lang
-    st.rerun()
+    # Streamlit will naturally rerun when session state changes and is read elsewhere
+    # or when a widget is interacted with that influences other parts of the app.
 
 with lang_col1:
-    # Use a dynamic class for styling based on current language
-    indonesia_button_class = "active-language" if st.session_state.language == "Indonesia" else ""
     st.button(translate("Indonesia Button"), key="lang_id_button", help="Switch to Indonesian",
-              on_click=set_language, args=("Indonesia",),
+              on_click=set_language_callback, args=("Indonesia",),
               use_container_width=True,
-              # Apply the custom class directly via markdown if possible, or use a workaround
-              # For Streamlit buttons, direct class application isn't standard, so CSS targeting with key is more reliable
-              # We will rely on the CSS added at the top for targeting
+              # Streamlit doesn't natively support adding custom classes to buttons directly.
+              # The JS workaround below is one common way, but be aware of its limitations.
               )
 with lang_col2:
-    english_button_class = "active-language" if st.session_state.language == "English" else ""
     st.button(translate("English Button"), key="lang_en_button", help="Switch to English",
-              on_click=set_language, args=("English",),
+              on_click=set_language_callback, args=("English",),
               use_container_width=True,
               )
 
-# Apply active state styling via JS. This is still the most direct way to manipulate
-# element attributes that Streamlit doesn't expose directly for styling buttons.
-# Make sure this script runs *after* the buttons are rendered.
+# JavaScript to apply 'active-language' class based on session state.
+# This script should run after the buttons are rendered.
 st.markdown(f"""
 <script>
-    const idButton = parent.document.querySelector('button[data-testid="stButton"][key="lang_id_button"]');
-    const enButton = parent.document.querySelector('button[data-testid="stButton"][key="lang_en_button"]');
+    // Get the Streamlit buttons using their data-testid and key
+    const idButton = parent.document.querySelector('button[data-testid*="stButton"][key="lang_id_button"]');
+    const enButton = parent.document.querySelector('button[data-testid*="stButton"][key="lang_en_button"]');
 
     if (idButton) {{
         if ("{st.session_state.language}" === "Indonesia") {{
@@ -797,7 +796,7 @@ if st.session_state.current_page == "Clustering Analysis":
             st.write(translate("Ward"))
             st.write(translate("Complete"))
             st.write(translate("Average"))
-            st.write(translate("Single")) # Corrected to use translate for consistency
+            st.write(translate("Single"))
             if st.session_state.language == "Indonesia":
                 st.info("Penting juga untuk diingat bahwa tidak ada satu metrik validasi klaster yang sempurna. Seringkali, kombinasi beberapa metrik dan pemahaman domain data Anda akan memberikan penilaian terbaik terhadap kualitas hasil klasterisasi.")
             else:
