@@ -79,8 +79,7 @@ if 'agg_linkage_sidebar' not in st.session_state: st.session_state.agg_linkage_s
 if 'visualization_options_sidebar' not in st.session_state: st.session_state.visualization_options_sidebar = []
 if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_state.cluster_evaluation_options_sidebar = []
 if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = '' # Initialize text_area value
-# For buttons, initialize their state to False unless explicitly set by click
-if 'drop_button_sidebar' not in st.session_state: st.session_state.drop_button_sidebar = False
+# No need to explicitly initialize drop_button_sidebar state to False, as its key handles it.
 
 
 # --- Translation Function ---
@@ -224,7 +223,7 @@ def home_page():
 # Helper function to handle row deletion logic
 def handle_row_deletion_logic():
     # Only proceed if data is uploaded AND the button was clicked
-    # The button state is directly updated by its key in session state
+    # We check st.session_state['drop_button_sidebar'] directly as its key manages its True/False state
     if st.session_state.data_uploaded and st.session_state.get('drop_button_sidebar', False):
         if 'Row Labels' not in st.session_state.df_cleaned.columns:
             st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
@@ -238,7 +237,7 @@ def handle_row_deletion_logic():
 
         if names_to_drop: # Only proceed if names are provided
             df_after_drop = current_df[~current_df['Row Labels'].isin(names_to_drop)].reset_index(drop=True)
-            
+
             rows_deleted = initial_rows - df_after_drop.shape[0]
             if rows_deleted > 0:
                 st.session_state['df_cleaned'] = df_after_drop # Update the cleaned DataFrame in session state
@@ -247,9 +246,9 @@ def handle_row_deletion_logic():
                 st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
         else:
             st.warning("Silakan masukkan nama baris yang ingin dihapus.")
-            
+
         # Reset the button state immediately after processing to prevent re-trigger on next rerun
-        # This is CRUCIAL for buttons
+        # This is CRUCIAL for buttons. We set it to False to "unclick" it.
         st.session_state['drop_button_sidebar'] = False
 
 
@@ -287,6 +286,7 @@ def clustering_analysis_page_content():
         st.info("\u26A0\uFE0F " + translate("Upload Data untuk Analisis"))
 
     # Process row deletion if button was clicked AND data is loaded
+    # This must run before any data is displayed, as it modifies df_cleaned
     if st.session_state.data_uploaded:
         handle_row_deletion_logic() # Call the new helper function
 
@@ -360,7 +360,7 @@ def clustering_analysis_page_content():
                     st.pyplot(fig)
                     plt.clf()
                 elif "Boxplot" in visualization_options:
-                    st.info("Tidak cukup klaster (minimal 2) untuk menampilkan Boxplot." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to display Boxplot.")
+                    st.info("Tidak cukup klaster (minimal 2) untuk menampilkan Boxplot." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to display Boxplot.")
 
 
                 if "Barchart" in visualization_options:
@@ -437,8 +437,8 @@ def clustering_analysis_page_content():
                         st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
                 else:
                     st.warning("Harap pilih setidaknya satu variabel numerik untuk memulai analisis klaster." if st.session_state.language == "Indonesia" else "Please select at least one numeric variable to start cluster analysis.")
-    else:
-        st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
+        else:
+            st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
 
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
@@ -517,11 +517,11 @@ if page_selection == "Clustering Analysis":
         value=st.session_state.drop_names_input_val,
         key="drop_names_input_val" # This key updates st.session_state.drop_names_input_val
     )
-    # The button click sets a flag in session state using on_click
+    # The button click sets a flag in session state using on_click, without conflicts
     st.sidebar.button(
         translate("Hapus Baris"),
-        key="drop_button_sidebar", # Key for the button
-        on_click=lambda: st.session_state.update(drop_button_sidebar=True) # Set state to True when clicked
+        key="drop_button_sidebar", # Key for the button. Its value (True/False) is managed by Streamlit.
+        on_click=lambda: st.session_state.update(drop_button_sidebar=True) # Set custom flag for processing
     )
 
 
@@ -530,4 +530,6 @@ if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
     # Call the content function for the clustering page
+    # The handle_row_deletion_logic will now correctly check st.session_state.drop_button_sidebar
+    # because the button's value is managed by its key in session state.
     clustering_analysis_page_content()
