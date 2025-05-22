@@ -203,6 +203,10 @@ def translate(text):
             "Indonesia": "✅ **Silhouette Score** dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
             "English": "✅ **Silhouette Score** is calculated to evaluate how well terminals are grouped."
         },
+        "Methodology Item DBI": { # Added DBI explanation to Methodology section
+            "Indonesia": "📊 **Davies-Bouldin Index (DBI)** adalah metrik untuk mengevaluasi kualitas klaster. Nilai DBI yang mendekati 0 menunjukkan klaster yang lebih terpisah dan lebih padat.",
+            "English": "📊 **Davies-Bouldin Index (DBI)** is a metric to evaluate cluster quality. DBI values closer to 0 indicate more separated and denser clusters."
+        },
         "Methodology Item ANOVA": { # Renamed for clarity in markdown
             "Indonesia": "🧪 **Uji ANOVA satu arah** dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
             "English": "🧪 **One-way ANOVA test** is performed to see if there are significant differences between clusters for each performance variable."
@@ -379,12 +383,12 @@ def home_page():
             <li>{translate("BCH/ET Variable")}</li>
         </ul>
         <p>{translate("Standardization Note")}</p>
-        <h4>{translate("Methodology Title")}</h4>
-        <ul>
+        <h4>{translate("Metodologi Pengelompokan")}</h4> <ul>
             <li>{translate("Methodology Item 1")}</li>
-            <li>{translate("Methodology Item Agglomerative")}</li> <li>{translate("Methodology Item Elbow")}</li>
+            <li>{translate("Methodology Item Agglomerative")}</li>
+            <li>{translate("Methodology Item Elbow")}</li>
             <li>{translate("Methodology Item Silhouette")}</li>
-            <li>{translate("Methodology Item ANOVA")}</li>
+            <li>{translate("Methodology Item DBI")}</li> <li>{translate("Methodology Item ANOVA")}</li>
         </ul>
         <h4>{translate("Analysis Objective Section Title")}</h4>
         <ul>
@@ -671,8 +675,6 @@ def clustering_analysis_page_content():
                 if len(df_scaled) > 1 and len(np.unique(df_current_analysis[cluster_column_name])) > 1:
                     score = davies_bouldin_score(df_scaled, df_current_analysis[cluster_column_name])
                     st.write(f"*{translate('Davies-Bouldin Index')}*: {score:.4f}")
-                    # Explanation for DBI is directly in the `translate` function,
-                    # so it will be displayed if this option is selected.
                     st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index"))
                 else:
                     st.info("Tidak cukup klaster (minimal 2) atau sampel untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or samples to calculate Davies-Bouldin Index.")
