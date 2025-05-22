@@ -83,27 +83,25 @@ li {
     gap: 30px; /* Add gap between columns if necessary */
 }
 
-/* Styling for language selection buttons in sidebar */
-.stSidebar .language-button-container {
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-}
-.stSidebar .language-button-container .stButton > button {
-    background-color: #5A8DB0; /* A different blue for sidebar buttons */
+/* Styling for language selection buttons in sidebar - Using a more robust class application */
+.stSidebar .stButton > button {
+    background-color: #5A8DB0; /* A different blue for sidebar buttons by default */
     color: white;
     border: 1px solid #5A8DB0;
     padding: 8px 15px;
     font-size: 0.9em;
     border-radius: 5px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-.stSidebar .language-button-container .stButton > button:hover {
+.stSidebar .stButton > button:hover {
     background-color: #4A7D9D;
+    border-color: #4A7D9D;
 }
-.stSidebar .language-button-container .stButton > button[aria-checked="true"] { /* Style for selected button */
+/* Specific style for active language button */
+.stSidebar .stButton > button.active-language {
     background-color: #1E3A5F; /* Darker blue for selected state */
     border-color: #1E3A5F;
+    font-weight: bold;
 }
 
 </style>
@@ -199,7 +197,7 @@ def translate(text):
             "English": "🔹 <code>ET/BT (Operational Time Efficiency)</code> : Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
         },
         "BSH/BT Variable": {
-            "Indonesia": "🔹 <code>BSH/BT (Produktivitas Waktu Sandar)</code> : Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
+            "Indonesia": "🔹 <code>BSH/BT (Produktivitas Waktu Sandar)</code> : Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermoga.", # Typo: dermoga -> dermaga
             "English": "🔹 <code>BSH/BT (Berth Time Productivity)</code> : Measures how many containers are unloaded per hour per hour while the ship is at the berth."
         },
         "BCH/ET Variable": {
@@ -722,30 +720,50 @@ st.sidebar.title("Navigation")
 # --- Language Selection Buttons ---
 lang_col1, lang_col2 = st.sidebar.columns(2)
 
-with lang_col1:
-    if st.button(translate("Indonesia Button"), key="lang_id_button"):
-        st.session_state.language = "Indonesia"
-        st.rerun() # Rerun to apply language change immediately
-with lang_col2:
-    if st.button(translate("English Button"), key="lang_en_button"):
-        st.session_state.language = "English"
-        st.rerun() # Rerun to apply language change immediately
+# Function to set language and rerun
+def set_language(lang):
+    st.session_state.language = lang
+    st.rerun()
 
-# Apply active state styling to buttons based on current language
+with lang_col1:
+    # Use a dynamic class for styling based on current language
+    indonesia_button_class = "active-language" if st.session_state.language == "Indonesia" else ""
+    st.button(translate("Indonesia Button"), key="lang_id_button", help="Switch to Indonesian",
+              on_click=set_language, args=("Indonesia",),
+              use_container_width=True,
+              # Apply the custom class directly via markdown if possible, or use a workaround
+              # For Streamlit buttons, direct class application isn't standard, so CSS targeting with key is more reliable
+              # We will rely on the CSS added at the top for targeting
+              )
+with lang_col2:
+    english_button_class = "active-language" if st.session_state.language == "English" else ""
+    st.button(translate("English Button"), key="lang_en_button", help="Switch to English",
+              on_click=set_language, args=("English",),
+              use_container_width=True,
+              )
+
+# Apply active state styling via JS. This is still the most direct way to manipulate
+# element attributes that Streamlit doesn't expose directly for styling buttons.
+# Make sure this script runs *after* the buttons are rendered.
 st.markdown(f"""
 <script>
-    const idButton = parent.document.querySelector('[data-testid="stSidebar"] button[key="lang_id_button"]');
-    const enButton = parent.document.querySelector('[data-testid="stSidebar"] button[key="lang_en_button"]');
+    const idButton = parent.document.querySelector('button[data-testid="stButton"][key="lang_id_button"]');
+    const enButton = parent.document.querySelector('button[data-testid="stButton"][key="lang_en_button"]');
 
-    if (idButton && enButton) {
-        if ("{st.session_state.language}" === "Indonesia") {
-            idButton.setAttribute('aria-checked', 'true');
-            enButton.setAttribute('aria-checked', 'false');
-        } else {
-            idButton.setAttribute('aria-checked', 'false');
-            enButton.setAttribute('aria-checked', 'true');
-        }
-    }
+    if (idButton) {{
+        if ("{st.session_state.language}" === "Indonesia") {{
+            idButton.classList.add('active-language');
+        }} else {{
+            idButton.classList.remove('active-language');
+        }}
+    }}
+    if (enButton) {{
+        if ("{st.session_state.language}" === "English") {{
+            enButton.classList.add('active-language');
+        }} else {{
+            enButton.classList.remove('active-language');
+        }}
+    }}
 </script>
 """, unsafe_allow_html=True)
 
