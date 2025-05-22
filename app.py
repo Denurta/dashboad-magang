@@ -132,7 +132,11 @@ def translate(text):
         "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
-        "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
+        # UPDATED DBI INTERPRETATION
+        "Interpretasi Davies-Bouldin Index": {
+            "Indonesia": "Nilai DBI yang mendekati **0** adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
+            "English": "DBI values closer to **0** are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) to between-cluster separation (how far clusters are from each other)."
+        },
         
         # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
@@ -162,8 +166,8 @@ def translate(text):
         # New text for the "Terminal Performance Analysis" section
         "Terminal Performance Analysis Title": {"Indonesia": "📊 Analisis Kinerja Terminal Peti Kemas", "English": "📊 Container Terminal Performance Analysis"},
         "Analysis Objective Text": {
-            "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma K-Means Clustering, serta mengevaluasi perbedaan antar kelompok melalui Analisis ANOVA.",
-            "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the K-Means Clustering algorithm, and evaluate differences between groups through ANOVA Analysis."
+            "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma **K-Means Clustering**, serta mengevaluasi perbedaan antar kelompok melalui **Analisis ANOVA**.",
+            "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the **K-Means Clustering** algorithm, and evaluate differences between groups through **ANOVA Analysis**."
         },
         "Performance Variables Title": {"Indonesia": "⚙️ Variabel Kinerja yang Dianalisis", "English": "⚙️ Performance Variables Analyzed"},
         "ET/BT Variable": {
@@ -183,25 +187,26 @@ def translate(text):
             "English": "Before analysis, all variables are standardized to have an equivalent scale, enabling objective clustering."
         },
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
-        "Methodology Item 1": { # Updated to include K-Means explanation
-            "Indonesia": "💡 **K-Means Clustering**: Sebuah algoritma partisional yang membagi data menjadi 'K' kelompok yang telah ditentukan. Tujuannya adalah meminimalkan variasi intra-cluster dan memaksimalkan variasi antar-cluster.",
-            "English": "💡 **K-Means Clustering**: A partitioning algorithm that divides data into 'K' predefined clusters. Its goal is to minimize intra-cluster variation and maximize inter-cluster variation."
+        "Methodology Item 1": {
+            "Indonesia": "💡 **K-Means Clustering** digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
+            "English": "💡 **K-Means Clustering** is used to group terminals with similar operational characteristics."
         },
-        "Methodology Item 2": { # Updated to include Agglomerative explanation
-            "Indonesia": "💡 **Agglomerative Clustering**: Sebuah algoritma hierarkis yang memulai dengan setiap titik data sebagai klaster individual, kemudian menggabungkan klaster secara berpasangan hingga mencapai jumlah klaster yang diinginkan. Ini membangun hierarki klaster secara bottom-up.",
-            "English": "💡 **Agglomerative Clustering**: A hierarchical algorithm that starts with each data point as an individual cluster, then iteratively merges pairs of clusters until the desired number of clusters is achieved. It builds a hierarchy of clusters from the bottom up."
+        # ADDED Agglomerative Clustering explanation here
+        "Methodology Item Agglomerative": {
+            "Indonesia": "💡 **Agglomerative Clustering** membangun hierarki klaster secara bertahap, menggabungkan klaster terdekat hingga mencapai jumlah klaster yang diinginkan. Metode ini berguna untuk memahami struktur data pada berbagai tingkat granularitas.",
+            "English": "💡 **Agglomerative Clustering** builds a hierarchy of clusters iteratively, merging the closest clusters until the desired number of clusters is reached. This method is useful for understanding data structure at different levels of granularity."
         },
-        "Methodology Item 3": {
+        "Methodology Item 2": {
             "Indonesia": "📉 **Metode Elbow** membantu menentukan jumlah klaster yang optimal.",
             "English": "📉 The **Elbow Method** helps determine the optimal number of clusters."
         },
-        "Methodology Item 4": {
+        "Methodology Item 3": {
             "Indonesia": "✅ **Silhouette Score** dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
             "English": "✅ **Silhouette Score** is calculated to evaluate how well terminals are grouped."
         },
-        "Methodology Item 5": { # New item for Davies-Bouldin Index explanation
-            "Indonesia": "🧪 **Davies-Bouldin Index (DBI)**: Sebuah metrik evaluasi klaster internal yang mengukur rasio antara dispersi intra-klaster (jarak rata-rata antara setiap titik dalam klaster dan centroid-nya) dan dispersi antar-klaster (jarak antara centroid klaster). **Nilai DBI yang lebih rendah (mendekati 0) menunjukkan pengelompokan yang lebih baik**, di mana klaster lebih kompak dan terpisah satu sama lain.",
-            "English": "🧪 **Davies-Bouldin Index (DBI)**: An internal cluster evaluation metric that measures the ratio of within-cluster dispersion (average distance between each point in a cluster and its centroid) to between-cluster separation (distance between cluster centroids). **Lower DBI values (closer to 0) indicate better clustering**, where clusters are more compact and well-separated from each other."
+        "Methodology Item 4": {
+            "Indonesia": "🧪 **Uji ANOVA satu arah** dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
+            "English": "🧪 **One-way ANOVA test** is performed to see if there are significant differences between clusters for each performance variable."
         },
         "Analysis Objective Section Title": {"Indonesia": "🎯 Tujuan Analisis", "English": "🎯 Analysis Objective"},
         "Analysis Objective Item 1": {
@@ -375,13 +380,12 @@ def home_page():
             <li>{translate("BCH/ET Variable")}</li>
         </ul>
         <p>{translate("Standardization Note")}</p>
-        <h4>{translate("Metodologi Pengelompokan")}</h4>
+        <h4>{translate("Methodology Title")}</h4>
         <ul>
             <li>{translate("Methodology Item 1")}</li>
-            <li>{translate("Methodology Item 2")}</li>
+            <li>{translate("Methodology Item Agglomerative")}</li> <li>{translate("Methodology Item 2")}</li>
             <li>{translate("Methodology Item 3")}</li>
             <li>{translate("Methodology Item 4")}</li>
-            <li>{translate("Methodology Item 5")}</li> {/* Added new item for DBI */}
         </ul>
         <h4>{translate("Analysis Objective Section Title")}</h4>
         <ul>
@@ -668,7 +672,9 @@ def clustering_analysis_page_content():
                 if len(df_scaled) > 1 and len(np.unique(df_current_analysis[cluster_column_name])) > 1:
                     score = davies_bouldin_score(df_scaled, df_current_analysis[cluster_column_name])
                     st.write(f"*{translate('Davies-Bouldin Index')}*: {score:.4f}")
-                    st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index"))
+                    # Added explanation for DBI
+                    with st.expander(translate("Interpretasi Davies-Bouldin Index")):
+                        st.write(translate("Interpretasi Davies-Bouldin Index"))
                 else:
                     st.info("Tidak cukup klaster (minimal 2) atau sampel untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or samples to calculate Davies-Bouldin Index.")
         else:
