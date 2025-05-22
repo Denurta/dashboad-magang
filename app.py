@@ -135,7 +135,7 @@ def translate(text):
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
         
         # --- TEKS UNTUK FOKUS KE SPTP, SEJARAH DIHAPUS ---
-        "Welcome to Subholding Pelindo Terminal Petikemas (SPTP) Analysis": {"Indonesia": "Selamat Datang di Analisis Subholding Pelindo Terminal Petikemas (SPTP)", "English": "Welcome to Subholding Pelindo Terminal Petikemas (SPTP) Analysis"},
+        "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
             "Indonesia": "Sebagai bagian dari integrasi Pelindo, <code> Suholding Pelindo Terminal Petikemas (SPTP)</code> adalah operator terminal terkemuka di Indonesia yang berfokus pada pelayanan peti kemas. Berdirinya SPTP adalah inisiatif strategis untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat, khususnya dalam layanan peti kemas.",
@@ -146,10 +146,10 @@ def translate(text):
             "English": "SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia. These terminals serve as vital trade gateways, facilitating the efficient and safe flow of goods to and from various regions."
         },
         "About SPTP Text 3": {
-            "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis SPTP menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
+            "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis SPTP menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan handal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
             "English": "With improved strategic control and strong financial capabilities, SPTP's business operations are more coordinated, standardized, and efficient, benefiting both the public and service users. Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
-        # "About SPTP Text 4" and all "History Text" keys are removed from translations
+        # All "History Text" keys are removed from translations
         
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
         "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
@@ -159,7 +159,6 @@ def translate(text):
         "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
-        # "Short History" key and its translations are removed
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -272,7 +271,7 @@ def perform_anova(df, features, cluster_col):
 
 def home_page():
     # Judul utama aplikasi, sekarang fokus pada SPTP
-    st.title("🚢 " + translate("Welcome to SPTP Analysis"))
+    st.title("🚢 " + translate("Welcome to SPTP Analysis")) # Changed title key
 
     st.markdown(f"""
     <div class="home-page-container">
@@ -289,15 +288,7 @@ def home_page():
     </div>
     """, unsafe_allow_html=True)
 
-    # Removed the "Short History" section completely
-    # st.header(translate("Short History"))
-    # st.markdown(f"""
-    # <div class="home-page-container">
-    #     <p>{translate("History Text 1")}</p>
-    #     <p>{translate("History Text 2")}</p>
-    #     <p>{translate("History Text 3")}</p>
-    # </div>
-    # """, unsafe_allow_html=True)
+    # The "Short History" section is now completely removed from here.
 
     st.header(translate("Our Vision"))
     st.markdown(f"""
