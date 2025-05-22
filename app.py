@@ -79,7 +79,7 @@ if 'agg_linkage_sidebar' not in st.session_state: st.session_state.agg_linkage_s
 if 'visualization_options_sidebar' not in st.session_state: st.session_state.visualization_options_sidebar = []
 if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_state.cluster_evaluation_options_sidebar = []
 if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = '' # Initialize text_area value
-# No need to explicitly initialize drop_button_sidebar state to False, its key handles it.
+# For buttons, their key automatically manages their True/False state.
 
 
 # --- Translation Function ---
@@ -222,18 +222,22 @@ def home_page():
 
 # Helper function to handle row deletion logic
 def handle_row_deletion_logic():
-    # Only proceed if data is uploaded AND the button was clicked
-    # We check st.session_state['drop_button_sidebar'] directly as its key manages its True/False state
-    if st.session_state.data_uploaded and st.session_state.get('drop_button_sidebar', False):
+    # Check if the button was clicked based on its key's state
+    # st.session_state['drop_button_sidebar'] will be True if clicked, False otherwise.
+    if st.session_state.get('drop_button_sidebar', False):
+        if not st.session_state.data_uploaded:
+            st.warning("Silakan unggah data terlebih dahulu untuk menggunakan fitur hapus baris.")
+            st.session_state['drop_button_sidebar'] = False # Reset button state
+            return
+
         if 'Row Labels' not in st.session_state.df_cleaned.columns:
             st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-            # Important: Reset the button state immediately after processing this error, too.
-            st.session_state['drop_button_sidebar'] = False
+            st.session_state['drop_button_sidebar'] = False # Reset button state
             return
 
         current_df = st.session_state.df_cleaned.copy()
-        drop_names = st.session_state.drop_names_input_val # Get value from session state
-        names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
+        drop_names_str = st.session_state.drop_names_input_val # Get value from session state
+        names_to_drop = [name.strip() for name in drop_names_str.split(',') if name.strip()]
         initial_rows = current_df.shape[0]
 
         if names_to_drop: # Only proceed if names are provided
@@ -241,19 +245,15 @@ def handle_row_deletion_logic():
 
             rows_deleted = initial_rows - df_after_drop.shape[0]
             
-            # --- FIXED SYNTAX ERROR HERE ---
             if rows_deleted > 0:
                 st.session_state['df_cleaned'] = df_after_drop # Update the cleaned DataFrame in session state
                 st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
             else:
                 st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
-            # --- END FIXED SYNTAX ERROR ---
-
         else:
             st.warning("Silakan masukkan nama baris yang ingin dihapus.")
             
-        # Reset the button state immediately after processing to prevent re-trigger on next rerun
-        # This is CRUCIAL for buttons. We set it to False to "unclick" it.
+        # CRUCIAL: Reset the button state immediately after processing to prevent re-trigger on next rerun
         st.session_state['drop_button_sidebar'] = False
 
 
@@ -291,9 +291,9 @@ def clustering_analysis_page_content():
         st.info("\u26A0\uFE0F " + translate("Upload Data untuk Analisis"))
 
     # Process row deletion if button was clicked AND data is loaded
-    # This must run before any data is displayed, as it modifies df_cleaned
-    if st.session_state.data_uploaded:
-        handle_row_deletion_logic() # Call the new helper function
+    # This must run BEFORE any data is displayed, as it modifies df_cleaned
+    # The check for button click is now inside handle_row_deletion_logic itself.
+    handle_row_deletion_logic()
 
     # Remaining analysis logic (reads from sidebar state which is set globally)
     # Check df_cleaned for emptiness after potential deletion
@@ -522,11 +522,10 @@ if page_selection == "Clustering Analysis":
         value=st.session_state.drop_names_input_val,
         key="drop_names_input_val" # This key updates st.session_state.drop_names_input_val
     )
-    # The button click sets a flag in session state using on_click
+    # The button click updates its own key in session state. We do NOT use on_click here.
     st.sidebar.button(
         translate("Hapus Baris"),
-        key="drop_button_sidebar", # Key for the button. Its value (True/False) is managed by Streamlit.
-        on_click=lambda: st.session_state.update(drop_button_sidebar=True) # Set custom flag for processing
+        key="drop_button_sidebar" # This key alone will set st.session_state.drop_button_sidebar to True on click
     )
 
 
@@ -535,6 +534,5 @@ if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
     # Call the content function for the clustering page
-    # The handle_row_deletion_logic will now correctly check st.session_state.drop_button_sidebar
-    # because the button's value is managed by its key in session state.
+    # The handle_row_deletion_logic will check st.session_state.drop_button_sidebar
     clustering_analysis_page_content()
