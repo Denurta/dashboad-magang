@@ -138,7 +138,7 @@ def translate(text):
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
-            "Indonesia": "<code>SPTP (Subholding Pelindo Terminal Petikemas)</code>, bagian dari PT Pelabuhan Indonesia (Pelindo), adalah salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia.",
+            "Indonesia": "<code>SPTP (Subholding Pelindo Terminal Petikemas)</code>, bagian dari PT Pelabuhan Indonesia (Pelindo), adalah salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemikemas di berbagai pelabuhan strategis di seluruh Indonesia.",
             "English": "<code>SPTP (Subholding Pelindo Terminal Petikemas)</code>, part of PT Pelabuhan Indonesia (Pelindo), is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."
         },
         "About SPTP Text 2": {
@@ -150,11 +150,13 @@ def translate(text):
             "English": "Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
-        "Vision Text": {"Indonesia": "Menjadi operator ekosistem logistik dan pelabuhan terintegrasi kelas dunia, mendorong konektivitas dan pertumbuhan ekonomi.", "English": "To be a world-class integrated logistics and port ecosystem operator, driving connectivity and economic growth."},
+        # UPDATED VISION HERE
+        "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
         "Our Mission": {"Indonesia": "Misi", "English": "Mission"},
-        "Mission Item 1": {"Indonesia": "Menyediakan layanan pelabuhan yang efisien dan berkelanjutan untuk mendukung ekosistem logistik nasional.", "English": "Providing efficient and sustainable port services to support the national logistics ecosystem."},
-        "Mission Item 2": {"Indonesia": "Mengembangkan bisnis pelabuhan yang tangguh dan inovatif melalui sinergi dan kolaborasi.", "English": "Developing a robust and innovative port business through synergy and collaboration."},
-        "Mission Item 3": {"Indonesia": "Menciptakan nilai tambah bagi para pemangku kepentingan dengan tetap menjaga kelestarian lingkungan.", "English": "Creating added value for stakeholders while maintaining environmental sustainability."},
+        # UPDATED MISSION ITEMS HERE
+        "Mission Item 1": {"Indonesia": "Mendukung ekosistem petikemas yang terintegrasi melalui keunggulan operasional", "English": "Supporting an integrated container ecosystem through operational excellence"},
+        "Mission Item 2": {"Indonesia": "Optimalisasi jaringan", "English": "Network optimization"},
+        "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
     }
