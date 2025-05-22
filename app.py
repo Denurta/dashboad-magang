@@ -205,7 +205,7 @@ def perform_anova(df, features, cluster_col):
 # --- Page Functions ---
 
 def home_page():
-    # Nama aplikasi tetap ada di sini
+    # Nama aplikasi dan ikon kapal tetap ada di sini
     st.title("🚢 " + translate("Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis"))
 
     st.markdown(f"""
@@ -460,17 +460,15 @@ def clustering_analysis_page_content():
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
 
-# Pembungkus untuk menengahkan tombol
+# Pembungkus untuk menengahkan tombol navigasi
 st.markdown('<div class="centered-buttons-container">', unsafe_allow_html=True)
-# Menggunakan st.columns untuk menempatkan tombol berdampingan di dalam container tengah
-col_home, col_clustering = st.columns(2) 
-
-with col_home:
-    if st.button(translate("Home"), key="btn_home"):
-        st.session_state.current_page = "Home"
-with col_clustering:
-    if st.button(translate("Clustering Analysis"), key="btn_clustering_analysis"):
-        st.session_state.current_page = "Clustering Analysis"
+# Menggunakan st.button langsung di dalam div kustom tanpa st.columns
+# Ini akan membuat setiap tombol menjadi item flex yang terpisah di dalam kontainer,
+# yang kemudian akan diatur oleh 'justify-content: center' dan 'gap'
+if st.button(translate("Home"), key="btn_home_main"):
+    st.session_state.current_page = "Home"
+if st.button(translate("Clustering Analysis"), key="btn_clustering_analysis_main"):
+    st.session_state.current_page = "Clustering Analysis"
 st.markdown('</div>', unsafe_allow_html=True) # Tutup container tombol
 
 st.markdown("---") # Separator di bawah tombol
