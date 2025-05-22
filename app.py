@@ -1,4 +1,4 @@
-Fimport streamlit as st
+import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -127,10 +127,10 @@ def translate(text):
         "Parameter KMeans (Jumlah Klaster)": {"Indonesia": "Parameter KMeans (Jumlah Klaster)", "English": "KMeans Parameter (Number of Clusters)"},
         "Pilih Variabel untuk Analisis Klaster": {"Indonesia": "Pilih Variabel untuk Analisis Klaster", "English": "Select Variables for Cluster Analysis"},
         "Penjelasan Metode Linkage": {"Indonesia": "Penjelasan Metode Linkage", "English": "Explanation of Linkage Methods"},
-        "Ward": {"Indonesia": " Ward:  Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": " Ward:  Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
-        "Complete": {"Indonesia": " Complete (Maximum Linkage):  Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": " Complete (Maximum Linkage):  Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
-        "Average": {"Indonesia": " Average (Average Linkage):  Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": " Average (Average Linkage):  Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
-        "Single": {"Indonesia": " Single (Minimum Linkage):  Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": " Single (Minimum Linkage):  Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
+        "Ward": {"Indonesia": "**Ward:** Menggabungkan klaster yang meminimalkan peningkatan varians internal. Cenderung menghasilkan klaster yang seimbang dan padat. Baik sebagai titik awal." , "English": "**Ward:** Merges clusters that minimize the increase in internal variance. Tends to produce balanced and compact clusters. Good starting point."},
+        "Complete": {"Indonesia": "**Complete (Maximum Linkage):** Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "**Complete (Maximum Linkage):** Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
+        "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
+        "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": { # Updated interpretation
             "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
@@ -188,7 +188,7 @@ def translate(text):
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
         "Methodology Item Clustering": { # Combined K-Means and Agglomerative
             "Indonesia": "💡 <code>K-Means</code> dan <code>Agglomerative Clustering</code> digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
-            "English": "💡 <code>K-Means</code>  and <code>Agglomerative Clustering</code> are used to group terminals with similar operational characteristics."
+            "English": "💡 <code>K-Means</code> and <code>Agglomerative Clustering</code> are used to group terminals with similar operational characteristics."
         },
         "Methodology Item Elbow": {
             "Indonesia": "📉 <code>Metode Elbow</code> membantu menentukan jumlah klaster yang optimal.",
@@ -378,7 +378,8 @@ def home_page():
         <ul>
             <li>{translate("Methodology Item Clustering")}</li>
             <li>{translate("Methodology Item Elbow")}</li>
-            <li>{translate("Methodology Item Evaluation Metrics")}</li> <li>{translate("Methodology Item ANOVA")}</li>
+            <li>{translate("Methodology Item Evaluation Metrics")}</li>
+            <li>{translate("Methodology Item ANOVA")}</li>
         </ul>
         <h4>{translate("Analysis Objective Section Title")}</h4>
         <ul>
@@ -730,7 +731,7 @@ if st.session_state.current_page == "Clustering Analysis":
             st.write(translate("Ward"))
             st.write(translate("Complete"))
             st.write(translate("Average"))
-            st.write("Single") # This should also be translated for consistency
+            st.write(translate("Single")) # Corrected to use translate for consistency
             if st.session_state.language == "Indonesia":
                 st.info("Penting juga untuk diingat bahwa tidak ada satu metrik validasi klaster yang sempurna. Seringkali, kombinasi beberapa metrik dan pemahaman domain data Anda akan memberikan penilaian terbaik terhadap kualitas hasil klasterisasi.")
             else:
