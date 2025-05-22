@@ -327,52 +327,75 @@ def elbow_method(df_scaled):
 
 @st.cache_data
 def perform_anova(df, features, cluster_col):
-    """Performs ANOVA test for each feature across clusters."""
+    """
+    Performs ANOVA test for each feature across clusters.
+    Includes robust checks for numerical data, sufficient data points, and variance.
+    """
     if df.empty or not features or cluster_col not in df.columns:
         return pd.DataFrame()
     
     anova_results = []
+    
+    # Create a local copy to avoid modifying the original df_current_analysis directly with pd.to_numeric
+    df_copy = df.copy()
+
     for feature in features:
         # Step 1: Ensure feature column is numeric, coercing errors to NaN
-        df[feature] = pd.to_numeric(df[feature], errors='coerce')
+        # This is crucial for handling mixed types or non-numeric strings
+        df_copy[feature] = pd.to_numeric(df_copy[feature], errors='coerce')
 
-        # Get unique cluster labels from non-NaN cluster assignments
-        unique_cluster_labels = [k for k in df[cluster_col].dropna().unique()]
+        # Get unique cluster labels from non-NaN cluster assignments.
+        # Ensure we only consider cluster labels that actually exist after data cleaning.
+        valid_cluster_labels = df_copy[cluster_col].dropna().unique()
         
-        # Ensure there are at least two unique clusters to compare for ANOVA
-        if len(unique_cluster_labels) < 2:
+        # Filter out NaN values from the cluster column itself
+        df_feature_cluster_filtered = df_copy[[feature, cluster_col]].dropna(subset=[feature, cluster_col])
+
+        # Ensure there are at least two unique clusters with valid data points for this feature
+        if len(df_feature_cluster_filtered[cluster_col].unique()) < 2:
+            st.warning(f"ANOVA Warning: Feature '{feature}' has less than 2 distinct clusters with valid data. Skipping ANOVA for this feature.")
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
-            continue # Skip to next feature if not enough clusters
+            continue # Skip to next feature
 
         groups = []
-        for k in unique_cluster_labels:
-            # Filter data for current cluster and feature, dropping NaNs
-            group_data = df[df[cluster_col] == k][feature].dropna()
+        for k in valid_cluster_labels:
+            # Select data for the current cluster and feature, dropping NaNs specific to this group/feature
+            group_data = df_feature_cluster_filtered[df_feature_cluster_filtered[cluster_col] == k][feature].dropna()
             
-            # Check for sufficient data points AND variance within the group
-            # ANOVA requires at least 2 data points per group, and variance (i.e., not all identical values)
+            # Debugging print: Check group data
+            # st.write(f"--- Debugging: Feature '{feature}', Cluster '{k}' ---")
+            # st.write(f"Raw data points: {len(group_data)}")
+            # st.write(f"Unique values: {group_data.nunique()}")
+            # st.write(f"Data: {group_data.tolist() if len(group_data) < 10 else group_data.head().tolist()}")
+
+
+            # Conditions for a valid group for ANOVA:
+            # 1. Has at least 2 data points (required for variance calculation)
+            # 2. Has more than 1 unique value (i.e., not constant, also required for variance)
             if len(group_data) > 1 and group_data.nunique() > 1:
                 groups.append(group_data)
             else:
-                # If a group is invalid (e.g., only one value or all values are same),
-                # this feature's ANOVA for this clustering setup is invalid.
+                # If a group is invalid, ANOVA for this feature cannot be performed robustly.
+                st.warning(f"ANOVA Warning: Feature '{feature}' in Cluster '{k}' has insufficient data (<=1 point or all constant values). Skipping ANOVA for this feature.")
                 groups = [] # Reset groups to ensure this feature gets NaN
                 break # Exit inner loop, as ANOVA cannot be performed meaningfully for this feature
 
-        if len(groups) >= 2: # Ensure we collected at least two valid groups after all checks
+        if len(groups) >= 2: # Ensure we collected at least two *valid* groups after all checks
             try:
                 f_stat, p_value = f_oneway(*groups)
                 anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
             except ValueError as e:
-                # Catch potential ValueError if f_oneway still can't compute (e.g., if groups become empty due to filtering)
-                st.warning(f"ValueError during ANOVA for feature '{feature}': {e}. Setting results to NaN.")
+                # This might catch issues if `f_oneway` still fails even after checks (rare but possible)
+                st.error(f"ANOVA Error: ValueError for feature '{feature}': {e}. This usually means a group has no variance despite checks. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             except Exception as e:
-                st.error(f"An unexpected error occurred during ANOVA for feature '{feature}': {e}")
+                st.error(f"ANOVA Error: An unexpected error occurred for feature '{feature}': {e}. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
         else:
-            # If after all filtering, we don't have at least two valid groups for comparison
-            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            # This covers cases where `break` was hit due to an invalid group, or if
+            # there were less than 2 valid_cluster_labels to begin with.
+            if not any(entry.get("Variabel") == feature for entry in anova_results): # Avoid duplicate entry if already added
+                anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             
     return pd.DataFrame(anova_results)
 
@@ -483,7 +506,6 @@ def handle_row_deletion_logic():
         if rows_deleted > 0:
             st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {', '.join(names_to_drop)}")
             # No explicit rerun here, as changing session state for df_cleaned will naturally trigger it
-            # This is generally preferred over direct st.rerun() in callbacks for cleaner state management
             pass
         else:
             st.info(f"Tidak ada baris dengan nama '{', '.join(names_to_drop)}' yang ditemukan untuk dihapus.")
