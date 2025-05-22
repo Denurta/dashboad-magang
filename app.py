@@ -138,8 +138,8 @@ def translate(text):
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
-            "Indonesia": "Sebagai bagian dari integrasi Pelindo, **PT Pelindo Terminal Petikemas (SPTP)** adalah operator terminal terkemuka di Indonesia yang berfokus pada pelayanan peti kemas. Berdirinya SPTP adalah inisiatif strategis untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat, khususnya dalam layanan peti kemas.",
-            "English": "As part of Pelindo's integration, **PT Pelindo Terminal Petikemas (SPTP)** is a leading terminal operator in Indonesia focusing on container services. SPTP's establishment is a strategic initiative to realize stronger national connectivity and logistics ecosystem networks, specifically within container services."
+            "Indonesia": "Sebagai bagian dari integrasi Pelindo, <code> Suholding Pelindo Terminal Petikemas (SPTP)</code> adalah operator terminal terkemuka di Indonesia yang berfokus pada pelayanan peti kemas. Berdirinya SPTP adalah inisiatif strategis untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat, khususnya dalam layanan peti kemas.",
+            "English": "As part of Pelindo's integration, <code> Suholding Pelindo Terminal Petikemas (SPTP)</code> is a leading terminal operator in Indonesia focusing on container services. SPTP's establishment is a strategic initiative to realize stronger national connectivity and logistics ecosystem networks, specifically within container services."
         },
         "About SPTP Text 2": {
             "Indonesia": "SPTP memainkan peran krusial dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia. Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari berbagai wilayah secara efisien dan aman.",
