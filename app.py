@@ -210,7 +210,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.
             <li><b>Upload File Excel:</b> Klik tombol <i>"Browse files"</i> untuk mengunggah file data Anda (format <code>.xlsx</code>).</li>
             <li><b>Pilih Variabel:</b> Tentukan variabel numerik mana saja yang ingin digunakan untuk analisis klaster (Metode Elbow dan klastering).</li>
             <li><b>Hapus Baris (Opsional):</b> Masukkan nama terminal pada kolom <code>Row Labels</code> yang ingin dihapus, pisahkan dengan koma.</li>
-            <li><b>Pilih Algoritma Klastering:</b> Pilih antara KMeans atau Agglomerative Clustering. Sesuaikan parameter yang relevan.</li>
+            <li><b>Pilih Algoritma Klastering:</b> Pilih antara <code>KMeans</code> atau <code>Agglomerative Clustering</code>. Sesuaikan parameter yang relevan.</li>
             <li><b>Pilih Visualisasi & Evaluasi:</b> Centang visualisasi atau evaluasi klaster yang ingin ditampilkan.</li>
             <li><b>Interpretasi:</b> Hasil akan ditampilkan secara otomatis setelah data dan parameter dimasukkan.</li>
         </ol>
@@ -221,7 +221,7 @@ with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.
             <li><b>Upload Excel File:</b> Click <i>"Browse files"</i> to upload your data file (in <code>.xlsx</code> format).</li>
             <li><b>Select Variables:</b> Choose which numerical variables you want to use for cluster analysis (Elbow Method and clustering).</li>
             <li><b>Remove Rows (Optional):</b> Enter row names from the <code>Row Labels</code> column to be removed, separated by commas.</li>
-            <li><b>Select Clustering Algorithm:</b> Choose between KMeans or Agglomerative Clustering. Adjust the relevant parameters.</li>
+            <li><b>Select Clustering Algorithm:</b> Choose between <code>KMeans</code> or <code>Agglomerative Clustering</code>. Adjust the relevant parameters.</li>
             <li><b>Select Visualizations & Evaluations:</b> Check any cluster visualizations or evaluations you want to see.</li>
             <li><b>Interpretation:</b> The results will be displayed automatically after data and parameters are provided.</li>
         </ol>
