@@ -135,7 +135,7 @@ def translate(text):
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
         
         # --- TEKS UNTUK FOKUS KE SPTP, SEJARAH DIHAPUS ---
-        "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
+        "Welcome to Subholding Pelindo Terminal Petikemas (SPTP) Analysis": {"Indonesia": "Selamat Datang di Analisis Subholding Pelindo Terminal Petikemas (SPTP)", "English": "Welcome to Subholding Pelindo Terminal Petikemas (SPTP) Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
             "Indonesia": "Sebagai bagian dari integrasi Pelindo, <code> Suholding Pelindo Terminal Petikemas (SPTP)</code> adalah operator terminal terkemuka di Indonesia yang berfokus pada pelayanan peti kemas. Berdirinya SPTP adalah inisiatif strategis untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat, khususnya dalam layanan peti kemas.",
