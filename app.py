@@ -83,7 +83,7 @@ li {
     gap: 30px; /* Add gap between columns if necessary */
 }
 
-/* Styling for language selection buttons in sidebar - Using a more robust class application */
+/* Styling for language selection buttons in sidebar */
 .stSidebar .stButton > button {
     background-color: #5A8DB0; /* A different blue for sidebar buttons by default */
     color: white;
@@ -338,6 +338,7 @@ def perform_anova(df, features, cluster_col):
     anova_results = []
     
     # Create a local copy to avoid modifying the original df_current_analysis directly with pd.to_numeric
+    # This also helps ensure that `df_copy` itself is cacheable if `df` is from cache.
     df_copy = df.copy()
 
     for feature in features:
@@ -346,13 +347,15 @@ def perform_anova(df, features, cluster_col):
         df_copy[feature] = pd.to_numeric(df_copy[feature], errors='coerce')
 
         # Drop rows where the feature value or cluster label is NaN
-        # This ensures we only work with complete cases for ANOVA
+        # This ensures we only work with complete cases for ANOVA for the specific feature.
         df_feature_cluster_filtered = df_copy[[feature, cluster_col]].dropna()
 
         # Get unique cluster labels from the filtered data
+        # Only consider cluster labels that actually exist after data cleaning and filtering for the current feature.
         unique_cluster_labels = df_feature_cluster_filtered[cluster_col].unique()
         
         # Ensure there are at least two unique clusters with valid data points for this feature
+        # (This is the primary condition for ANOVA validity)
         if len(unique_cluster_labels) < 2:
             st.warning(
                 f"ANOVA Warning for '{feature}': Less than 2 distinct clusters "
@@ -374,7 +377,8 @@ def perform_anova(df, features, cluster_col):
             if len(group_data) > 1 and group_data.nunique() > 1:
                 groups.append(group_data)
             else:
-                # If a group is invalid, ANOVA for this feature cannot be performed robustly.
+                # If a group is invalid (e.g., only one data point or all data points are identical),
+                # ANOVA for this feature across ALL clusters cannot be performed robustly.
                 st.warning(
                     f"ANOVA Warning for '{feature}' in Cluster '{k}': "
                     f"Insufficient data (Count: {len(group_data)}, Unique Values: {group_data.nunique()}). "
@@ -388,16 +392,20 @@ def perform_anova(df, features, cluster_col):
                 f_stat, p_value = f_oneway(*groups)
                 anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
             except ValueError as e:
-                # This might catch issues if `f_oneway` still fails even after checks (rare but possible, e.g., all groups have same mean)
+                # This might catch issues if `f_oneway` still fails even after checks
+                # (e.g., if all groups have identical means, which results in zero between-group variance)
                 st.error(f"ANOVA Error: ValueError for feature '{feature}': {e}. "
-                         "This usually means the data still lacks sufficient variation for ANOVA. Setting to NaN.")
+                         "This usually means the data still lacks sufficient variation across groups for ANOVA. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             except Exception as e:
+                # Catch any other unexpected errors during f_oneway
                 st.error(f"ANOVA Error: An unexpected error occurred for feature '{feature}': {e}. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
         else:
-            # If ANOVA was skipped due to `is_feature_valid_for_anova = False` or less than 2 valid groups
-            # Ensure it's not already added to avoid duplicates if `continue` was hit earlier
+            # This 'else' block ensures that if `is_feature_valid_for_anova` became False
+            # (due to a problematic group) or if `len(unique_cluster_labels) < 2` was true
+            # initially, the feature explicitly gets NaN results.
+            # We add a check to avoid duplicate entries if 'continue' was hit earlier.
             if not any(entry.get("Variabel") == feature for entry in anova_results): 
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             
@@ -711,11 +719,11 @@ def clustering_analysis_page_content():
                     if not anova_results['P-Value'].isnull().all():
                         interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
                                       else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
-                        st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+                        st.write(interpret if (anova_results["P-Value"].dropna() < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
                     else:
-                        st.info("Tidak ada hasil ANOVA yang valid untuk ditampilkan (mungkin tidak cukup variasi data dalam klaster atau klaster terlalu sedikit).")
+                        st.info("Tidak ada hasil ANOVA yang valid (non-NaN) untuk ditampilkan. Ini mungkin terjadi jika semua variabel memiliki masalah data atau tidak ada perbedaan antar klaster.")
                 else:
-                    st.info("Tidak ada hasil ANOVA untuk ditampilkan (mungkin tidak cukup variasi data atau klaster).")
+                    st.info("Tidak ada hasil ANOVA untuk ditampilkan (mungkin tidak ada variabel yang dipilih atau klaster tidak terbentuk).")
 
             if "Silhouette Score" in cluster_evaluation_options:
                 # Ensure enough samples and clusters for Silhouette Score
