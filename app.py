@@ -110,7 +110,7 @@ def translate(text):
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         # Simplified the interpretation to be more direct and consistent with Silhouette
-        "Interpretasi Davies-Bouldin Index": {"Indonesia": "Interpretasi: DBI adalah metrik internal, nilai yang **mendekati 0 adalah lebih baik**, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "Interpretation: DBI is an internal metric; values **closer to 0 are better**, indicating more separated and denser clusters."},
+        "Interpretasi Davies-Bouldin Index": {"Indonesia": "DBI adalah metrik internal, nilai yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI is an internal metric; values closer to 0 are better, indicating more separated and denser clusters."},
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -405,8 +405,8 @@ def clustering_analysis_page_content():
                     if "ANOVA" in cluster_evaluation_options:
                         anova_results = perform_anova(df_cleaned_for_analysis, selected_features, cluster_column_name)
                         st.write(anova_results)
-                        interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
-                                      else "\U0001F4CC ANOVA Interpretation: P-value less than alpha (0.05) indicates significant difference.")
+                        interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
+                                      else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
                         st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
                     if "Silhouette Score" in cluster_evaluation_options:
