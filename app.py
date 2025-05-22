@@ -255,157 +255,140 @@ def clustering_analysis_page_content():
     if not data_loaded:
         st.info("\u26A0\uFE0F " + translate("Upload Data untuk Analisis"))
 
+    # Remaining analysis logic (reads from sidebar state which is set globally)
     if st.session_state.data_uploaded:
         df_cleaned = st.session_state['df_cleaned']
 
-        # Drop rows logic remains
-        if 'Row Labels' in df_cleaned.columns:
-            drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), value=st.session_state.drop_names_input_val, key="drop_names_input_val")
-            drop_button = st.sidebar.button(translate("Hapus Baris"))
+        # Ensure df_cleaned_for_analysis always points to the latest cleaned data
+        df_cleaned_for_analysis = st.session_state['df_cleaned']
 
-            if drop_button:
-                names_to_drop = [name.strip() for name in drop_names.split(',') if name.strip()]
-                initial_rows = df_cleaned.shape[0]
-                df_cleaned = df_cleaned[~df_cleaned['Row Labels'].isin(names_to_drop)]
-                df_cleaned.reset_index(drop=True, inplace=True)
-                st.session_state['df_cleaned'] = df_cleaned
-                rows_deleted = initial_rows - df_cleaned.shape[0]
-                if rows_deleted > 0:
-                    st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
-                else:
-                    st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
+        features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
 
-        if not st.session_state['df_cleaned'].empty:
-            df_cleaned_for_analysis = st.session_state['df_cleaned']
-            features = df_cleaned_for_analysis.select_dtypes(include='number').columns.tolist()
+        if not features:
+            st.error("Tidak ada fitur numerik yang ditemukan dalam data setelah pembersihan. Harap periksa file Excel Anda.")
+        else:
+            st.subheader(translate("Statistik Deskriptif"))
+            st.dataframe(df_cleaned_for_analysis.describe())
 
-            if not features:
-                st.error("Tidak ada fitur numerik yang ditemukan dalam data setelah pembersihan. Harap periksa file Excel Anda.")
-            else:
-                st.subheader(translate("Statistik Deskriptif"))
-                st.dataframe(df_cleaned_for_analysis.describe())
+            selected_features = st.multiselect(translate("Pilih Variabel untuk Analisis Klaster"), features, default=features, key="selected_features_all")
 
-                selected_features = st.multiselect(translate("Pilih Variabel untuk Analisis Klaster"), features, default=features, key="selected_features_all")
+            if selected_features:
+                df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
 
-                if selected_features:
-                    df_scaled = normalize_data(df_cleaned_for_analysis, selected_features)
+                st.subheader(translate("Metode Elbow"))
+                elbow_method(df_scaled)
 
-                    st.subheader(translate("Metode Elbow"))
-                    elbow_method(df_scaled)
+                cluster_column_name = ""
 
-                    cluster_column_name = ""
+                # --- CLUSTERING ALGORITHM AND PARAMETERS (READ FROM GLOBAL SIDEBAR STATE) ---
+                clustering_algorithm = st.session_state.clustering_algorithm_sidebar # Use global state
 
-                    # --- CLUSTERING ALGORITHM AND PARAMETERS (READ FROM GLOBAL SIDEBAR STATE) ---
-                    # Read values directly from session state as they are updated by the widgets
-                    # when the sidebar is rendered in the main logic block.
-                    clustering_algorithm = st.session_state.clustering_algorithm_sidebar
+                if clustering_algorithm == "KMeans":
+                    n_clusters = st.session_state.kmeans_clusters_sidebar # Use global state
+                    df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
+                    cluster_column_name = 'KMeans_Cluster'
+                    st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
+                else: # Agglomerative Clustering
+                    n_clusters_agg = st.session_state.agg_clusters_sidebar # Use global state
+                    linkage_method = st.session_state.agg_linkage_sidebar # Use global state
+                    df_cleaned_for_analysis['Agglomerative_Cluster'], _ = perform_agglomerative(df_scaled, n_clusters_agg, linkage_method)
+                    cluster_column_name = 'Agglomerative_Cluster'
+                    st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
 
-                    if clustering_algorithm == "KMeans":
-                        n_clusters = st.session_state.kmeans_clusters_sidebar
-                        df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
-                        cluster_column_name = 'KMeans_Cluster'
-                        st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
-                    else: # Agglomerative Clustering
-                        n_clusters_agg = st.session_state.agg_clusters_sidebar
-                        linkage_method = st.session_state.agg_linkage_sidebar
-                        df_cleaned_for_analysis['Agglomerative_Cluster'], _ = perform_agglomerative(df_scaled, n_clusters_agg, linkage_method)
-                        cluster_column_name = 'Agglomerative_Cluster'
-                        st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
+                # --- VISUALIZATION OPTIONS (READ FROM GLOBAL SIDEBAR STATE) ---
+                visualization_options = st.session_state.visualization_options_sidebar # Use global state
 
-                    # --- VISUALIZATION OPTIONS (READ FROM GLOBAL SIDEBAR STATE) ---
-                    visualization_options = st.session_state.visualization_options_sidebar
+                st.subheader(translate("Visualisasi Klaster"))
 
-                    st.subheader(translate("Visualisasi Klaster"))
+                if "Heatmap" in visualization_options:
+                    plt.figure(figsize=(10, 6))
+                    sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
+                    plt.title("Heatmap Korelasi Antar Fitur")
+                    st.pyplot(plt.gcf())
+                    plt.clf()
 
-                    if "Heatmap" in visualization_options:
-                        plt.figure(figsize=(10, 6))
-                        sns.heatmap(df_scaled.corr(), annot=True, cmap='coolwarm')
-                        plt.title("Heatmap Korelasi Antar Fitur")
-                        st.pyplot(plt.gcf())
-                        plt.clf()
+                if "Boxplot" in visualization_options and cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
+                    num_features = len(selected_features)
+                    cols = 2
+                    rows = (num_features + cols - 1) // cols
+                    fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 5 * rows))
+                    axes = axes.flatten()
 
-                    if "Boxplot" in visualization_options and cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
-                        num_features = len(selected_features)
-                        cols = 2
-                        rows = (num_features + cols - 1) // cols
-                        fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 5 * rows))
-                        axes = axes.flatten()
+                    for i, feature in enumerate(selected_features):
+                        sns.boxplot(x=cluster_column_name, y=feature, data=df_cleaned_for_analysis, ax=axes[i])
+                        axes[i].set_title(f"Boxplot: {feature} per Cluster")
+                        axes[i].set_xlabel("Cluster")
+                        axes[i].set_ylabel(feature)
 
-                        for i, feature in enumerate(selected_features):
-                            sns.boxplot(x=cluster_column_name, y=feature, data=df_cleaned_for_analysis, ax=axes[i])
-                            axes[i].set_title(f"Boxplot: {feature} per Cluster")
-                            axes[i].set_xlabel("Cluster")
-                            axes[i].set_ylabel(feature)
+                    for j in range(i + 1, len(axes)):
+                        fig.delaxes(axes[j])
 
-                        for j in range(i + 1, len(axes)):
-                            fig.delaxes(axes[j])
-
-                        plt.tight_layout()
-                        st.pyplot(fig)
-                        plt.clf()
-                    elif "Boxplot" in visualization_options:
-                        st.info("Tidak cukup klaster (minimal 2) untuk menampilkan Boxplot." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to display Boxplot.")
+                    plt.tight_layout()
+                    st.pyplot(fig)
+                    plt.clf()
+                elif "Boxplot" in visualization_options:
+                    st.info("Tidak cukup klaster (minimal 2) untuk menampilkan Boxplot." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to display Boxplot.")
 
 
-                    if "Barchart" in visualization_options:
-                        if 'Row Labels' in df_cleaned_for_analysis.columns:
-                            for feature in selected_features:
-                                grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
-                                top5 = grouped.nlargest(5, feature)
-                                bottom5 = grouped.nsmallest(5, feature)
+                if "Barchart" in visualization_options:
+                    if 'Row Labels' in df_cleaned_for_analysis.columns:
+                        for feature in selected_features:
+                            grouped = df_cleaned_for_analysis.groupby('Row Labels')[feature].mean().reset_index()
+                            top5 = grouped.nlargest(5, feature)
+                            bottom5 = grouped.nsmallest(5, feature)
 
-                                col1, col2 = st.columns(2)
+                            col1, col2 = st.columns(2)
 
-                                with col1:
-                                    fig_top, ax_top = plt.subplots(figsize=(6, 4))
-                                    sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
-                                    ax_top.set_title(f"Top 5 Terminal - {feature}")
-                                    st.pyplot(fig_top)
-                                    plt.clf()
+                            with col1:
+                                fig_top, ax_top = plt.subplots(figsize=(6, 4))
+                                sns.barplot(x=feature, y='Row Labels', data=top5, palette='Blues_d', ax=ax_top)
+                                ax_top.set_title(f"Top 5 Terminal - {feature}")
+                                st.pyplot(fig_top)
+                                plt.clf()
 
-                                with col2:
-                                    fig_bottom, ax_bottom = plt.subplots(figsize=(6, 4))
-                                    sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
-                                    ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
-                                    st.pyplot(fig_bottom)
-                                    plt.clf()
-                        else:
-                            st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found in data for barchart visualization.")
+                            with col2:
+                                fig_bottom, ax_bottom = plt.subplots(figsize=(6, 4))
+                                sns.barplot(x=feature, y='Row Labels', data=bottom5, palette='Blues_d', ax=ax_bottom)
+                                ax_bottom.set_title(f"Bottom 5 Terminal - {feature}")
+                                st.pyplot(fig_bottom)
+                                plt.clf()
+                    else:
+                        st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found in data for barchart visualization.")
 
-                    # --- EVALUATION OPTIONS (READ FROM GLOBAL SIDEBAR STATE) ---
-                    cluster_evaluation_options = st.session_state.cluster_evaluation_options_sidebar
+                # --- EVALUATION OPTIONS (READ FROM GLOBAL SIDEBAR STATE) ---
+                cluster_evaluation_options = st.session_state.cluster_evaluation_options_sidebar
 
-                    st.subheader(translate("Evaluasi Klaster"))
-                    if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
-                        if "ANOVA" in cluster_evaluation_options:
-                            anova_results = perform_anova(df_cleaned_for_analysis, selected_features, cluster_column_name)
-                            st.write(anova_results)
-                            interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
-                                          else "\U0001F4CC ANOVA Interpretation: P-value less than alpha (0.05) indicates significant difference.")
-                            st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+                st.subheader(translate("Evaluasi Klaster"))
+                if cluster_column_name and len(df_cleaned_for_analysis[cluster_column_name].unique()) > 1:
+                    if "ANOVA" in cluster_evaluation_options:
+                        anova_results = perform_anova(df_cleaned_for_analysis, selected_features, cluster_column_name)
+                        st.write(anova_results)
+                        interpret = ("\U0001F4CC Interpretasi ANOVA: P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
+                                      else "\U0001F4CC ANOVA Interpretation: P-value less than alpha (0.05) indicates significant difference.")
+                        st.write(interpret if (anova_results["P-Value"] < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
 
-                        if "Silhouette Score" in cluster_evaluation_options:
-                            if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
-                                score = silhouette_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
-                                st.write(f"*Silhouette Score*: {score:.4f}")
-                                if st.session_state.language == "Indonesia":
-                                    if score >= 0.71:
-                                        msg = "Struktur klaster yang dihasilkan sangat kuat. Objek sangat cocok dengan klaster-nya sendiri dan tidak cocok dengan klaster tetangga."
-                                    elif score >= 0.51:
-                                        msg = "Struktur klaster yang dihasilkan baik. Objek cocok dengan klaster-nya dan terpisah dengan baik dari klaster lain."
-                                    elif score >= 0.26:
-                                        msg = "Struktur klaster yang dihasilkan lemah. Mungkin dapat diterima, tetapi perlu dipertimbangkan bahwa objek mungkin berada di antara klaster."
-                                    else:
-                                        msg = "Klaster tidak terstruktur dengan baik. Objek mungkin lebih cocok ditempatkan pada klaster lain daripada klaster saat ini."
-                                else: # English
-                                    if score >= 0.71:
-                                        msg = "The resulting cluster structure is very strong. Objects fit well within their own cluster and are poorly matched to neighboring clusters."
-                                    elif score >= 0.51:
-                                        msg = "The resulting cluster structure is good. Objects fit well within their cluster and are well separated from other clusters."
-                                    elif score >= 0.26:
-                                        msg = "The resulting cluster structure is weak. It might be acceptable, but consider that objects might be between clusters."
-                                    else:
-                                        msg = "Clusters are not well-structured. Objects might be better placed in another cluster than their current one."
+                    if "Silhouette Score" in cluster_evaluation_options:
+                        if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
+                            score = silhouette_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
+                            st.write(f"*Silhouette Score*: {score:.4f}")
+                            if st.session_state.language == "Indonesia":
+                                if score >= 0.71:
+                                    msg = "Struktur klaster yang dihasilkan sangat kuat. Objek sangat cocok dengan klaster-nya sendiri dan tidak cocok dengan klaster tetangga."
+                                elif score >= 0.51:
+                                    msg = "Struktur klaster yang dihasilkan baik. Objek cocok dengan klaster-nya dan terpisah dengan baik dari klaster lain."
+                                elif score >= 0.26:
+                                    msg = "Struktur klaster yang dihasilkan lemah. Mungkin dapat diterima, tetapi perlu dipertimbangkan bahwa objek mungkin berada di antara klaster."
+                                else:
+                                    msg = "Klaster tidak terstruktur dengan baik. Objek mungkin lebih cocok ditempatkan pada klaster lain daripada klaster saat ini."
+                            else: # English
+                                if score >= 0.71:
+                                    msg = "The resulting cluster structure is very strong. Objects fit well within their own cluster and are poorly matched to neighboring clusters."
+                                elif score >= 0.51:
+                                    msg = "The resulting cluster structure is good. Objects fit well within their cluster and are well separated from other clusters."
+                                elif score >= 0.26:
+                                    msg = "The resulting cluster structure is weak. It might be acceptable, but consider that objects might be between clusters."
+                                else:
+                                    msg = "Clusters are not well-structured. Objects might be better placed in another cluster than their current one."
                                 st.write("\U0001F4CC " + msg)
                             else:
                                 st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Silhouette Score.")
@@ -416,9 +399,9 @@ def clustering_analysis_page_content():
                                 st.write(f"*{translate('Davies-Bouldin Index')}*: {score:.4f}")
                                 st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index"))
                             else:
-                                st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Davies-Bouldin Index.")
+                                st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Davies-Bouldin Index.")
                     else:
-                        st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) or no clusters detected for evaluation.")
+                        st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
                 else:
                     st.warning("Harap pilih setidaknya satu variabel numerik untuk memulai analisis klaster." if st.session_state.language == "Indonesia" else "Please select at least one numeric variable to start cluster analysis.")
         else:
@@ -448,20 +431,19 @@ st.sidebar.radio(
 
 st.sidebar.markdown("---") # Separator
 
-# Conditionally render clustering controls in the sidebar based on page_selection
+# Conditionally render clustering-specific controls in the sidebar
 if page_selection == "Clustering Analysis":
     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
-    # Widget calls: these directly update st.session_state via their keys
     st.sidebar.selectbox(
         "Algoritma", ["KMeans", "Agglomerative Clustering"],
-        key="clustering_algorithm_sidebar" # This key directly updates st.session_state.clustering_algorithm_sidebar
+        key="clustering_algorithm_sidebar"
     )
 
     if st.session_state.clustering_algorithm_sidebar == "KMeans":
         st.sidebar.slider(
             translate("Parameter KMeans (Jumlah Klaster)"), 2, 10,
-            value=st.session_state.kmeans_clusters_sidebar, # Use value for initial setting
-            key="kmeans_clusters_sidebar" # This key directly updates st.session_state.kmeans_clusters_sidebar
+            value=st.session_state.kmeans_clusters_sidebar,
+            key="kmeans_clusters_sidebar"
         )
     else: # Agglomerative Clustering
         st.sidebar.slider(
@@ -495,10 +477,19 @@ if page_selection == "Clustering Analysis":
         key="cluster_evaluation_options_sidebar"
     )
 
+    # --- MOVE "Hapus Baris" HERE ---
+    # This ensures "Hapus Baris" subheader is shown correctly when on this page
+    st.sidebar.subheader(translate("Hapus Baris"))
+    # The text_area and button themselves are called within the content function
+    # because they need access to `df_cleaned` and interaction logic.
+    # We define the *keys* for them here to ensure their state persists.
+    # The actual rendering will happen when `clustering_analysis_page_content` is called.
+    # No need to explicitly call them here, but their keys are registered
+    # because `drop_names_input_val` is initialized in session state.
+
+
 # Display the selected page content
 if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
-    # Call the content function for the clustering page
-    # It will read the values from session_state that were updated by sidebar widgets above
     clustering_analysis_page_content()
