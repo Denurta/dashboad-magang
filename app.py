@@ -134,7 +134,7 @@ def translate(text):
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
         
-        # --- TEKS UNTUK FOKUS KE SPTP, SEJARAH DIHAPUS ---
+        # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
@@ -149,7 +149,6 @@ def translate(text):
             "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis SPTP menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan handal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
             "English": "With improved strategic control and strong financial capabilities, SPTP's business operations are more coordinated, standardized, and efficient, benefiting both the public and service users. Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
-        # All "History Text" keys are removed from translations
         
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
         "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
@@ -159,6 +158,60 @@ def translate(text):
         "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
+        
+        # New text for the "Terminal Performance Analysis" section
+        "Terminal Performance Analysis Title": {"Indonesia": "📊 Analisis Kinerja Terminal Peti Kemas", "English": "📊 Container Terminal Performance Analysis"},
+        "Analysis Objective Text": {
+            "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma **K-Means Clustering**, serta mengevaluasi perbedaan antar kelompok melalui **Analisis ANOVA**.",
+            "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the **K-Means Clustering** algorithm, and evaluate differences between groups through **ANOVA Analysis**."
+        },
+        "Performance Variables Title": {"Indonesia": "⚙️ Variabel Kinerja yang Dianalisis", "English": "⚙️ Performance Variables Analyzed"},
+        "ET/BT Variable": {
+            "Indonesia": "🔹 **ET/BT (Efisiensi Waktu Operasional)**: Rasio antara waktu efektif dan waktu sandar kapal. Semakin tinggi, semakin efisien aktivitas bongkar muat.",
+            "English": "🔹 **ET/BT (Operational Time Efficiency)**: Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
+        },
+        "BSH/BT Variable": {
+            "Indonesia": "🔹 **BSH/BT (Produktivitas Waktu Sandar)**: Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
+            "English": "🔹 **BSH/BT (Berth Time Productivity)**: Measures how many containers are unloaded per hour while the ship is at the berth."
+        },
+        "BCH/ET Variable": {
+            "Indonesia": "🔹 **BCH/ET (Produktivitas Waktu Efektif)**: Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
+            "English": "🔹 **BCH/ET (Effective Time Productivity)**: Indicates productivity per hour during the actual operational working time."
+        },
+        "Standardization Note": {
+            "Indonesia": "Sebelum analisis dilakukan, semua variabel distandarisasi agar memiliki skala yang setara, sehingga proses pengelompokan dapat dilakukan secara objektif.",
+            "English": "Before analysis, all variables are standardized to have an equivalent scale, enabling objective clustering."
+        },
+        "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
+        "Methodology Item 1": {
+            "Indonesia": "💡 **K-Means Clustering** digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
+            "English": "💡 **K-Means Clustering** is used to group terminals with similar operational characteristics."
+        },
+        "Methodology Item 2": {
+            "Indonesia": "📉 **Metode Elbow** membantu menentukan jumlah klaster yang optimal.",
+            "English": "📉 The **Elbow Method** helps determine the optimal number of clusters."
+        },
+        "Methodology Item 3": {
+            "Indonesia": "✅ **Silhouette Score** dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "✅ **Silhouette Score** is calculated to evaluate how well terminals are grouped."
+        },
+        "Methodology Item 4": {
+            "Indonesia": "🧪 **Uji ANOVA satu arah** dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
+            "English": "🧪 **One-way ANOVA test** is performed to see if there are significant differences between clusters for each performance variable."
+        },
+        "Analysis Objective Section Title": {"Indonesia": "🎯 Tujuan Analisis", "English": "🎯 Analysis Objective"},
+        "Analysis Objective Item 1": {
+            "Indonesia": "Mengidentifikasi pola performa terminal berdasarkan data operasional.",
+            "English": "Identify terminal performance patterns based on operational data."
+        },
+        "Analysis Objective Item 2": {
+            "Indonesia": "Menyediakan insight strategis untuk mendukung peningkatan layanan.",
+            "English": "Provide strategic insights to support service improvement."
+        },
+        "Analysis Objective Item 3": {
+            "Indonesia": "Membantu pengelola pelabuhan dalam mengambil keputusan berbasis bukti, misalnya dalam penyesuaian jadwal, peningkatan infrastruktur, atau alokasi sumber daya.",
+            "English": "Assist port managers in making evidence-based decisions, such as adjusting schedules, improving infrastructure, or allocating resources."
+        },
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -271,7 +324,7 @@ def perform_anova(df, features, cluster_col):
 
 def home_page():
     # Judul utama aplikasi, sekarang fokus pada SPTP
-    st.title("🚢 " + translate("Welcome to SPTP Analysis")) # Changed title key
+    st.title("🚢 " + translate("Welcome to SPTP Analysis"))
 
     st.markdown(f"""
     <div class="home-page-container">
@@ -288,8 +341,6 @@ def home_page():
     </div>
     """, unsafe_allow_html=True)
 
-    # The "Short History" section is now completely removed from here.
-
     st.header(translate("Our Vision"))
     st.markdown(f"""
     <div class="home-page-container">
@@ -305,9 +356,37 @@ def home_page():
             <li>{translate("Mission Item 2")}</li>
             <li>{translate("Mission Item 3")}</li>
         </ul>
-
     </div>
     """, unsafe_allow_html=True)
+
+    # --- NEW SECTION: Terminal Performance Analysis ---
+    st.header(translate("Terminal Performance Analysis Title"))
+    st.markdown(f"""
+    <div class="home-page-container">
+        <p>{translate("Analysis Objective Text")}</p>
+        <h4>{translate("Performance Variables Title")}</h4>
+        <ul>
+            <li>{translate("ET/BT Variable")}</li>
+            <li>{translate("BSH/BT Variable")}</li>
+            <li>{translate("BCH/ET Variable")}</li>
+        </ul>
+        <p>{translate("Standardization Note")}</p>
+        <h4>{translate("Methodology Title")}</h4>
+        <ul>
+            <li>{translate("Methodology Item 1")}</li>
+            <li>{translate("Methodology Item 2")}</li>
+            <li>{translate("Methodology Item 3")}</li>
+            <li>{translate("Methodology Item 4")}</li>
+        </ul>
+        <h4>{translate("Analysis Objective Section Title")}</h4>
+        <ul>
+            <li>{translate("Analysis Objective Item 1")}</li>
+            <li>{translate("Analysis Objective Item 2")}</li>
+            <li>{translate("Analysis Objective Item 3")}</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    # --- END NEW SECTION ---
 
     st.info(translate("Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics."))
 
