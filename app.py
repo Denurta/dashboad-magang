@@ -134,24 +134,24 @@ def translate(text):
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
         
-        # --- TEKS YANG DIPERBARUI ---
+        # --- TEKS YANG DIPERBARUI UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
         "About SPTP Text 1": {
-            "Indonesia": "Berdirinya Pelindo sebagai perusahaan hasil integrasi ini adalah inisiatif strategis pemerintah selaku pemegang saham untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat. Konektivitas maritim baik keterhubungan antar pelabuhan-pelabuhan di dalam negeri, maupun antara pelabuhan di dalam dan luar negeri akan meningkat.",
-            "English": "The establishment of Pelindo as an integrated company is a strategic initiative by the government, as a shareholder, to realize stronger national connectivity and logistics ecosystem networks. Maritime connectivity, both between domestic ports and between domestic and international ports, will improve."
+            "Indonesia": "Sebagai bagian dari integrasi Pelindo, **PT Pelindo Terminal Petikemas (SPTP)** adalah operator terminal terkemuka di Indonesia yang berfokus pada pelayanan peti kemas. Berdirinya SPTP adalah inisiatif strategis untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat, khususnya dalam layanan peti kemas.",
+            "English": "As part of Pelindo's integration, **PT Pelindo Terminal Petikemas (SPTP)** is a leading terminal operator in Indonesia focusing on container services. SPTP's establishment is a strategic initiative to realize stronger national connectivity and logistics ecosystem networks, specifically within container services."
         },
         "About SPTP Text 2": {
-            "Indonesia": "Dengan memiliki kendali strategis yang lebih baik dan didukung oleh kemampuan finansial yang kuat, operasional bisnis Pelindo menjadi lebih terkoordinasi, terstandar, dan efisien sehingga akan memberi keuntungan bagi masyarakat khususnya pengguna jasa.",
-            "English": "By having better strategic control and supported by strong financial capabilities, Pelindo's business operations become more coordinated, standardized, and efficient, which will benefit the public, especially service users."
+            "Indonesia": "SPTP memainkan peran krusial dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia. Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari berbagai wilayah secara efisien dan aman.",
+            "English": "SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia. These terminals serve as vital trade gateways, facilitating the efficient and safe flow of goods to and from various regions."
         },
         "About SPTP Text 3": {
-            "Indonesia": "Saat ini, integrasi Pelindo dibagi menjadi empat (4) unit bisnis (sub-holding) di antaranya **PT Pelindo Multi Terminal**, **PT Pelindo Solusi Logistik**, **PT Pelindo Terminal Petikemas**, dan **PT Pelindo Jasa Maritim**.",
-            "English": "Currently, Pelindo's integration is divided into four (4) business units (sub-holdings), including **PT Pelindo Multi Terminal**, **PT Pelindo Solusi Logistik**, **PT Pelindo Terminal Petikemas**, and **PT Pelindo Jasa Maritim**."
+            "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis SPTP menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
+            "English": "With improved strategic control and strong financial capabilities, SPTP's business operations are more coordinated, standardized, and efficient, benefiting both the public and service users. Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
-        "About SPTP Text 4": {
-            "Indonesia": "Pelindo Terminal Petikemas atau **Pelindo TPK** merupakan operator terminal yang memberikan pelayanan petikemas dengan sistem jaringan yang terintegrasi dan terstandar. Di bawah naungan operator pelabuhan terbesar di Indonesia, kami memiliki peran strategis dalam mendorong pertumbuhan dan pemerataan ekonomi nasional.",
-            "English": "Pelindo Terminal Petikemas or **Pelindo TPK** is a terminal operator that provides container services with an integrated and standardized network system. Under the largest port operator in Indonesia, we have a strategic role in driving national economic growth and equity."
+        "About SPTP Text 4": { # This text is now removed from 'About SPTP' and moved to 'Short History'
+            "Indonesia": "", 
+            "English": ""
         },
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
         "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
@@ -161,22 +161,22 @@ def translate(text):
         "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
-        "Short History": {"Indonesia": "Sejarah Singkat", "English": "Short History"},
+        "Short History": {"Indonesia": "Sejarah Singkat SPTP", "English": "Short History of SPTP"}, # Updated title
         "History Text 1": {
-            "Indonesia": "Indonesia memiliki sejarah panjang sebagai negara maritim. Di masa lalu, kerajaan-kerajaan maritim nusantara seperti Sriwijaya, Majapahit, kerajaan di Maluku pernah memegang kunci jalur perdagangan dunia lewat rempah-rempah. Pedagang-pedagang dari Gujarat dan China mengambil rempah-rempah dari Kepulauan Maluku lalu mengirimkannya melalui kapal-kapal dagang menuju Cina, Semenanjung Arab, Eropa, hingga ke Madagaskar.",
-            "English": "Indonesia has a long history as a maritime nation. In the past, maritime kingdoms of the archipelago such as Sriwijaya, Majapahit, and kingdoms in Maluku held the key to world trade routes through spices. Traders from Gujarat and China took spices from the Maluku Islands and shipped them via merchant ships to China, the Arabian Peninsula, Europe, and even Madagascar."
+            "Indonesia": "Indonesia memiliki sejarah panjang sebagai negara maritim, dengan pelabuhan-pelabuhan yang menjadi pusat perdagangan penting sejak era kerajaan. Untuk mengelola kepelabuhanan, sebelumnya dibentuk 4 Pelindo yang terbagi berdasar wilayah.",
+            "English": "Indonesia has a long history as a maritime nation, with ports serving as important trade centers since the era of kingdoms. To manage port operations, four Pelindo entities were previously formed, divided by region."
         },
         "History Text 2": {
-            "Indonesia": "Pelabuhan-pelabuhan kecil di Indonesia menjadi tempat persinggahan dan pusat perdagangan yang mempertemukan para pedagang dari berbagai bangsa, sehingga menjadi bandar niaga yang besar. Hal ini melatari lahirnya Pelabuhan Indonesia di era kemerdekaan.",
-            "English": "Small ports in Indonesia became transit points and trade centers that brought together traders from various nations, thus becoming large trading hubs. This laid the foundation for the birth of Pelabuhan Indonesia (Indonesian Ports) in the era of independence."
+            "Indonesia": "Pada tahun 2012, berdasarkan gagasan Kementerian BUMN, Pelindo I, II, III, dan IV melakukan konsorsium untuk mendirikan **PT Terminal Petikemas Indonesia (PT TPI)**. Perusahaan ini mulai beroperasi secara aktif pada tahun 2014, menandai langkah awal dalam spesialisasi layanan peti kemas.",
+            "English": "In 2012, based on an idea from the Ministry of SOEs, Pelindo I, II, III, and IV formed a consortium to establish **PT Terminal Petikemas Indonesia (PT TPI)**. This company began active operations in 2014, marking the initial step in container service specialization."
         },
         "History Text 3": {
-            "Indonesia": "Sebelumnya, untuk mengelola kepelabuhanan di Indonesia, dibentuk 4 Pelindo yang terbagi berdasar wilayah yang berbeda. Merger atau integrasi keempat Pelindo menjadi satu Pelindo yang kemudian diberi nama **PT Pelabuhan Indonesia**. Pelindo II bertindak sebagai holding induk (perusahaan induk) dan ke-3 Pelindo (I, III, IV) bertindak sebagai sub-holding. Pembentukan sub-holding yang mengelola klaster-klaster usaha ditujukan untuk meningkatkan kapasitas pelayanan Pelindo dan efisiensi usaha.",
-            "English": "Previously, to manage port operations in Indonesia, four Pelindo entities were formed, divided based on different regions. The merger or integration of these four Pelindo entities resulted in a single Pelindo, which was then named **PT Pelabuhan Indonesia**. Pelindo II acted as the parent holding company, and the other three Pelindo entities (I, III, IV) acted as sub-holdings. The formation of sub-holdings managing business clusters was aimed at increasing Pelindo's service capacity and business efficiency."
+            "Indonesia": "Seiring dengan integrasi Pelindo yang dilaksanakan pada tanggal 1 Oktober 2021, PT TPI kemudian berganti nama menjadi **PT Pelindo Terminal Petikemas** berdasarkan akta perubahan nama yang diterbitkan pada tanggal 11 Oktober 2021. Sejak saat itu, Pelindo Terminal Petikemas menjadi salah satu sub-holding utama dalam struktur Pelindo yang terintegrasi, dengan fokus penuh pada pengelolaan dan pengembangan terminal peti kemas nasional.",
+            "English": "Following the Pelindo integration carried out on October 1, 2021, PT TPI was subsequently renamed **PT Pelindo Terminal Petikemas** based on a deed of name change issued on October 11, 2021. Since then, Pelindo Terminal Petikemas has become one of the main sub-holdings within the integrated Pelindo structure, with a full focus on national container terminal management and development."
         },
-        "History Text 4": {
-            "Indonesia": "Pada tahun 2012 berdasarkan gagasan dari Kementerian BUMN, Pelindo I, II, III, dan IV melakukan konsorsium untuk mendirikan **PT Terminal Petikemas Indonesia (PT TPI)** dan mulai beroperasi secara aktif pada tahun 2014. Namun, seiring dilakukannya integrasi Pelindo yang dilaksanakan pada tanggal 1 Oktober 2021, maka PT TPI berganti nama menjadi **PT Pelindo Terminal Petikemas** berdasarkan akta perubahan nama yang diterbitkan pada tanggal 11 Oktober 2021 yang saat ini menjadi salah satu sub-holding integrasi Pelindo.",
-            "English": "In 2012, based on an idea from the Ministry of SOEs, Pelindo I, II, III, and IV formed a consortium to establish **PT Terminal Petikemas Indonesia (PT TPI)**, which began active operations in 2014. However, with the Pelindo integration carried out on October 1, 2021, PT TPI changed its name to **PT Pelindo Terminal Petikemas** based on a deed of name change issued on October 11, 2021, which is now one of Pelindo's integrated sub-holdings."
+        "History Text 4": { # This text is now removed
+            "Indonesia": "", 
+            "English": ""
         },
     }
     return translations.get(text, {}).get(st.session_state.language, text)
@@ -304,9 +304,6 @@ def home_page():
         <p>
             {translate("About SPTP Text 3")}
         </p>
-        <p>
-            {translate("About SPTP Text 4")}
-        </p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -316,9 +313,8 @@ def home_page():
         <p>{translate("History Text 1")}</p>
         <p>{translate("History Text 2")}</p>
         <p>{translate("History Text 3")}</p>
-        <p>{translate("History Text 4")}</p>
     </div>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True) # History Text 4 removed from here
 
     st.header(translate("Our Vision"))
     st.markdown(f"""
