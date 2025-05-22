@@ -49,16 +49,15 @@ li {
 }
 
 /* Container for top navigation buttons to center them */
-.centered-buttons-container {
+.centered-buttons-wrapper {
     display: flex;
-    justify-content: center; /* Centers the content (buttons) */
-    width: 100%; /* Ensures the container takes full width */
+    justify-content: center; /* Centers the content (which is the st.columns div) */
+    width: 100%; /* Ensures the wrapper takes full width */
     margin-bottom: 20px; /* Space below the buttons */
-    gap: 30px; /* Space between the buttons */
 }
 
-/* Style for individual top navigation buttons */
-.centered-buttons-container .stButton > button {
+/* Style for individual top navigation buttons within the wrapper */
+.centered-buttons-wrapper .stButton > button {
     font-size: 1.2em;
     font-weight: bold;
     color: white; /* Text color white for red button */
@@ -69,11 +68,16 @@ li {
     box-shadow: 2px 2px 5px rgba(0,0,0,0.2); /* Subtle shadow */
     transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
 }
-.centered-buttons-container .stButton > button:hover {
+.centered-buttons-wrapper .stButton > button:hover {
     background-color: #C82333; /* Darker red on hover */
     border-color: #C82333;
     transform: translateY(-2px); /* Slight lift effect */
 }
+/* Adjust spacing for columns if needed, though gap on wrapper or column itself is better */
+.centered-buttons-wrapper .st-emotion-cache-1pxczgcb { /* Targeting the Streamlit columns internal div */
+    gap: 30px; /* Add gap between columns if necessary, or apply it to the buttons themselves */
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -460,16 +464,18 @@ def clustering_analysis_page_content():
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
 
-# Pembungkus untuk menengahkan tombol navigasi
-st.markdown('<div class="centered-buttons-container">', unsafe_allow_html=True)
-# Menggunakan st.button langsung di dalam div kustom tanpa st.columns
-# Ini akan membuat setiap tombol menjadi item flex yang terpisah di dalam kontainer,
-# yang kemudian akan diatur oleh 'justify-content: center' dan 'gap'
-if st.button(translate("Home"), key="btn_home_main"):
-    st.session_state.current_page = "Home"
-if st.button(translate("Clustering Analysis"), key="btn_clustering_analysis_main"):
-    st.session_state.current_page = "Clustering Analysis"
-st.markdown('</div>', unsafe_allow_html=True) # Tutup container tombol
+# Pembungkus untuk menengahkan seluruh grup tombol
+st.markdown('<div class="centered-buttons-wrapper">', unsafe_allow_html=True)
+# Menggunakan st.columns di dalam wrapper untuk menempatkan tombol bersebelahan
+col_home, col_clustering = st.columns(2)
+
+with col_home:
+    if st.button(translate("Home"), key="btn_home_main"):
+        st.session_state.current_page = "Home"
+with col_clustering:
+    if st.button(translate("Clustering Analysis"), key="btn_clustering_analysis_main"):
+        st.session_state.current_page = "Clustering Analysis"
+st.markdown('</div>', unsafe_allow_html=True) # Tutup container wrapper
 
 st.markdown("---") # Separator di bawah tombol
 
