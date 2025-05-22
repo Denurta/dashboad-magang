@@ -91,7 +91,7 @@ def translate(text):
         "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
         "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
         "Hapus Baris": {"Indonesia": "Hapus Baris", "English": "Remove Rows"},
-        "Masukkan nama baris yang akan dihapus (pisahkan dengan koma)": {"Indonesia": "Masukkan nama baris yang akan dihapus (pisahkan dengan koma)", "English": "Enter row names to remove (separate with commas)"},
+        "Masukkan nama baris yang akan dihapus (pisahkan dengan koma)": {"Indonesia": "Masukkan nama nama baris yang akan dihapus (pisahkan dengan koma)", "English": "Enter row names to remove (separate with commas)"},
         "Analisis Klaster Terminal": {"Indonesia": "Analisis Klaster Terminal", "English": "Terminal Cluster Analysis"},
         "Metode Elbow": {"Indonesia": "Metode Elbow", "English": "Elbow Method"},
         "Visualisasi Klaster": {"Indonesia": "Visualisasi Klaster", "English": "Cluster Visualization"},
@@ -109,7 +109,9 @@ def translate(text):
         "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
-}
+        "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI mendekati **0** menunjukkan klaster yang **terpisah dengan baik dan padat**, yang merupakan hasil klasterisasi yang optimal. Semakin tinggi nilai DBI, semakin buruk kualitas klasterisasi (klaster tumpang tindih atau tidak padat).", "English": "Davies-Bouldin Index Interpretation: A DBI value closer to **0** indicates **well-separated and dense clusters**, representing optimal clustering results. A higher DBI value suggests poorer clustering quality (overlapping or non-compact clusters)."},
+        "Interpretasi DBI Nilai": {"Indonesia": "Interpretasi: DBI adalah metrik internal, nilai yang **mendekati 0 adalah lebih baik**, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "Interpretation: DBI is an internal metric; values **closer to 0 are better**, indicating more separated and denser clusters."},
+    }
     return translations.get(text, {}).get(st.session_state.language, text)
 
 
@@ -432,13 +434,13 @@ def clustering_analysis_page_content():
                         else:
                             st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Silhouette Score.")
 
-                        if translate("Davies-Bouldin Index") in cluster_evaluation_options:
-                            if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
-                                score = davies_bouldin_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
-                                st.write(f"*{translate('Davies-Bouldin Index')}*: {score:.4f}")
-                                st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index"))
-                            else:
-                                st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Davies-Bouldin Index.")
+                    if translate("Davies-Bouldin Index") in cluster_evaluation_options:
+                        if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
+                            score = davies_bouldin_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
+                            st.write(f"*{translate('Davies-Bouldin Index')}*: {score:.4f}")
+                            st.write("\U0001F4CC " + translate("Interpretasi DBI Nilai")) # Changed to the new, simpler interpretation
+                        else:
+                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Davies-Bouldin Index.")
                     else:
                         st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
                 else:
@@ -523,10 +525,7 @@ if page_selection == "Clustering Analysis":
         value=st.session_state.drop_names_input_val,
         key="drop_names_input_val" # This key updates st.session_state.drop_names_input_val
     )
-    # The button click sets a flag in session state using on_click.
-    # The button itself *does not have its own key here* for this specific case,
-    # as its click action is managed by the separate 'execute_drop_action' flag.
-    # We name the button label for clarity.
+    # The button click sets a flag in session state using on_click
     st.sidebar.button(
         translate("Hapus Baris"),
         key="trigger_drop_button_click", # Use a *new* key for the button to avoid conflict
@@ -539,4 +538,5 @@ if page_selection == "Home":
     home_page()
 elif page_selection == "Clustering Analysis":
     # Call the content function for the clustering page
+    # The handle_row_deletion_logic will now correctly check st.session_state.execute_drop_action
     clustering_analysis_page_content()
