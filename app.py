@@ -110,7 +110,7 @@ def translate(text):
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         # Simplified the interpretation to be more direct and consistent with Silhouette
-        "Interpretasi Davies-Bouldin Index": {"Indonesia": "DBI adalah metrik internal, nilai yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI is an internal metric; values closer to 0 are better, indicating more separated and denser clusters."},
+        "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
