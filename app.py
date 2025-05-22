@@ -163,7 +163,7 @@ def translate(text):
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
         
         # Text for the "Terminal Performance Analysis" section
-        "Terminal Performance Analysis Title": {"Indonesia": "📊 Analisis Kinerja Terminal Peti Kemas", "English": "📊 Container Terminal Performance Analysis"},
+        "Terminal Performance Analysis Title": {"Indonesia": "📊 Analisis Kinerja Terminal", "English": "📊 Terminal Performance Analysis"},
         "Analysis Objective Text": {
             "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma K-Means Clustering, serta mengevaluasi perbedaan antar kelompok melalui Analisis ANOVA.",
             "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the K-Means Clustering algorithm, and evaluate differences between groups through ANOVA Analysis."
