@@ -177,7 +177,7 @@ def translate(text):
         },
         
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
-        "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
+        "Vision Text": {"Indonesia": "🔹 Operator terminal terkemuka yang berkelas dunia", "English": "🔹 A leading world-class terminal operator"},
         "Our Mission": {"Indonesia": "Misi", "English": "Mission"},
         "Mission Item 1": {"Indonesia": "Mendukung ekosistem petikemas yang terintegrasi melalui keunggulan operasional", "English": "Supporting an integrated container ecosystem through operational excellence"},
         "Mission Item 2": {"Indonesia": "Optimalisasi jaringan", "English": "Network optimization"},
