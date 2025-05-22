@@ -83,6 +83,29 @@ li {
     gap: 30px; /* Add gap between columns if necessary */
 }
 
+/* Styling for language selection buttons in sidebar */
+.stSidebar .language-button-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+}
+.stSidebar .language-button-container .stButton > button {
+    background-color: #5A8DB0; /* A different blue for sidebar buttons */
+    color: white;
+    border: 1px solid #5A8DB0;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+}
+.stSidebar .language-button-container .stButton > button:hover {
+    background-color: #4A7D9D;
+}
+.stSidebar .language-button-container .stButton > button[aria-checked="true"] { /* Style for selected button */
+    background-color: #1E3A5F; /* Darker blue for selected state */
+    border-color: #1E3A5F;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -110,6 +133,8 @@ if 'current_page' not in st.session_state: st.session_state.current_page = "Home
 def translate(text):
     translations = {
         "Pilih Bahasa": {"Indonesia": "Pilih Bahasa", "English": "Select Language"},
+        "Indonesia Button": {"Indonesia": "Indonesia", "English": "Indonesia"},
+        "English Button": {"Indonesia": "English", "English": "English"},
         "Jumlah Klaster": {"Indonesia": "Jumlah Klaster", "English": "Number of Clusters"},
         "Pilih Visualisasi": {"Indonesia": "Pilih Visualisasi", "English": "Select Visualization"},
         "Pilih Evaluasi Klaster": {"Indonesia": "Pilih Evaluasi Klaster", "English": "Select Cluster Evaluation"},
@@ -429,7 +454,6 @@ def handle_row_deletion_logic():
         if rows_deleted > 0:
             st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {', '.join(names_to_drop)}")
             # Clear selected features if any removed rows impact them
-            # This helps avoid errors if a removed row was critical for a selected feature's calculation
             # For simplicity, we just trigger a rerun if deletion happens, other widgets will react
             st.rerun() 
         else:
@@ -695,12 +719,36 @@ st.markdown("---") # Separator di bawah tombol
 # Render sidebar
 st.sidebar.title("Navigation")
 
-st.sidebar.radio(
-    translate("Pilih Bahasa"),
-    ["Indonesia", "English"],
-    key="language_selector",
-    on_change=lambda: st.session_state.__setitem__('language', st.session_state.language_selector)
-)
+# --- Language Selection Buttons ---
+lang_col1, lang_col2 = st.sidebar.columns(2)
+
+with lang_col1:
+    if st.button(translate("Indonesia Button"), key="lang_id_button"):
+        st.session_state.language = "Indonesia"
+        st.rerun() # Rerun to apply language change immediately
+with lang_col2:
+    if st.button(translate("English Button"), key="lang_en_button"):
+        st.session_state.language = "English"
+        st.rerun() # Rerun to apply language change immediately
+
+# Apply active state styling to buttons based on current language
+st.markdown(f"""
+<script>
+    const idButton = parent.document.querySelector('[data-testid="stSidebar"] button[key="lang_id_button"]');
+    const enButton = parent.document.querySelector('[data-testid="stSidebar"] button[key="lang_en_button"]');
+
+    if (idButton && enButton) {
+        if ("{st.session_state.language}" === "Indonesia") {
+            idButton.setAttribute('aria-checked', 'true');
+            enButton.setAttribute('aria-checked', 'false');
+        } else {
+            idButton.setAttribute('aria-checked', 'false');
+            enButton.setAttribute('aria-checked', 'true');
+        }
+    }
+</script>
+""", unsafe_allow_html=True)
+
 
 st.sidebar.markdown("---")
 
