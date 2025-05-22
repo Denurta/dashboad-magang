@@ -333,34 +333,45 @@ def perform_anova(df, features, cluster_col):
     
     anova_results = []
     for feature in features:
-        # Get unique cluster labels and filter out NaN cluster labels if any
+        # Step 1: Ensure feature column is numeric, coercing errors to NaN
+        df[feature] = pd.to_numeric(df[feature], errors='coerce')
+
+        # Get unique cluster labels from non-NaN cluster assignments
         unique_cluster_labels = [k for k in df[cluster_col].dropna().unique()]
         
-        # Ensure there are at least two unique clusters to compare
+        # Ensure there are at least two unique clusters to compare for ANOVA
         if len(unique_cluster_labels) < 2:
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             continue # Skip to next feature if not enough clusters
 
         groups = []
         for k in unique_cluster_labels:
+            # Filter data for current cluster and feature, dropping NaNs
             group_data = df[df[cluster_col] == k][feature].dropna()
-            # Ensure each group has at least 2 data points AND some variance
+            
+            # Check for sufficient data points AND variance within the group
+            # ANOVA requires at least 2 data points per group, and variance (i.e., not all identical values)
             if len(group_data) > 1 and group_data.nunique() > 1:
                 groups.append(group_data)
             else:
-                # If a group is invalid, we can't run ANOVA for this feature robustly
-                # A more nuanced approach might be to skip just this group or indicate a warning
-                # For simplicity, we'll mark this feature's ANOVA as NaN
-                groups = [] # Clear valid groups to force NaN for this feature
-                break # Exit inner loop, set ANOVA for this feature to NaN
+                # If a group is invalid (e.g., only one value or all values are same),
+                # this feature's ANOVA for this clustering setup is invalid.
+                groups = [] # Reset groups to ensure this feature gets NaN
+                break # Exit inner loop, as ANOVA cannot be performed meaningfully for this feature
 
-        if len(groups) >= 2: # Ensure we have at least two valid groups after filtering
+        if len(groups) >= 2: # Ensure we collected at least two valid groups after all checks
             try:
                 f_stat, p_value = f_oneway(*groups)
                 anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
-            except ValueError: # Catch cases where f_oneway might still fail (e.g., all values are same in groups)
+            except ValueError as e:
+                # Catch potential ValueError if f_oneway still can't compute (e.g., if groups become empty due to filtering)
+                st.warning(f"ValueError during ANOVA for feature '{feature}': {e}. Setting results to NaN.")
+                anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            except Exception as e:
+                st.error(f"An unexpected error occurred during ANOVA for feature '{feature}': {e}")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
         else:
+            # If after all filtering, we don't have at least two valid groups for comparison
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             
     return pd.DataFrame(anova_results)
