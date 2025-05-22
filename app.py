@@ -47,18 +47,20 @@ li {
     border-radius: 10px;
     margin-bottom: 20px;
 }
-/* Style for top navigation radio buttons */
-.stRadio > label {
+/* Style for top navigation buttons */
+.stButton > button {
     font-size: 1.2em; /* Make the label larger */
     font-weight: bold;
     color: #1E3A5F;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 2px solid #1E3A5F;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin-right: 15px; /* Space between buttons */
 }
-.stRadio > div[role="radiogroup"] {
-    flex-direction: row; /* Arrange radio buttons horizontally */
-    gap: 20px; /* Space them out */
-    padding-bottom: 20px; /* Add some space below */
-    border-bottom: 1px solid #ddd; /* A subtle separator */
-    margin-bottom: 20px; /* Space after separator */
+.stButton > button:hover {
+    background-color: #1E3A5F;
+    color: white;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -81,7 +83,7 @@ if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_stat
 if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = '' # Initialize text_area value
 # New flag for button click action
 if 'execute_drop_action' not in st.session_state: st.session_state.execute_drop_action = False
-
+if 'current_page' not in st.session_state: st.session_state.current_page = "Home" # New state for page navigation
 
 # --- Translation Function ---
 def translate(text):
@@ -122,6 +124,8 @@ def translate(text):
         "Mission Item 2": {"Indonesia": "Mengembangkan bisnis pelabuhan yang tangguh dan inovatif melalui sinergi dan kolaborasi.", "English": "Developing a robust and innovative port business through synergy and collaboration."},
         "Mission Item 3": {"Indonesia": "Menciptakan nilai tambah bagi para pemangku kepentingan dengan tetap menjaga kelestarian lingkungan.", "English": "Creating added value for stakeholders while maintaining environmental sustainability."},
         "Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics.": {"Indonesia": "Navigasi ke bagian 'Analisis Klaster' untuk mengunggah data Anda dan melakukan analisis klaster pada metrik terminal.", "English": "Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics."},
+        "Home": {"Indonesia": "Beranda", "English": "Home"},
+        "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -236,45 +240,41 @@ def home_page():
 
 # Helper function to handle row deletion logic
 def handle_row_deletion_logic():
-    # We check if the action flag is set in session state.
-    # This flag is set by the button's on_click callback.
     if st.session_state.get('execute_drop_action', False):
         if not st.session_state.data_uploaded:
             st.warning("Silakan unggah data terlebih dahulu untuk menggunakan fitur hapus baris.")
-            st.session_state['execute_drop_action'] = False # Reset flag
+            st.session_state['execute_drop_action'] = False
             return
 
         if 'Row Labels' not in st.session_state.df_cleaned.columns:
             st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
-            st.session_state['execute_drop_action'] = False # Reset flag
+            st.session_state['execute_drop_action'] = False
             return
 
         current_df = st.session_state.df_cleaned.copy()
-        drop_names_str = st.session_state.drop_names_input_val # Get value from session state
+        drop_names_str = st.session_state.drop_names_input_val
         names_to_drop = [name.strip() for name in drop_names_str.split(',') if name.strip()]
         initial_rows = current_df.shape[0]
 
-        if names_to_drop: # Only proceed if names are provided
+        if names_to_drop:
             df_after_drop = current_df[~current_df['Row Labels'].isin(names_to_drop)].reset_index(drop=True)
 
             rows_deleted = initial_rows - df_after_drop.shape[0]
             
             if rows_deleted > 0:
-                st.session_state['df_cleaned'] = df_after_drop # Update the cleaned DataFrame in session state
+                st.session_state['df_cleaned'] = df_after_drop
                 st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {names_to_drop}")
             else:
                 st.info("Tidak ada baris dengan nama tersebut yang ditemukan.")
         else:
             st.warning("Silakan masukkan nama baris yang ingin dihapus.")
             
-        # CRUCIAL: Reset the action flag immediately after processing to prevent re-trigger on next rerun
         st.session_state['execute_drop_action'] = False
 
 
 def clustering_analysis_page_content():
     st.title(translate("Analisis Klaster Terminal"))
 
-    # --- Usage Guide ---
     with st.expander("\u2139\uFE0F Panduan Penggunaan Aplikasi" if st.session_state.language == "Indonesia" else "\u2139\uFE0F Application Usage Guide"):
         if st.session_state.language == "Indonesia":
             st.markdown("""
@@ -299,19 +299,12 @@ def clustering_analysis_page_content():
             </ol>
             """, unsafe_allow_html=True)
 
-    # Upload Data
     data_loaded = load_data()
     if not data_loaded:
         st.info("\u26A0\uFE0F " + translate("Upload Data untuk Analisis"))
 
-    # Process row deletion if button was clicked AND data is loaded
-    # This must run before any data is displayed, as it modifies df_cleaned
-    # The check for button click is now inside handle_row_deletion_logic itself,
-    # which checks the 'execute_drop_action' flag.
     handle_row_deletion_logic()
 
-    # Remaining analysis logic (reads from sidebar state which is set globally)
-    # Check df_cleaned for emptiness after potential deletion
     if st.session_state.data_uploaded and not st.session_state['df_cleaned'].empty:
         df_cleaned_for_analysis = st.session_state['df_cleaned']
 
@@ -333,23 +326,21 @@ def clustering_analysis_page_content():
 
                 cluster_column_name = ""
 
-                # --- CLUSTERING ALGORITHM AND PARAMETERS (READ FROM GLOBAL SIDEBAR STATE) ---
-                clustering_algorithm = st.session_state.clustering_algorithm_sidebar # Use global state
+                clustering_algorithm = st.session_state.clustering_algorithm_sidebar
 
                 if clustering_algorithm == "KMeans":
-                    n_clusters = st.session_state.kmeans_clusters_sidebar # Use global state
+                    n_clusters = st.session_state.kmeans_clusters_sidebar
                     df_cleaned_for_analysis['KMeans_Cluster'], _ = perform_kmeans(df_scaled, n_clusters)
                     cluster_column_name = 'KMeans_Cluster'
                     st.info(f"KMeans Clustering dengan {n_clusters} klaster.")
-                else: # Agglomerative Clustering
-                    n_clusters_agg = st.session_state.agg_clusters_sidebar # Use global state
-                    linkage_method = st.session_state.agg_linkage_sidebar # Use global state
+                else:
+                    n_clusters_agg = st.session_state.agg_clusters_sidebar
+                    linkage_method = st.session_state.agg_linkage_sidebar
                     df_cleaned_for_analysis['Agglomerative_Cluster'], _ = perform_agglomerative(df_scaled, n_clusters_agg, linkage_method)
                     cluster_column_name = 'Agglomerative_Cluster'
                     st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
 
-                # --- VISUALIZATION OPTIONS (READ FROM GLOBAL SIDEBAR STATE) ---
-                visualization_options = st.session_state.visualization_options_sidebar # Use global state
+                visualization_options = st.session_state.visualization_options_sidebar
 
                 st.subheader(translate("Visualisasi Klaster"))
 
@@ -408,7 +399,6 @@ def clustering_analysis_page_content():
                     else:
                         st.warning("Kolom 'Row Labels' tidak ditemukan pada data untuk visualisasi barchart." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found in data for barchart visualization.")
 
-                # --- EVALUATION OPTIONS (READ FROM GLOBAL SIDEBAR STATE) ---
                 cluster_evaluation_options = st.session_state.cluster_evaluation_options_sidebar
 
                 st.subheader(translate("Evaluasi Klaster"))
@@ -450,8 +440,7 @@ def clustering_analysis_page_content():
                         if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
                             score = davies_bouldin_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
                             st.write(f"*{translate('Davies-Bouldin Index')}*: {score:.4f}")
-                            # Corrected interpretation display for DBI
-                            st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index")) # This will now show the concise interpretation
+                            st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index"))
                         else:
                             st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) to calculate Davies-Bouldin Index.")
                 else:
@@ -464,18 +453,20 @@ def clustering_analysis_page_content():
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
 
-# TOP NAVIGATION (Horizontal Radio Buttons)
-page_selection = st.radio(
-    "Select Page",
-    ["Home", "Clustering Analysis"],
-    key="top_navigation_radio",
-    horizontal=True
-)
+# TOP NAVIGATION (Buttons)
+col_home, col_clustering = st.columns([1, 1])
+with col_home:
+    if st.button(translate("Home"), key="btn_home"):
+        st.session_state.current_page = "Home"
+with col_clustering:
+    if st.button(translate("Clustering Analysis"), key="btn_clustering_analysis"):
+        st.session_state.current_page = "Clustering Analysis"
+
+st.markdown("---") # Separator below buttons
 
 # Render the sidebar for the current page selection and global controls
-st.sidebar.title("Navigation") # Main sidebar title
+st.sidebar.title("Navigation")
 
-# Language selector is kept in the sidebar, accessible from both pages
 st.sidebar.radio(
     translate("Pilih Bahasa"),
     ["Indonesia", "English"],
@@ -483,10 +474,10 @@ st.sidebar.radio(
     on_change=lambda: st.session_state.__setitem__('language', st.session_state.language_selector)
 )
 
-st.sidebar.markdown("---") # Separator
+st.sidebar.markdown("---")
 
 # Conditionally render clustering-specific controls in the sidebar
-if page_selection == "Clustering Analysis":
+if st.session_state.current_page == "Clustering Analysis":
     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
     st.sidebar.selectbox(
         "Algoritma", ["KMeans", "Agglomerative Clustering"],
@@ -536,20 +527,17 @@ if page_selection == "Clustering Analysis":
     st.sidebar.text_area(
         translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"),
         value=st.session_state.drop_names_input_val,
-        key="drop_names_input_val" # This key updates st.session_state.drop_names_input_val
+        key="drop_names_input_val"
     )
-    # The button click sets a flag in session state using on_click
     st.sidebar.button(
         translate("Hapus Baris"),
-        key="trigger_drop_button_click", # Use a *new* key for the button to avoid conflict
-        on_click=lambda: st.session_state.update(execute_drop_action=True) # Set custom flag for processing
+        key="trigger_drop_button_click",
+        on_click=lambda: st.session_state.update(execute_drop_action=True)
     )
 
 
 # Display the selected page content
-if page_selection == "Home":
+if st.session_state.current_page == "Home":
     home_page()
-elif page_selection == "Clustering Analysis":
-    # Call the content function for the clustering page
-    # The handle_row_deletion_logic will now correctly check st.session_state.execute_drop_action
+elif st.session_state.current_page == "Clustering Analysis":
     clustering_analysis_page_content()
