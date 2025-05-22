@@ -6,7 +6,7 @@ import seaborn as sns
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import f_oneway
-from sklearn.metrics import silhouette_score, davies_bouldin_score # Changed fowlkes_mallows_score to davies_bouldin_score
+from sklearn.metrics import silhouette_score, normalized_mutual_info_score # Changed davies_bouldin_score to normalized_mutual_info_score
 import numpy as np
 
 # --- Styling CSS ---
@@ -131,9 +131,9 @@ def translate(text):
         "Complete": {"Indonesia": "**Complete (Maximum Linkage):** Mengukur jarak maksimum antar dua titik dari klaster berbeda. Baik untuk klaster yang sangat terpisah dan padat, sensitif terhadap outlier.", "English": "**Complete (Maximum Linkage):** Measures the maximum distance between two points from different clusters. Good for very separate and dense clusters, sensitive to outliers."},
         "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
-        # New translations for Davies-Bouldin Index
-        "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
-        "Interpretasi Davies-Bouldin Index": {"Indonesia": "Interpretasi Davies-Bouldin Index: Indeks ini mengukur seberapa baik klaster terpisah dan seberapa padat klaster internal. Nilai yang lebih rendah menunjukkan klasterisasi yang lebih baik (klaster lebih terpisah dan lebih padat).", "English": "Davies-Bouldin Index Interpretation: This index measures how well clusters are separated and how dense the clusters are internally. A lower score indicates better clustering (clusters are more separated and denser)."},
+        # New translations for Normalized Mutual Information (NMI)
+        "Normalized Mutual Information (NMI)": {"Indonesia": "Normalized Mutual Information (NMI)", "English": "Normalized Mutual Information (NMI)"},
+        "Interpretasi NMI": {"Indonesia": "Interpretasi NMI: Indeks ini mengukur kesamaan informasi antara klaster yang dihasilkan dan 'label kebenaran dasar' (ground truth). Nilai NMI berkisar dari 0 (tidak ada informasi bersama) hingga 1 (kesamaan sempurna). Sebagai metrik eksternal, membutuhkan 'label kebenaran dasar' yang tidak tersedia di sini. Nilai yang ditampilkan adalah ilustratif atau memerlukan penyesuaian interpretasi.", "English": "NMI Interpretation: This index measures the shared information between the generated clusters and 'ground truth labels'. NMI values range from 0 (no mutual information) to 1 (perfect similarity). As an external metric, it requires 'ground truth labels' which are not available here. The displayed value is illustrative or requires adjusted interpretation."},
     }
     return translations.get(text, {}).get(language, text)
 
@@ -166,7 +166,7 @@ st.sidebar.subheader(translate("Pilih Visualisasi"))
 visualization_options = st.sidebar.multiselect("", ["Heatmap", "Boxplot", "Barchart"])
 
 st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
-cluster_evaluation_options = st.sidebar.multiselect("", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index")]) # Updated here
+cluster_evaluation_options = st.sidebar.multiselect("", ["ANOVA", "Silhouette Score", translate("Normalized Mutual Information (NMI)")]) # Updated here
 
 st.sidebar.subheader(translate("Hapus Baris"))
 drop_names = st.sidebar.text_area(translate("Masukkan nama baris yang akan dihapus (pisahkan dengan koma)"), key="drop_names")
@@ -343,14 +343,16 @@ if 'data_uploaded' in st.session_state and st.session_state['data_uploaded']:
                         else:
                             st.info("Tidak cukup klaster (minimal 2) untuk menghitung Silhouette Score." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Silhouette Score.")
 
-                    # Davies-Bouldin Index block
-                    if translate("Davies-Bouldin Index") in cluster_evaluation_options:
+                    # Normalized Mutual Information (NMI) block
+                    if translate("Normalized Mutual Information (NMI)") in cluster_evaluation_options:
                         if len(np.unique(df_cleaned_for_analysis[cluster_column_name])) > 1:
-                            score = davies_bouldin_score(df_scaled, df_cleaned_for_analysis[cluster_column_name])
-                            st.write(f"*{translate('Davies-Bouldin Index')}*: {score:.4f}")
-                            st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index"))
+                            # NMI is an EXTERNAL validation metric and requires 'true labels' (ground truth).
+                            # Since this application doesn't provide a mechanism to input true labels,
+                            # a numerically meaningful NMI cannot be calculated for internal validation.
+                            st.warning(translate("Interpretasi NMI"))
+                            st.write(f"*{translate('Normalized Mutual Information (NMI)')}*: N/A (requires true labels)")
                         else:
-                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Davies-Bouldin Index.")
+                            st.info("Tidak cukup klaster (minimal 2) untuk menghitung Normalized Mutual Information (NMI)." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) to calculate Normalized Mutual Information (NMI).")
                 else:
                     st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimum 2) or no clusters detected for evaluation.")
             else:
