@@ -109,8 +109,19 @@ def translate(text):
         "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
-        # Simplified the interpretation to be more direct and consistent with Silhouette
         "Interpretasi Davies-Bouldin Index": {"Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat.", "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."},
+        "Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis": {"Indonesia": "Selamat Datang di Analisis PT Pelindo Terminal Petikemas Surabaya", "English": "Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis"},
+        "About PT Pelindo Terminal Petikemas Surabaya": {"Indonesia": "Tentang PT Pelindo Terminal Petikemas Surabaya", "English": "About PT Pelindo Terminal Petikemas Surabaya"},
+        "About Text 1": {"Indonesia": "PT Pelindo Terminal Petikemas (SPTP), anak perusahaan PT Pelabuhan Indonesia (Pelindo), adalah salah satu operator terminal peti kemas terkemuka di Indonesia. SPTP memainkan peran penting dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di berbagai pelabuhan strategis di seluruh Indonesia.", "English": "PT Pelindo Terminal Petikemas (SPTP), a subsidiary of PT Pelabuhan Indonesia (Pelindo), is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia."},
+        "About Text 2": {"Indonesia": "Berlokasi di Surabaya, Jawa Timur, **Terminal Petikemas Surabaya** berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari wilayah timur Indonesia. Terminal ini dilengkapi dengan fasilitas dan teknologi modern untuk menangani berbagai jenis kargo peti kemas secara efisien dan aman.", "English": "Located in Surabaya, East Java, the **Petikemas Surabaya Terminal** serves as a vital gateway for trade, facilitating the flow of goods to and from the eastern part of Indonesia. It is equipped with modern facilities and technology to handle various types of container cargo efficiently and safely."},
+        "About Text 3": {"Indonesia": "Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan andal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.", "English": "Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."},
+        "Our Vision": {"Indonesia": "Visi Kami", "English": "Our Vision"},
+        "Vision Text": {"Indonesia": "Menjadi operator ekosistem logistik dan pelabuhan terintegrasi kelas dunia, mendorong konektivitas dan pertumbuhan ekonomi.", "English": "To be a world-class integrated logistics and port ecosystem operator, driving connectivity and economic growth."},
+        "Our Mission": {"Indonesia": "Misi Kami", "English": "Our Mission"},
+        "Mission Item 1": {"Indonesia": "Menyediakan layanan pelabuhan yang efisien dan berkelanjutan untuk mendukung ekosistem logistik nasional.", "English": "Providing efficient and sustainable port services to support the national logistics ecosystem."},
+        "Mission Item 2": {"Indonesia": "Mengembangkan bisnis pelabuhan yang tangguh dan inovatif melalui sinergi dan kolaborasi.", "English": "Developing a robust and innovative port business through synergy and collaboration."},
+        "Mission Item 3": {"Indonesia": "Menciptakan nilai tambah bagi para pemangku kepentingan dengan tetap menjaga kelestarian lingkungan.", "English": "Creating added value for stakeholders while maintaining environmental sustainability."},
+        "Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics.": {"Indonesia": "Navigasi ke bagian 'Analisis Klaster' untuk mengunggah data Anda dan melakukan analisis klaster pada metrik terminal.", "English": "Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics."},
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -184,43 +195,43 @@ def perform_anova(df, features, cluster_col):
 # --- Page Functions ---
 
 def home_page():
-    st.title("🚢 Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis")
+    st.title(translate("Welcome to PT Pelindo Terminal Petikemas Surabaya Analysis"))
 
-    st.markdown("""
+    st.markdown(f"""
     <div class="home-page-container">
-        <h3>About PT Pelindo Terminal Petikemas Surabaya</h3>
+        <h3>{translate("About PT Pelindo Terminal Petikemas Surabaya")}</h3>
         <p>
-            PT Pelindo Terminal Petikemas (SPTP), a subsidiary of PT Pelabuhan Indonesia (Pelindo), is one of the leading container terminal operators in Indonesia. SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia.
+            {translate("About Text 1")}
         </p>
         <p>
-            Located in Surabaya, East Java, the **Petikemas Surabaya Terminal** serves as a vital gateway for trade, facilitating the flow of goods to and from the eastern part of Indonesia. It is equipped with modern facilities and technology to handle various types of container cargo efficiently and safely.
+            {translate("About Text 2")}
         </p>
         <p>
-            Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade.
+            {translate("About Text 3")}
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.header("Our Vision")
-    st.markdown("""
+    st.header(translate("Our Vision"))
+    st.markdown(f"""
     <div class="home-page-container">
-        <p>To be a world-class integrated logistics and port ecosystem operator, driving connectivity and economic growth.</p>
+        <p>{translate("Vision Text")}</p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.header("Our Mission")
-    st.markdown("""
+    st.header(translate("Our Mission"))
+    st.markdown(f"""
     <div class="home-page-container">
         <ul>
-            <li>Providing efficient and sustainable port services to support the national logistics ecosystem.</li>
-            <li>Developing a robust and innovative port business through synergy and collaboration.</li>
-            <li>Creating added value for stakeholders while maintaining environmental sustainability.</li>
+            <li>{translate("Mission Item 1")}</li>
+            <li>{translate("Mission Item 2")}</li>
+            <li>{translate("Mission Item 3")}</li>
         </ul>
 
     </div>
     """, unsafe_allow_html=True)
 
-    st.info("Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics.")
+    st.info(translate("Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics."))
 
 
 # Helper function to handle row deletion logic
