@@ -622,17 +622,27 @@ def clustering_analysis_page_content():
             cluster_column_name = 'Agglomerative_Cluster'
             st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
 
-        # --- NEW: Display Cluster Members Table ---
+        # --- Display Cluster Members Table ---
         st.subheader("Anggota Klaster" if st.session_state.language == "Indonesia" else "Cluster Members")
         if 'Row Labels' in df_current_analysis.columns and cluster_column_name:
             # Create a dataframe for display: Terminal Name and their assigned Cluster
             cluster_members_df = df_current_analysis[['Row Labels', cluster_column_name]].copy()
             cluster_members_df = cluster_members_df.sort_values(by=cluster_column_name).reset_index(drop=True)
             st.dataframe(cluster_members_df, use_container_width=True)
-            st.markdown("---") # Add a separator after the table
+            
+            # --- NEW: Display Cluster Counts ---
+            st.subheader("Jumlah Anggota per Klaster" if st.session_state.language == "Indonesia" else "Number of Members per Cluster")
+            cluster_counts = df_current_analysis[cluster_column_name].value_counts().sort_index().reset_index()
+            cluster_counts.columns = ["Klaster" if st.session_state.language == "Indonesia" else "Cluster", 
+                                      "Jumlah Anggota" if st.session_state.language == "Indonesia" else "Number of Members"]
+            st.dataframe(cluster_counts, use_container_width=True)
+            # --- END NEW ---
+
+            st.markdown("---") # Add a separator after the tables
         else:
             st.info("Kolom 'Row Labels' tidak ditemukan atau klaster belum terbentuk untuk menampilkan anggota klaster." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found or clusters not formed to display cluster members.")
-        # --- END NEW ---
+        # --- END Display Cluster Members Table ---
+
 
         # --- VISUALIZATION OPTIONS ---
         visualization_options = st.session_state.visualization_options_sidebar
