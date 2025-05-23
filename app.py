@@ -159,8 +159,6 @@ def translate(text):
             "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
             "English": "DBI values closer to 0 are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) and between-cluster separation (how far clusters are from each other)."
         },
-        "Jumlah Anggota per Klaster": {"Indonesia": "Jumlah Anggota per Klaster", "English": "Number of Members per Cluster"}
-        , # Added this translation entry
         # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
