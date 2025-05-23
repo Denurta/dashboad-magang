@@ -125,6 +125,9 @@ if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_i
 # New flag for button click action
 if 'execute_drop_action' not in st.session_state: st.session_state.execute_drop_action = False
 if 'current_page' not in st.session_state: st.session_state.current_page = "Home"
+# Variable to store the last uploaded file object, for caching logic
+if 'last_uploaded_file_id' not in st.session_state: st.session_state.last_uploaded_file_id = None
+
 
 # --- Translation Function ---
 def translate(text):
@@ -331,22 +334,28 @@ def perform_anova(df, features, cluster_col):
     Results for such features should not be interpreted meaningfully.
     """
     if df.empty or not features or cluster_col not in df.columns:
+        st.warning(f"ANOVA skipped: Input DataFrame is empty ({df.empty}), no features selected ({not features}), or cluster column '{cluster_col}' is missing ({cluster_col not in df.columns}).")
         return pd.DataFrame()
 
     anova_results = []
-
     df_copy = df.copy()
 
     for feature in features:
         df_copy[feature] = pd.to_numeric(df_copy[feature], errors='coerce')
         df_feature_cluster_filtered = df_copy[[feature, cluster_col]].dropna()
 
+        # IMPORTANT: Check if df_feature_cluster_filtered is empty after dropna
+        if df_feature_cluster_filtered.empty:
+            st.warning(f"ANOVA Warning for '{feature}': No valid data points found for this feature and cluster after dropping NaNs. Skipping ANOVA for this feature.")
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            continue # Skip to the next feature
+
         unique_cluster_labels = df_feature_cluster_filtered[cluster_col].unique()
 
         if len(unique_cluster_labels) < 2:
             st.warning(
                 f"ANOVA Warning for '{feature}': Less than 2 distinct clusters "
-                f"({len(unique_cluster_labels)} found) with valid data for this feature. "
+                f"({len(unique_cluster_labels)} found) with valid data for this feature after filtering. "
                 "Skipping ANOVA."
             )
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
@@ -357,10 +366,7 @@ def perform_anova(df, features, cluster_col):
         for k in unique_cluster_labels:
             group_data = df_feature_cluster_filtered[df_feature_cluster_filtered[cluster_col] == k][feature]
 
-            # MODIFICATION: Allowing groups with only 1 data point.
-            # The 'nunique() > 1' check has been removed.
-            # WARNING: This compromises the statistical validity of ANOVA for such groups.
-            if len(group_data) >= 1: # Group must have at least 1 data point
+            if len(group_data) >= 1:
                 groups.append(group_data)
             else:
                 st.warning(
@@ -373,6 +379,9 @@ def perform_anova(df, features, cluster_col):
 
         if is_feature_valid_for_anova and len(groups) >= 2:
             try:
+                # While the code allows single-member groups to be added,
+                # f_oneway will likely fail if a group has zero variance (e.g., only one data point).
+                # The current ANOVA warning mechanism handles this gracefully.
                 f_stat, p_value = f_oneway(*groups)
                 anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
             except ValueError as e:
@@ -485,20 +494,19 @@ def handle_row_deletion_logic():
 
         # Perform deletion on df_original.copy() and update df_cleaned
         # This ensures df_original remains untouched and df_cleaned reflects changes
-        initial_rows = st.session_state.df_cleaned.shape[0]
-
-        # Using .loc for direct modification and avoiding excessive copies
+        # initial_rows = st.session_state.df_cleaned.shape[0] # This variable is not used
+        
         rows_before_drop = st.session_state.df_cleaned.shape[0]
         st.session_state.df_cleaned = st.session_state.df_cleaned[~st.session_state.df_cleaned['Row Labels'].isin(names_to_drop)].reset_index(drop=True)
         rows_deleted = rows_before_drop - st.session_state.df_cleaned.shape[0]
-
+            
         if rows_deleted > 0:
             st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {', '.join(names_to_drop)}")
             # No explicit rerun here, as changing session state for df_cleaned will naturally trigger it
             pass
         else:
             st.info(f"Tidak ada baris dengan nama '{', '.join(names_to_drop)}' yang ditemukan untuk dihapus.")
-
+            
         # CRUCIAL: Reset the action flag immediately after processing to prevent re-trigger on next rerun
         st.session_state['execute_drop_action'] = False
 
@@ -531,11 +539,11 @@ def clustering_analysis_page_content():
             """, unsafe_allow_html=True)
 
     # --- Data Loading and Processing ---
-    # Use st.session_state.uploaded_file to prevent re-upload on every rerun
     uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"], key="file_uploader_main")
-
-    # Only call load_and_process_data if a new file is uploaded or if df_original is empty
-    if uploaded_file and (uploaded_file != st.session_state.get('last_uploaded_file_id') or st.session_state['df_original'].empty):
+    
+    # Check if a new file is uploaded or if df_original is empty (first run or reset)
+    # The uploaded_file object itself can be used to detect changes; it has a unique ID or hash.
+    if uploaded_file and (uploaded_file != st.session_state.last_uploaded_file_id or st.session_state['df_original'].empty):
         with st.spinner("Memproses data..."):
             df_loaded, data_status, message = load_and_process_data(uploaded_file)
             if data_status:
@@ -551,7 +559,8 @@ def clustering_analysis_page_content():
         st.info("\u26A0\uFE0F " + translate("Upload Data untuk Analisis"))
 
     # Handle row deletion logic immediately after loading/uploading
-    handle_row_deletion_logic() # This modifies st.session_state.df_cleaned
+    # This function modifies st.session_state.df_cleaned in place or assigns a new DataFrame.
+    handle_row_deletion_logic() 
 
     # Proceed with analysis only if data is loaded and not empty after cleaning
     if st.session_state.data_uploaded and not st.session_state['df_cleaned'].empty:
@@ -568,8 +577,8 @@ def clustering_analysis_page_content():
         st.dataframe(df_current_analysis.describe())
 
         selected_features = st.multiselect(
-            translate("Pilih Variabel untuk Analisis Klaster"),
-            features,
+            translate("Pilih Variabel untuk Analisis Klaster"), 
+            features, 
             default=features if features else [], # Default to all if available, else empty list
             key="selected_features_all"
         )
@@ -589,13 +598,20 @@ def clustering_analysis_page_content():
         if clustering_algorithm == "KMeans":
             n_clusters = st.session_state.kmeans_clusters_sidebar
             # Ensure n_clusters is valid for the number of samples
-            if n_clusters >= len(df_scaled):
+            if n_clusters >= len(df_scaled) and len(df_scaled) > 1:
                 st.warning(f"Jumlah klaster KMeans ({n_clusters}) harus kurang dari jumlah sampel ({len(df_scaled)}). Menggunakan {len(df_scaled)-1} klaster.")
                 n_clusters = max(2, len(df_scaled) - 1) # Fallback to a valid number
+            elif len(df_scaled) <= 1: # Handle case with 0 or 1 sample
+                st.info("Tidak cukup sampel untuk melakukan klastering (minimal 2 sampel diperlukan)." if st.session_state.language == "Indonesia" else "Not enough samples to perform clustering (at least 2 samples required).")
+                return
 
-            if n_clusters < 2:
-                st.info("Tidak cukup sampel untuk melakukan klastering KMeans (minimal 2 klaster diperlukan).")
-                return # Exit if not enough samples
+
+            if n_clusters < 2 and len(df_scaled) >= 2: # Check if n_clusters is too low, but data exists
+                st.info("Jumlah klaster minimal untuk KMeans adalah 2. Sesuaikan parameter.")
+                return
+            elif len(df_scaled) < 2: # No clustering possible with < 2 samples
+                st.info("Tidak cukup sampel untuk melakukan klastering KMeans (minimal 2 sampel diperlukan)." if st.session_state.language == "Indonesia" else "Not enough samples to perform KMeans clustering (at least 2 samples required).")
+                return
 
             clusters, _ = perform_kmeans(df_scaled, n_clusters)
             df_current_analysis['KMeans_Cluster'] = clusters
@@ -604,13 +620,19 @@ def clustering_analysis_page_content():
         else: # Agglomerative Clustering
             n_clusters_agg = st.session_state.agg_clusters_sidebar
             # Ensure n_clusters_agg is valid for the number of samples
-            if n_clusters_agg >= len(df_scaled):
+            if n_clusters_agg >= len(df_scaled) and len(df_scaled) > 1:
                 st.warning(f"Jumlah klaster Agglomerative ({n_clusters_agg}) harus kurang dari jumlah sampel ({len(df_scaled)}). Menggunakan {len(df_scaled)-1} klaster.")
                 n_clusters_agg = max(2, len(df_scaled) - 1) # Fallback to a valid number
+            elif len(df_scaled) <= 1: # Handle case with 0 or 1 sample
+                st.info("Tidak cukup sampel untuk melakukan klastering (minimal 2 sampel diperlukan)." if st.session_state.language == "Indonesia" else "Not enough samples to perform clustering (at least 2 samples required).")
+                return
 
-            if n_clusters_agg < 2:
-                st.info("Tidak cukup sampel untuk melakukan klastering Agglomerative (minimal 2 klaster diperlukan).")
-                return # Exit if not enough samples
+            if n_clusters_agg < 2 and len(df_scaled) >= 2: # Check if n_clusters_agg is too low, but data exists
+                st.info("Jumlah klaster minimal untuk Agglomerative Clustering adalah 2. Sesuaikan parameter.")
+                return
+            elif len(df_scaled) < 2: # No clustering possible with < 2 samples
+                st.info("Tidak cukup sampel untuk melakukan klastering Agglomerative (minimal 2 sampel diperlukan)." if st.session_state.language == "Indonesia" else "Not enough samples to perform Agglomerative clustering (at least 2 samples required).")
+                return
 
             linkage_method = st.session_state.agg_linkage_sidebar
             clusters, _ = perform_agglomerative(df_scaled, n_clusters_agg, linkage_method)
@@ -626,7 +648,7 @@ def clustering_analysis_page_content():
             for cluster_id, count in cluster_counts.items():
                 st.write(f"Klaster {cluster_id}: {count} anggota" if st.session_state.language == "Indonesia" else f"Cluster {cluster_id}: {count} members")
             # --- END NEW ---
-
+            
             # Create a dataframe for display: Terminal Name and their assigned Cluster
             cluster_members_df = df_current_analysis[['Row Labels', cluster_column_name]].copy()
             cluster_members_df = cluster_members_df.sort_values(by=cluster_column_name).reset_index(drop=True)
@@ -652,7 +674,7 @@ def clustering_analysis_page_content():
         if "Boxplot" in visualization_options and cluster_column_name and len(df_current_analysis[cluster_column_name].unique()) > 1:
             if 'Row Labels' not in df_current_analysis.columns:
                 st.warning("Kolom 'Row Labels' tidak ditemukan. Outlier tidak dapat diberi label dengan nama terminal." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found. Outliers cannot be labeled with terminal names.")
-
+            
             num_features = len(selected_features)
             cols = 2
             rows = (num_features + cols - 1) // cols
@@ -670,16 +692,16 @@ def clustering_analysis_page_content():
                 if 'Row Labels' in df_current_analysis.columns:
                     for cluster_label in df_current_analysis[cluster_column_name].unique():
                         subset = df_current_analysis[df_current_analysis[cluster_column_name] == cluster_label]
-
+                        
                         Q1 = subset[feature].quantile(0.25)
                         Q3 = subset[feature].quantile(0.75)
                         IQR = Q3 - Q1
-
+                        
                         lower_bound = Q1 - 1.5 * IQR
                         upper_bound = Q3 + 1.5 * IQR
-
+                        
                         outliers = subset[(subset[feature] < lower_bound) | (subset[feature] > upper_bound)]
-
+                        
                         # Get the x-position for the current cluster boxplot
                         # This can be tricky; we'll use the index of the cluster label
                         cluster_idx = sorted(df_current_analysis[cluster_column_name].unique()).index(cluster_label)
@@ -688,7 +710,7 @@ def clustering_analysis_page_content():
                             terminal_name = outlier_row['Row Labels']
                             value = outlier_row[feature]
                             # Use ax.text to place labels, slightly offset
-                            ax.text(x=cluster_idx, y=value, s=f' {terminal_name}',
+                            ax.text(x=cluster_idx, y=value, s=f' {terminal_name}', 
                                     color='red', fontsize=8, ha='left', va='center')
                             # Optional: Make the outlier point itself more visible
                             ax.plot(cluster_idx, value, 'o', color='red', markersize=5, alpha=0.7)
@@ -708,7 +730,7 @@ def clustering_analysis_page_content():
             if 'Row Labels' in df_current_analysis.columns:
                 for feature in selected_features:
                     grouped = df_current_analysis.groupby('Row Labels')[feature].mean().reset_index()
-
+                    
                     if not grouped.empty:
                         top5 = grouped.nlargest(5, feature)
                         bottom5 = grouped.nsmallest(5, feature)
@@ -747,7 +769,11 @@ def clustering_analysis_page_content():
                     if not anova_results['P-Value'].isnull().all():
                         interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
                                      else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
-                        st.write(interpret if (anova_results["P-Value"].dropna() < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+                        # Check if any p-value is significant before stating there IS a difference
+                        if (anova_results["P-Value"].dropna() < 0.05).any():
+                            st.write(interpret)
+                        else:
+                            st.write(interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
                     else:
                         st.info("Tidak ada hasil ANOVA yang valid (non-NaN) untuk ditampilkan. Ini mungkin terjadi jika semua variabel memiliki masalah data atau tidak ada perbedaan antar klaster.")
                 else:
@@ -790,7 +816,7 @@ def clustering_analysis_page_content():
                     st.info("Tidak cukup klaster (minimal 2) atau sampel untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or samples to calculate Davies-Bouldin Index.")
         else:
             st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
-    else: # If df_cleaned is empty after deletion
+    else: # If df_cleaned is empty after deletion or no data uploaded
         st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
 
 
