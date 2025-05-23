@@ -5,7 +5,8 @@ import seaborn as sns
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import f_oneway
-from sklearn.metrics import silhouette_score, davies_bouldin_score
+from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
+from scipy.spatial.distance import cdist # For intra-cluster distance calculation
 import numpy as np
 
 # --- SET PAGE CONFIG (MUST BE AT THE VERY TOP) ---
@@ -159,6 +160,17 @@ def translate(text):
             "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. ",
             "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."
         },
+        # New translations for ICD Rate and R-squared
+        "ICD Rate": {"Indonesia": "ICD Rate (Rata-rata Jarak Intra-Klaster)", "English": "ICD Rate (Average Intra-Cluster Distance)"},
+        "Interpretasi ICD Rate": {
+            "Indonesia": "ICD Rate mengukur rata-rata jarak antara setiap titik data dan pusat klaster-nya. **Nilai yang lebih rendah menunjukkan klaster yang lebih padat dan baik.**",
+            "English": "ICD Rate measures the average distance between each data point and its cluster centroid. **Lower values indicate more compact and better clusters.**"
+        },
+        "R-squared (Calinski-Harabasz Index)": {"Indonesia": "R-squared (Indeks Calinski-Harabasz)", "English": "R-squared (Calinski-Harabasz Index)"},
+        "Interpretasi R-squared (Calinski-Harabasz Index)": {
+            "Indonesia": "Indeks Calinski-Harabasz adalah rasio dispersi antar-klaster dan dispersi intra-klaster. **Nilai yang lebih tinggi menunjukkan klaster yang lebih baik dan terpisah dengan baik.**",
+            "English": "The Calinski-Harabasz Index is a ratio of between-cluster dispersion and within-cluster dispersion. **Higher values indicate better and well-separated clusters.**"
+        },
         # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
@@ -217,8 +229,8 @@ def translate(text):
             "English": "<code>Elbow Method</code> helps determine the optimal number of clusters."
         },
         "Methodology Item Evaluation Metrics": { # Combined Silhouette and DBI
-            "Indonesia": "<code>Silhouette Score</code> dan <code>Davies-Bouldin Index (DBI)</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
-            "English": "<code>Silhouette Score</code> and <code>Davies-Bouldin Index (DBI)</code> are calculated to evaluate how well terminals are grouped."
+            "Indonesia": "<code>Silhouette Score</code>, <code>Davies-Bouldin Index (DBI)</code>, <code>ICD Rate</code>, dan <code>R-squared</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "<code>Silhouette Score</code>, <code>Davies-Bouldin Index (DBI)</code>, <code>ICD Rate</code>, and <code>R-squared</code> are calculated to evaluate how well terminals are grouped."
         },
         "Methodology Item ANOVA": {
             "Indonesia": "<code>Uji ANOVA</code> dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
@@ -297,6 +309,43 @@ def perform_agglomerative(df_scaled, n_clusters_agg, linkage_method):
     clusters = agg_clustering.fit_predict(df_scaled)
     return clusters, agg_clustering
 
+# New function for ICD Rate (Average Intra-Cluster Distance)
+@st.cache_data
+def calculate_icd_rate(df_scaled, labels):
+    """
+    Calculates the average intra-cluster distance (sum of distances from each point to its centroid).
+    This is a conceptual 'ICD Rate' based on common interpretation of internal cluster distance.
+    Lower values indicate more compact clusters.
+    """
+    if len(df_scaled) < 2 or len(np.unique(labels)) < 1: # Need at least 2 samples for meaningful distance
+        return np.nan
+    
+    total_icd = 0
+    n_points = 0
+    
+    unique_clusters = np.unique(labels)
+    for cluster_id in unique_clusters:
+        cluster_points = df_scaled[labels == cluster_id]
+        if len(cluster_points) > 0:
+            centroid = cluster_points.mean(axis=0)
+            distances = cdist(cluster_points, centroid.reshape(1, -1), 'euclidean')
+            total_icd += distances.sum()
+            n_points += len(cluster_points)
+            
+    return total_icd / n_points if n_points > 0 else np.nan
+
+# New function for R-squared (Calinski-Harabasz Index)
+@st.cache_data
+def calculate_r_squared_calinski_harabasz(df_scaled, labels):
+    """
+    Calculates the Calinski-Harabasz Index (R-squared equivalent for clustering).
+    Higher values generally indicate better-defined clusters.
+    """
+    if len(df_scaled) < 2 or len(np.unique(labels)) < 2: # CH index requires at least 2 samples and 2 clusters
+        return np.nan
+    return calinski_harabasz_score(df_scaled, labels)
+
+
 def elbow_method(df_scaled):
     """Displays the Elbow Method plot."""
     if df_scaled.empty:
@@ -353,7 +402,7 @@ def perform_anova(df, features, cluster_col):
                 "Skipping ANOVA."
             )
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
-            continue 
+            continue    
 
         groups = []
         is_feature_valid_for_anova = True
@@ -372,21 +421,21 @@ def perform_anova(df, features, cluster_col):
                     f"Skipping ANOVA for this feature."
                 )
                 is_feature_valid_for_anova = False
-                break 
+                break    
 
-        if is_feature_valid_for_anova and len(groups) >= 2: 
+        if is_feature_valid_for_anova and len(groups) >= 2:    
             try:
                 f_stat, p_value = f_oneway(*groups)
                 anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
             except ValueError as e:
                 st.error(f"ANOVA Error: ValueError for feature '{feature}': {e}. "
-                         "This often occurs if groups have zero variance (all values identical) or other statistical issues. Setting to NaN.")
+                                 "This often occurs if groups have zero variance (all values identical) or other statistical issues. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             except Exception as e:
                 st.error(f"ANOVA Error: An unexpected error occurred for feature '{feature}': {e}. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
         else:
-            if not any(entry.get("Variabel") == feature for entry in anova_results): 
+            if not any(entry.get("Variabel") == feature for entry in anova_results):    
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             
     return pd.DataFrame(anova_results)
@@ -571,8 +620,8 @@ def clustering_analysis_page_content():
         st.dataframe(df_current_analysis.describe())
 
         selected_features = st.multiselect(
-            translate("Pilih Variabel untuk Analisis Klaster"), 
-            features, 
+            translate("Pilih Variabel untuk Analisis Klaster"),    
+            features,    
             default=features if features else [], # Default to all if available, else empty list
             key="selected_features_all"
         )
@@ -691,8 +740,8 @@ def clustering_analysis_page_content():
                             terminal_name = outlier_row['Row Labels']
                             value = outlier_row[feature]
                             # Use ax.text to place labels, slightly offset
-                            ax.text(x=cluster_idx, y=value, s=f' {terminal_name}', 
-                                    color='red', fontsize=8, ha='left', va='center')
+                            ax.text(x=cluster_idx, y=value, s=f' {terminal_name}',    
+                                        color='red', fontsize=8, ha='left', va='center')
                             # Optional: Make the outlier point itself more visible
                             ax.plot(cluster_idx, value, 'o', color='red', markersize=5, alpha=0.7)
                 # --- End Identify and label outliers ---
@@ -749,7 +798,7 @@ def clustering_analysis_page_content():
                     # Check if any P-Value is not NaN before giving interpretation
                     if not anova_results['P-Value'].isnull().all():
                         interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
-                                     else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
+                                             else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
                         st.write(interpret if (anova_results["P-Value"].dropna() < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
                     else:
                         st.info("Tidak ada hasil ANOVA yang valid (non-NaN) untuk ditampilkan. Ini mungkin terjadi jika semua variabel memiliki masalah data atau tidak ada perbedaan antar klaster.")
@@ -791,6 +840,25 @@ def clustering_analysis_page_content():
                     st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index"))
                 else:
                     st.info("Tidak cukup klaster (minimal 2) atau sampel untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or samples to calculate Davies-Bouldin Index.")
+            
+            # --- NEW ICD Rate and R-squared ---
+            if translate("ICD Rate") in cluster_evaluation_options:
+                icd_rate = calculate_icd_rate(df_scaled, df_current_analysis[cluster_column_name])
+                if not np.isnan(icd_rate):
+                    st.write(f"*{translate('ICD Rate')}*: {icd_rate:.4f}")
+                    st.write("\U0001F4CC " + translate("Interpretasi ICD Rate"))
+                else:
+                    st.info("Tidak cukup sampel atau klaster untuk menghitung ICD Rate.")
+
+            if translate("R-squared (Calinski-Harabasz Index)") in cluster_evaluation_options:
+                r_squared_ch = calculate_r_squared_calinski_harabasz(df_scaled, df_current_analysis[cluster_column_name])
+                if not np.isnan(r_squared_ch):
+                    st.write(f"*{translate('R-squared (Calinski-Harabasz Index)')}*: {r_squared_ch:.4f}")
+                    st.write("\U0001F4CC " + translate("Interpretasi R-squared (Calinski-Harabasz Index)"))
+                else:
+                    st.info("Tidak cukup sampel atau klaster (minimal 2 klaster diperlukan) untuk menghitung R-squared (Calinski-Harabasz Index).")
+            # --- END NEW ---
+
         else:
             st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
     else: # If df_cleaned is empty after deletion
@@ -906,7 +974,7 @@ if st.session_state.current_page == "Clustering Analysis":
 
     st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
     st.sidebar.multiselect(
-        "Evaluasi", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index")],
+        "Evaluasi", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index"), translate("ICD Rate"), translate("R-squared (Calinski-Harabasz Index)")],
         key="cluster_evaluation_options_sidebar"
     )
 
