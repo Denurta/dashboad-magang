@@ -344,6 +344,12 @@ def perform_anova(df, features, cluster_col):
         df_copy[feature] = pd.to_numeric(df_copy[feature], errors='coerce')
         
         # Select both feature and cluster_col, then dropna
+        # Check if the columns actually exist in df_copy before trying to select them
+        if feature not in df_copy.columns or cluster_col not in df_copy.columns:
+            st.warning(f"ANOVA Warning for '{feature}': Required columns ('{feature}' or '{cluster_col}') not found in dataframe. Skipping ANOVA for this feature.")
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            continue
+
         df_feature_cluster_filtered = df_copy[[feature, cluster_col]].dropna()
 
         # IMPORTANT: Check if df_feature_cluster_filtered is empty after dropna
@@ -352,13 +358,20 @@ def perform_anova(df, features, cluster_col):
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             continue # Skip to the next feature
 
-        # Ensure the cluster column in the filtered dataframe is not empty or all NaNs
+        # Ensure the cluster column is still in the filtered dataframe (should be if not empty)
         if cluster_col not in df_feature_cluster_filtered.columns:
-            st.error(f"Internal Error in ANOVA: Cluster column '{cluster_col}' mysteriously disappeared for feature '{feature}' after filtering. Skipping.")
+            st.error(f"Internal Error in ANOVA: Cluster column '{cluster_col}' disappeared from filtered dataframe for feature '{feature}'. Skipping.")
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             continue
 
-        unique_cluster_labels = df_feature_cluster_filtered[cluster_col].unique()
+        # Explicitly check if it's a Series before calling .unique() (defensive coding)
+        cluster_series = df_feature_cluster_filtered[cluster_col]
+        if not isinstance(cluster_series, pd.Series):
+            st.error(f"Internal Error in ANOVA: Expected Series for cluster column '{cluster_col}', got {type(cluster_series).__name__} for feature '{feature}'. Skipping.")
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            continue
+        
+        unique_cluster_labels = cluster_series.unique()
 
         if len(unique_cluster_labels) < 2:
             st.warning(
@@ -412,7 +425,7 @@ def home_page():
     # Judul utama aplikasi, sekarang fokus pada SPTP
     st.title("🚢 " + translate("Welcome to SPTP Analysis"))
 
-    st.markdown(f"""
+    st.markdown(f("""
     <div class="home-page-container">
         <h3>{translate("About SPTP")}</h3>
         <p>
@@ -425,17 +438,17 @@ def home_page():
             {translate("About SPTP Text 3")}
         </p>
     </div>
-    """, unsafe_allow_html=True)
+    """), unsafe_allow_html=True)
 
     st.header(translate("Our Vision"))
-    st.markdown(f"""
+    st.markdown(f("""
     <div class="home-page-container">
         <p>{translate("Vision Text")}</p>
     </div>
-    """, unsafe_allow_html=True)
+    """), unsafe_allow_html=True)
 
     st.header(translate("Our Mission"))
-    st.markdown(f"""
+    st.markdown(f("""
     <div class="home-page-container">
         <ul>
             <li>{translate("Mission Item 1")}</li>
@@ -443,11 +456,11 @@ def home_page():
             <li>{translate("Mission Item 3")}</li>
         </ul>
     </div>
-    """, unsafe_allow_html=True)
+    """), unsafe_allow_html=True)
 
     # --- NEW SECTION: Terminal Performance Analysis ---
     st.header(translate("Terminal Performance Analysis Title"))
-    st.markdown(f"""
+    st.markdown(f("""
     <div class="home-page-container">
         <p>{translate("Analysis Objective Text")}</p>
         <h4>{translate("Performance Variables Title")}</h4>
@@ -471,7 +484,7 @@ def home_page():
             <li>{translate("Analysis Objective Item 3")}</li>
         </ul>
     </div>
-    """, unsafe_allow_html=True)
+    """), unsafe_allow_html=True)
     # --- END NEW SECTION ---
 
     st.info(translate("Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics."))
