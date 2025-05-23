@@ -10,7 +10,7 @@ import numpy as np
 
 # --- SET PAGE CONFIG (MUST BE AT THE VERY TOP) ---
 st.set_page_config(
-    page_title="SPTP Analysis", # Nama aplikasi di tab browser
+    page_title="SPTP Analysis",
     page_icon="🚢",
     layout="wide"
 )
@@ -51,41 +51,40 @@ li {
 /* Container for top navigation buttons to center them */
 .centered-buttons-wrapper {
     display: flex;
-    justify-content: center; /* Centers the content (which is the st.columns div) */
-    width: 100%; /* Ensures the wrapper takes full width */
-    margin-bottom: 20px; /* Space below the buttons */
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 /* Style for individual top navigation buttons within the wrapper */
 .centered-buttons-wrapper .stButton > button {
     font-size: 1.2em;
     font-weight: bold;
-    color: white; /* Text color white for red button */
-    background-color: #DC3545; /* Red color (Bootstrap 'danger' red) */
-    border: 2px solid #DC3545; /* Red border */
+    color: white;
+    background-color: #DC3545;
+    border: 2px solid #DC3545;
     border-radius: 5px;
-    padding: 10px 25px; /* Increase padding for slightly larger buttons */
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2); /* Subtle shadow */
-    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+    padding: 10px 25px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
 }
 .centered-buttons-wrapper .stButton > button:hover {
-    background-color: #C82333; /* Darker red on hover */
+    background-color: #C82333;
     border-color: #C82333;
-    transform: translateY(-2px); /* Slight lift effect */
+    transform: translateY(-2px);
 }
 /* Adjust spacing for columns if needed, though gap on wrapper or column itself is better */
-/* Removed specific Streamlit internal class targeting for robustness */
 /* .centered-buttons-wrapper .st-emotion-cache-1pxczgcb {
     gap: 30px;
 } */
 /* Better way to apply gap between columns if using st.columns within a flex container */
-.centered-buttons-wrapper > div > div { /* This targets the columns divs directly */
-    gap: 30px; /* Add gap between columns if necessary */
+.centered-buttons-wrapper > div > div {
+    gap: 30px;
 }
 
 /* Styling for language selection buttons in sidebar */
 .stSidebar .stButton > button {
-    background-color: #5A8DB0; /* A different blue for sidebar buttons by default */
+    background-color: #5A8DB0;
     color: white;
     border: 1px solid #5A8DB0;
     padding: 8px 15px;
@@ -99,7 +98,7 @@ li {
 }
 /* Specific style for active language button */
 .stSidebar .stButton > button.active-language {
-    background-color: #1E3A5F; /* Darker blue for selected state */
+    background-color: #1E3A5F;
     border-color: #1E3A5F;
     font-weight: bold;
 }
@@ -122,10 +121,10 @@ if 'agg_clusters_sidebar' not in st.session_state: st.session_state.agg_clusters
 if 'agg_linkage_sidebar' not in st.session_state: st.session_state.agg_linkage_sidebar = "ward"
 if 'visualization_options_sidebar' not in st.session_state: st.session_state.visualization_options_sidebar = []
 if 'cluster_evaluation_options_sidebar' not in st.session_state: st.session_state.cluster_evaluation_options_sidebar = []
-if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = '' # Initialize text_area value
+if 'drop_names_input_val' not in st.session_state: st.session_state.drop_names_input_val = ''
 # New flag for button click action
 if 'execute_drop_action' not in st.session_state: st.session_state.execute_drop_action = False
-if 'current_page' not in st.session_state: st.session_state.current_page = "Home" # New state for page navigation
+if 'current_page' not in st.session_state: st.session_state.current_page = "Home"
 
 # --- Translation Function ---
 def translate(text):
@@ -155,12 +154,10 @@ def translate(text):
         "Average": {"Indonesia": "**Average (Average Linkage):** Mengukur jarak rata-rata antar setiap pasangan titik dari klaster berbeda. Pilihan seimbang, kurang sensitif terhadap outlier.", "English": "**Average (Average Linkage):** Measures the average distance between every pair of points from different clusters. A balanced choice, less sensitive to outliers."},
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
-        "Interpretasi Davies-Bouldin Index": { # Updated interpretation
-            "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
-            "English": "DBI values closer to 0 are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) and between-cluster separation (how far clusters are from each other)."
+        "Interpretasi Davies-Bouldin Index": {
+            "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. ",
+            "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."
         },
-        "Jumlah Anggota per Klaster": {"Indonesia": "Jumlah Anggota per Klaster", "English": "Number of Members per Cluster"}
-        , # Added this translation entry
         # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
@@ -176,7 +173,6 @@ def translate(text):
             "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis SPTP menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan handal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
             "English": "With improved strategic control and strong financial capabilities, SPTP's business operations are more coordinated, standardized, and efficient, benefiting both the public and service users. Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
-        
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
         "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
         "Our Mission": {"Indonesia": "Misi", "English": "Mission"},
@@ -185,7 +181,6 @@ def translate(text):
         "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
         "Home": {"Indonesia": "Beranda", "English": "Home"},
         "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
-        
         # Text for the "Terminal Performance Analysis" section
         "Terminal Performance Analysis Title": {"Indonesia": "📊 Analisis Kinerja Terminal", "English": "📊 Terminal Performance Analysis"},
         "Analysis Objective Text": {
@@ -210,7 +205,7 @@ def translate(text):
             "English": "Before analysis, all variables are standardized to have an equivalent scale, enabling objective clustering."
         },
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
-        "Methodology Item Clustering": { # Combined K-Means and Agglomerative
+        "Methodology Item Clustering": {
             "Indonesia": "<code>K-Means</code> dan <code>Agglomerative Clustering</code> digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
             "English": "<code>K-Means</code> and <code>Agglomerative Clustering</code> are used to group terminals with similar operational characteristics."
         },
@@ -218,7 +213,7 @@ def translate(text):
             "Indonesia": "<code>Metode Elbow</code> membantu menentukan jumlah klaster yang optimal.",
             "English": "<code>Elbow Method</code> helps determine the optimal number of clusters."
         },
-        "Methodology Item Evaluation Metrics": { # Combined Silhouette and DBI
+        "Methodology Item Evaluation Metrics": {
             "Indonesia": "<code>Silhouette Score</code> dan <code>Davies-Bouldin Index (DBI)</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
             "English": "<code>Silhouette Score</code> and <code>Davies-Bouldin Index (DBI)</code> are calculated to evaluate how well terminals are grouped."
         },
@@ -256,7 +251,7 @@ def load_and_process_data(uploaded_file):
     try:
         df = pd.read_excel(uploaded_file)
         df.columns = df.columns.str.strip()
-        
+
         # Check for 'Row Labels' early
         if 'Row Labels' not in df.columns:
             st.error("Kolom 'Row Labels' tidak ditemukan dalam file Excel. Fitur hapus berdasarkan nama baris tidak akan berfungsi.")
@@ -337,9 +332,9 @@ def perform_anova(df, features, cluster_col):
     """
     if df.empty or not features or cluster_col not in df.columns:
         return pd.DataFrame()
-    
+
     anova_results = []
-    
+
     df_copy = df.copy()
 
     for feature in features:
@@ -347,7 +342,7 @@ def perform_anova(df, features, cluster_col):
         df_feature_cluster_filtered = df_copy[[feature, cluster_col]].dropna()
 
         unique_cluster_labels = df_feature_cluster_filtered[cluster_col].unique()
-        
+
         if len(unique_cluster_labels) < 2:
             st.warning(
                 f"ANOVA Warning for '{feature}': Less than 2 distinct clusters "
@@ -355,13 +350,13 @@ def perform_anova(df, features, cluster_col):
                 "Skipping ANOVA."
             )
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
-            continue    
+            continue
 
         groups = []
         is_feature_valid_for_anova = True
         for k in unique_cluster_labels:
             group_data = df_feature_cluster_filtered[df_feature_cluster_filtered[cluster_col] == k][feature]
-            
+
             # MODIFICATION: Allowing groups with only 1 data point.
             # The 'nunique() > 1' check has been removed.
             # WARNING: This compromises the statistical validity of ANOVA for such groups.
@@ -374,23 +369,23 @@ def perform_anova(df, features, cluster_col):
                     f"Skipping ANOVA for this feature."
                 )
                 is_feature_valid_for_anova = False
-                break    
+                break
 
-        if is_feature_valid_for_anova and len(groups) >= 2:    
+        if is_feature_valid_for_anova and len(groups) >= 2:
             try:
                 f_stat, p_value = f_oneway(*groups)
                 anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
             except ValueError as e:
                 st.error(f"ANOVA Error: ValueError for feature '{feature}': {e}. "
-                                 "This often occurs if groups have zero variance (all values identical) or other statistical issues. Setting to NaN.")
+                         "This often occurs if groups have zero variance (all values identical) or other statistical issues. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             except Exception as e:
                 st.error(f"ANOVA Error: An unexpected error occurred for feature '{feature}': {e}. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
         else:
-            if not any(entry.get("Variabel") == feature for entry in anova_results):    
+            if not any(entry.get("Variabel") == feature for entry in anova_results):
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
-            
+
     return pd.DataFrame(anova_results)
 
 
@@ -482,7 +477,7 @@ def handle_row_deletion_logic():
 
         drop_names_str = st.session_state.drop_names_input_val.strip()
         names_to_drop = [name.strip() for name in drop_names_str.split(',') if name.strip()]
-        
+
         if not names_to_drop:
             st.warning("Silakan masukkan nama baris yang ingin dihapus.")
             st.session_state['execute_drop_action'] = False
@@ -491,19 +486,19 @@ def handle_row_deletion_logic():
         # Perform deletion on df_original.copy() and update df_cleaned
         # This ensures df_original remains untouched and df_cleaned reflects changes
         initial_rows = st.session_state.df_cleaned.shape[0]
-        
+
         # Using .loc for direct modification and avoiding excessive copies
         rows_before_drop = st.session_state.df_cleaned.shape[0]
         st.session_state.df_cleaned = st.session_state.df_cleaned[~st.session_state.df_cleaned['Row Labels'].isin(names_to_drop)].reset_index(drop=True)
         rows_deleted = rows_before_drop - st.session_state.df_cleaned.shape[0]
-            
+
         if rows_deleted > 0:
             st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {', '.join(names_to_drop)}")
             # No explicit rerun here, as changing session state for df_cleaned will naturally trigger it
             pass
         else:
             st.info(f"Tidak ada baris dengan nama '{', '.join(names_to_drop)}' yang ditemukan untuk dihapus.")
-            
+
         # CRUCIAL: Reset the action flag immediately after processing to prevent re-trigger on next rerun
         st.session_state['execute_drop_action'] = False
 
@@ -538,7 +533,7 @@ def clustering_analysis_page_content():
     # --- Data Loading and Processing ---
     # Use st.session_state.uploaded_file to prevent re-upload on every rerun
     uploaded_file = st.file_uploader("Upload file Excel", type=["xlsx"], key="file_uploader_main")
-    
+
     # Only call load_and_process_data if a new file is uploaded or if df_original is empty
     if uploaded_file and (uploaded_file != st.session_state.get('last_uploaded_file_id') or st.session_state['df_original'].empty):
         with st.spinner("Memproses data..."):
@@ -573,8 +568,8 @@ def clustering_analysis_page_content():
         st.dataframe(df_current_analysis.describe())
 
         selected_features = st.multiselect(
-            translate("Pilih Variabel untuk Analisis Klaster"),    
-            features,    
+            translate("Pilih Variabel untuk Analisis Klaster"),
+            features,
             default=features if features else [], # Default to all if available, else empty list
             key="selected_features_all"
         )
@@ -597,11 +592,11 @@ def clustering_analysis_page_content():
             if n_clusters >= len(df_scaled):
                 st.warning(f"Jumlah klaster KMeans ({n_clusters}) harus kurang dari jumlah sampel ({len(df_scaled)}). Menggunakan {len(df_scaled)-1} klaster.")
                 n_clusters = max(2, len(df_scaled) - 1) # Fallback to a valid number
-            
+
             if n_clusters < 2:
                 st.info("Tidak cukup sampel untuk melakukan klastering KMeans (minimal 2 klaster diperlukan).")
                 return # Exit if not enough samples
-            
+
             clusters, _ = perform_kmeans(df_scaled, n_clusters)
             df_current_analysis['KMeans_Cluster'] = clusters
             cluster_column_name = 'KMeans_Cluster'
@@ -626,12 +621,12 @@ def clustering_analysis_page_content():
         # --- Display Cluster Members Table ---
         st.subheader("Anggota Klaster" if st.session_state.language == "Indonesia" else "Cluster Members")
         if 'Row Labels' in df_current_analysis.columns and cluster_column_name:
-            # --- Display Cluster Counts (plain text) ---
+            # --- NEW: Display Cluster Counts (plain text) ---
             cluster_counts = df_current_analysis[cluster_column_name].value_counts().sort_index()
             for cluster_id, count in cluster_counts.items():
                 st.write(f"Klaster {cluster_id}: {count} anggota" if st.session_state.language == "Indonesia" else f"Cluster {cluster_id}: {count} members")
             # --- END NEW ---
-            
+
             # Create a dataframe for display: Terminal Name and their assigned Cluster
             cluster_members_df = df_current_analysis[['Row Labels', cluster_column_name]].copy()
             cluster_members_df = cluster_members_df.sort_values(by=cluster_column_name).reset_index(drop=True)
@@ -657,7 +652,7 @@ def clustering_analysis_page_content():
         if "Boxplot" in visualization_options and cluster_column_name and len(df_current_analysis[cluster_column_name].unique()) > 1:
             if 'Row Labels' not in df_current_analysis.columns:
                 st.warning("Kolom 'Row Labels' tidak ditemukan. Outlier tidak dapat diberi label dengan nama terminal." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found. Outliers cannot be labeled with terminal names.")
-            
+
             num_features = len(selected_features)
             cols = 2
             rows = (num_features + cols - 1) // cols
@@ -675,16 +670,16 @@ def clustering_analysis_page_content():
                 if 'Row Labels' in df_current_analysis.columns:
                     for cluster_label in df_current_analysis[cluster_column_name].unique():
                         subset = df_current_analysis[df_current_analysis[cluster_column_name] == cluster_label]
-                        
+
                         Q1 = subset[feature].quantile(0.25)
                         Q3 = subset[feature].quantile(0.75)
                         IQR = Q3 - Q1
-                        
+
                         lower_bound = Q1 - 1.5 * IQR
                         upper_bound = Q3 + 1.5 * IQR
-                        
+
                         outliers = subset[(subset[feature] < lower_bound) | (subset[feature] > upper_bound)]
-                        
+
                         # Get the x-position for the current cluster boxplot
                         # This can be tricky; we'll use the index of the cluster label
                         cluster_idx = sorted(df_current_analysis[cluster_column_name].unique()).index(cluster_label)
@@ -693,8 +688,8 @@ def clustering_analysis_page_content():
                             terminal_name = outlier_row['Row Labels']
                             value = outlier_row[feature]
                             # Use ax.text to place labels, slightly offset
-                            ax.text(x=cluster_idx, y=value, s=f' {terminal_name}',    
-                                        color='red', fontsize=8, ha='left', va='center')
+                            ax.text(x=cluster_idx, y=value, s=f' {terminal_name}',
+                                    color='red', fontsize=8, ha='left', va='center')
                             # Optional: Make the outlier point itself more visible
                             ax.plot(cluster_idx, value, 'o', color='red', markersize=5, alpha=0.7)
                 # --- End Identify and label outliers ---
@@ -713,7 +708,7 @@ def clustering_analysis_page_content():
             if 'Row Labels' in df_current_analysis.columns:
                 for feature in selected_features:
                     grouped = df_current_analysis.groupby('Row Labels')[feature].mean().reset_index()
-                    
+
                     if not grouped.empty:
                         top5 = grouped.nlargest(5, feature)
                         bottom5 = grouped.nsmallest(5, feature)
@@ -751,7 +746,7 @@ def clustering_analysis_page_content():
                     # Check if any P-Value is not NaN before giving interpretation
                     if not anova_results['P-Value'].isnull().all():
                         interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
-                                             else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
+                                     else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
                         st.write(interpret if (anova_results["P-Value"].dropna() < 0.05).any() else interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
                     else:
                         st.info("Tidak ada hasil ANOVA yang valid (non-NaN) untuk ditampilkan. Ini mungkin terjadi jika semua variabel memiliki masalah data atau tidak ada perbedaan antar klaster.")
