@@ -160,85 +160,6 @@ def translate(text):
             "English": "DBI values closer to 0 are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) and between-cluster separation (how far clusters are from each other)."
         },
         "Jumlah Anggota per Klaster": {"Indonesia": "Jumlah Anggota per Klaster", "English": "Number of Members per Cluster"}
-        , # Added this translation entry
-        # --- TEKS UNTUK FOKUS KE SPTP ---
-        "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
-        "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
-        "About SPTP Text 1": {
-            "Indonesia": "Sebagai bagian dari integrasi Pelindo, <code> Subholding Pelindo Terminal Petikemas (SPTP)</code> adalah operator terminal terkemuka di Indonesia yang berfokus pada pelayanan peti kemas. Berdirinya SPTP adalah inisiatif strategis untuk mewujudkan konektivitas nasional dan jaringan ekosistem logistik yang lebih kuat, khususnya dalam layanan peti kemas.",
-            "English": "As part of Pelindo's integration, <code> Subholding Pelindo Terminal Petikemas (SPTP)</code> is a leading terminal operator in Indonesia focusing on container services. SPTP's establishment is a strategic initiative to realize stronger national connectivity and logistics ecosystem networks, specifically within container services."
-        },
-        "About SPTP Text 2": {
-            "Indonesia": "SPTP memainkan peran krusial dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di various pelabuhan strategis di seluruh Indonesia. Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari various wilayah secara efisien dan aman.",
-            "English": "SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia. These terminals serve as vital trade gateways, facilitating the efficient and safe flow of goods to and from various regions."
-        },
-        "About SPTP Text 3": {
-            "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis SPTP menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan handal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
-            "English": "With improved strategic control and strong financial capabilities, SPTP's business operations are more coordinated, standardized, and efficient, benefiting both the public and service users. Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
-        },
-        
-        "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
-        "Vision Text": {"Indonesia": "Operator terminal terkemuka yang berkelas dunia", "English": "A leading world-class terminal operator"},
-        "Our Mission": {"Indonesia": "Misi", "English": "Mission"},
-        "Mission Item 1": {"Indonesia": "Mendukung ekosistem petikemas yang terintegrasi melalui keunggulan operasional", "English": "Supporting an integrated container ecosystem through operational excellence"},
-        "Mission Item 2": {"Indonesia": "Optimalisasi jaringan", "English": "Network optimization"},
-        "Mission Item 3": {"Indonesia": "Kemitraan strategis untuk pertumbuhan ekonomi nasional", "English": "Strategic partnerships for national economic growth"},
-        "Home": {"Indonesia": "Beranda", "English": "Home"},
-        "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"},
-        
-        # Text for the "Terminal Performance Analysis" section
-        "Terminal Performance Analysis Title": {"Indonesia": "📊 Analisis Kinerja Terminal", "English": "📊 Terminal Performance Analysis"},
-        "Analysis Objective Text": {
-            "Indonesia": "Dalam upaya mendukung pengambilan keputusan berbasis data, analisis ini bertujuan untuk mengelompokkan terminal peti kemas berdasarkan kinerja operasional menggunakan algoritma <code>K-Means</code> dan <code>Agglomerative Clustering</code>, serta mengevaluasi perbedaan antar kelompok melalui Analisis <code>ANOVA</code>.",
-            "English": "To support data-driven decision-making, this analysis aims to cluster container terminals based on operational performance using the <code>K-Means</code> and <code>Agglomerative Clustering</code> algorithm, and evaluate differences between groups through <code>ANOVA</code> Analysis."
-        },
-        "Performance Variables Title": {"Indonesia": "⚙️ Variabel Kinerja yang Dianalisis", "English": "⚙️ Performance Variables Analyzed"},
-        "ET/BT Variable": {
-            "Indonesia": "<code>ET/BT (Efisiensi Waktu Operasional)</code> : Rasio antara waktu efektif dan waktu sandar kapal. Semakin tinggi, semakin efisien aktivitas bongkar muat.",
-            "English": "<code>ET/BT (Operational Time Efficiency)</code> : Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
-        },
-        "BSH/BT Variable": {
-            "Indonesia": "<code>BSH/BT (Produktivitas Waktu Sandar)</code> : Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
-            "English": "<code>BSH/BT (Berth Time Productivity)</code> : Measures how many containers are unloaded per hour per hour while the ship is at the berth."
-        },
-        "BCH/ET Variable": {
-            "Indonesia": "<code>BCH/ET (Produktivitas Waktu Efektif)</code> : Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
-            "English": "<code>BCH/ET (Effective Time Productivity)</code> : Indicates productivity per hour in actual operational working time."
-        },
-        "Standardization Note": {
-            "Indonesia": "Sebelum analisis dilakukan, semua variabel distandarisasi agar memiliki skala yang setara, sehingga proses pengelompokan dapat dilakukan secara objektif.",
-            "English": "Before analysis, all variables are standardized to have an equivalent scale, enabling objective clustering."
-        },
-        "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
-        "Methodology Item Clustering": { # Combined K-Means and Agglomerative
-            "Indonesia": "<code>K-Means</code> dan <code>Agglomerative Clustering</code> digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
-            "English": "<code>K-Means</code> and <code>Agglomerative Clustering</code> are used to group terminals with similar operational characteristics."
-        },
-        "Methodology Item Elbow": {
-            "Indonesia": "<code>Metode Elbow</code> membantu menentukan jumlah klaster yang optimal.",
-            "English": "<code>Elbow Method</code> helps determine the optimal number of clusters."
-        },
-        "Methodology Item Evaluation Metrics": { # Combined Silhouette and DBI
-            "Indonesia": "<code>Silhouette Score</code> dan <code>Davies-Bouldin Index (DBI)</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
-            "English": "<code>Silhouette Score</code> and <code>Davies-Bouldin Index (DBI)</code> are calculated to evaluate how well terminals are grouped."
-        },
-        "Methodology Item ANOVA": {
-            "Indonesia": "<code>Uji ANOVA</code> dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
-            "English": "<code>ANOVA test</code> is performed to see if there are significant differences between clusters for each performance variable."
-        },
-        "Analysis Objective Section Title": {"Indonesia": "🎯 Tujuan Analisis", "English": "🎯 Analysis Objective"},
-        "Analysis Objective Item 1": {
-            "Indonesia": "Mengidentifikasi pola performa terminal berdasarkan data operasional.",
-            "English": "Identify terminal performance patterns based on operational data."
-        },
-        "Analysis Objective Item 2": {
-            "Indonesia": "Menyediakan insight strategis untuk mendukung peningkatan layanan.",
-            "English": "Provide strategic insights to support service improvement."
-        },
-        "Analysis Objective Item 3": {
-            "Indonesia": "Membantu pengelola pelabuhan dalam mengambil keputusan berbasis data, misalnya peningkatan infrastruktur atau alokasi sumber daya.",
-            "English": "Assist port managers in making evidence-based decisions, such as improving infrastructure, or allocating resources."
-        },
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -623,25 +544,23 @@ def clustering_analysis_page_content():
             cluster_column_name = 'Agglomerative_Cluster'
             st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
 
-        # --- Display Cluster Members Table ---
+        # --- MODIFIED: Display Cluster Members Table and Counts ---
         st.subheader("Anggota Klaster" if st.session_state.language == "Indonesia" else "Cluster Members")
         if 'Row Labels' in df_current_analysis.columns and cluster_column_name:
+            # Display Cluster Counts (plain text) directly after the subheader
+            cluster_counts = df_current_analysis[cluster_column_name].value_counts().sort_index()
+            for cluster_id, count in cluster_counts.items():
+                st.write(f"**Klaster {cluster_id}**: {count} anggota" if st.session_state.language == "Indonesia" else f"**Cluster {cluster_id}**: {count} members")
+            
             # Create a dataframe for display: Terminal Name and their assigned Cluster
             cluster_members_df = df_current_analysis[['Row Labels', cluster_column_name]].copy()
             cluster_members_df = cluster_members_df.sort_values(by=cluster_column_name).reset_index(drop=True)
             st.dataframe(cluster_members_df, use_container_width=True)
             
-            # --- NEW: Display Cluster Counts (plain text) ---
-            st.subheader(translate("Jumlah Anggota per Klaster"))
-            cluster_counts = df_current_analysis[cluster_column_name].value_counts().sort_index()
-            for cluster_id, count in cluster_counts.items():
-                st.write(f"Klaster {cluster_id}: {count} anggota" if st.session_state.language == "Indonesia" else f"Cluster {cluster_id}: {count} members")
-            # --- END NEW ---
-
             st.markdown("---") # Add a separator after the table and counts
         else:
             st.info("Kolom 'Row Labels' tidak ditemukan atau klaster belum terbentuk untuk menampilkan anggota klaster." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found or clusters not formed to display cluster members.")
-        # --- End Display Cluster Members Table ---
+        # --- END MODIFIED ---
 
         # --- VISUALIZATION OPTIONS ---
         visualization_options = st.session_state.visualization_options_sidebar
