@@ -197,12 +197,12 @@ def translate(text):
             "English": "<code>ET/BT (Operational Time Efficiency)</code> : Ratio between effective time and ship's berth time. Higher values indicate more efficient loading/unloading activities."
         },
         "BSH/BT Variable": {
-            "Indonesia": "🔹 <code>BSH/BT (Produktivitas Waktu Sandar)</code> : Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
-            "English": "🔹 <code>BSH/BT (Berth Time Productivity)</code> : Measures how many containers are unloaded per hour per hour while the ship is at the berth."
+            "Indonesia": "<code>BSH/BT (Produktivitas Waktu Sandar)</code> : Mengukur berapa banyak petikemas yang dibongkar per jam selama kapal berada di dermaga.",
+            "English": "<code>BSH/BT (Berth Time Productivity)</code> : Measures how many containers are unloaded per hour per hour while the ship is at the berth."
         },
         "BCH/ET Variable": {
-            "Indonesia": "🔹 <code>BCH/ET (Produktivitas Waktu Efektif)</code> : Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
-            "English": "🔹 <code>BCH/ET (Effective Time Productivity)</code> : Indicates productivity per hour in actual operational working time."
+            "Indonesia": "<code>BCH/ET (Produktivitas Waktu Efektif)</code> : Menunjukkan produktivitas per jam dalam waktu kerja yang benar-benar digunakan untuk operasi.",
+            "English": "<code>BCH/ET (Effective Time Productivity)</code> : Indicates productivity per hour in actual operational working time."
         },
         "Standardization Note": {
             "Indonesia": "Sebelum analisis dilakukan, semua variabel distandarisasi agar memiliki skala yang setara, sehingga proses pengelompokan dapat dilakukan secara objektif.",
@@ -210,16 +210,16 @@ def translate(text):
         },
         "Methodology Title": {"Indonesia": "🧠 Metodologi Pengelompokan", "English": "🧠 Clustering Methodology"},
         "Methodology Item Clustering": { # Combined K-Means and Agglomerative
-            "Indonesia": "💡 <code>K-Means</code> dan <code>Agglomerative Clustering</code> digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
-            "English": "💡 <code>K-Means</code> and <code>Agglomerative Clustering</code> are used to group terminals with similar operational characteristics."
+            "Indonesia": "<code>K-Means</code> dan <code>Agglomerative Clustering</code> digunakan untuk mengelompokkan terminal dengan karakteristik operasional yang serupa.",
+            "English": "<code>K-Means</code> and <code>Agglomerative Clustering</code> are used to group terminals with similar operational characteristics."
         },
         "Methodology Item Elbow": {
-            "Indonesia": "📉 <code>Metode Elbow</code> membantu menentukan jumlah klaster yang optimal.",
-            "English": "📉 <code>Elbow Method</code> helps determine the optimal number of clusters."
+            "Indonesia": "<code>Metode Elbow</code> membantu menentukan jumlah klaster yang optimal.",
+            "English": "<code>Elbow Method</code> helps determine the optimal number of clusters."
         },
         "Methodology Item Evaluation Metrics": { # Combined Silhouette and DBI
-            "Indonesia": "✅ <code>Silhouette Score</code> dan <code>Davies-Bouldin Index (DBI)</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
-            "English": "✅ <code>Silhouette Score</code> and <code>Davies-Bouldin Index (DBI)</code> are calculated to evaluate how well terminals are grouped."
+            "Indonesia": "<code>Silhouette Score</code> dan <code>Davies-Bouldin Index (DBI)</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "<code>Silhouette Score</code> and <code>Davies-Bouldin Index (DBI)</code> are calculated to evaluate how well terminals are grouped."
         },
         "Methodology Item ANOVA": {
             "Indonesia": "🧪 <code>Uji ANOVA</code> dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
