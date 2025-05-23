@@ -222,8 +222,8 @@ def translate(text):
             "English": "<code>Silhouette Score</code> and <code>Davies-Bouldin Index (DBI)</code> are calculated to evaluate how well terminals are grouped."
         },
         "Methodology Item ANOVA": {
-            "Indonesia": "🧪 <code>Uji ANOVA</code> dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
-            "English": "🧪 <code>ANOVA test</code> is performed to see if there are significant differences between clusters for each performance variable."
+            "Indonesia": "<code>Uji ANOVA</code> dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
+            "English": "<code>ANOVA test</code> is performed to see if there are significant differences between clusters for each performance variable."
         },
         "Analysis Objective Section Title": {"Indonesia": "🎯 Tujuan Analisis", "English": "🎯 Analysis Objective"},
         "Analysis Objective Item 1": {
