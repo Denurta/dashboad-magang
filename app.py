@@ -370,7 +370,7 @@ def perform_anova(df, features, cluster_col):
                 st.warning(
                     f"ANOVA Warning for '{feature}' in Cluster '{k}': "
                     f"No data points found for this feature in this cluster. "
-                    "Skipping ANOVA for this feature."
+                    f"Skipping ANOVA for this feature."
                 )
                 is_feature_valid_for_anova = False
                 break 
@@ -635,6 +635,9 @@ def clustering_analysis_page_content():
 
         # Only proceed with Boxplot if there are clusters generated and more than one unique cluster
         if "Boxplot" in visualization_options and cluster_column_name and len(df_current_analysis[cluster_column_name].unique()) > 1:
+            if 'Row Labels' not in df_current_analysis.columns:
+                st.warning("Kolom 'Row Labels' tidak ditemukan. Outlier tidak dapat diberi label dengan nama terminal." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found. Outliers cannot be labeled with terminal names.")
+            
             num_features = len(selected_features)
             cols = 2
             rows = (num_features + cols - 1) // cols
@@ -642,10 +645,39 @@ def clustering_analysis_page_content():
             axes_box = axes_box.flatten()
 
             for i, feature in enumerate(selected_features):
-                sns.boxplot(x=cluster_column_name, y=feature, data=df_current_analysis, ax=axes_box[i])
-                axes_box[i].set_title(f"Boxplot: {feature} per Cluster")
-                axes_box[i].set_xlabel("Cluster")
-                axes_box[i].set_ylabel(feature)
+                ax = axes_box[i]
+                sns.boxplot(x=cluster_column_name, y=feature, data=df_current_analysis, ax=ax)
+                ax.set_title(f"Boxplot: {feature} per Cluster")
+                ax.set_xlabel("Cluster")
+                ax.set_ylabel(feature)
+
+                # --- NEW: Identify and label outliers ---
+                if 'Row Labels' in df_current_analysis.columns:
+                    for cluster_label in df_current_analysis[cluster_column_name].unique():
+                        subset = df_current_analysis[df_current_analysis[cluster_column_name] == cluster_label]
+                        
+                        Q1 = subset[feature].quantile(0.25)
+                        Q3 = subset[feature].quantile(0.75)
+                        IQR = Q3 - Q1
+                        
+                        lower_bound = Q1 - 1.5 * IQR
+                        upper_bound = Q3 + 1.5 * IQR
+                        
+                        outliers = subset[(subset[feature] < lower_bound) | (subset[feature] > upper_bound)]
+                        
+                        # Get the x-position for the current cluster boxplot
+                        # This can be tricky; we'll use the index of the cluster label
+                        cluster_idx = sorted(df_current_analysis[cluster_column_name].unique()).index(cluster_label)
+
+                        for idx, outlier_row in outliers.iterrows():
+                            terminal_name = outlier_row['Row Labels']
+                            value = outlier_row[feature]
+                            # Use ax.text to place labels, slightly offset
+                            ax.text(x=cluster_idx, y=value, s=f' {terminal_name}', 
+                                    color='red', fontsize=8, ha='left', va='center')
+                            # Optional: Make the outlier point itself more visible
+                            ax.plot(cluster_idx, value, 'o', color='red', markersize=5, alpha=0.7)
+                # --- END NEW: Identify and label outliers ---
 
             for j in range(i + 1, len(axes_box)): # Hide unused subplots
                 fig_box.delaxes(axes_box[j])
@@ -743,9 +775,6 @@ def clustering_analysis_page_content():
                     st.info("Tidak cukup klaster (minimal 2) atau sampel untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or samples to calculate Davies-Bouldin Index.")
         else:
             st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
-    # THE FOLLOWING ELSE BLOCK IS REMOVED:
-    # else: # If df_cleaned is empty after deletion
-    #     st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
 
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
