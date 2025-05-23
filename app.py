@@ -787,7 +787,7 @@ st.markdown(f"""
 
 st.sidebar.markdown("---")
 
-if st.session_state.current_page == "Clustering Analysis":
+if st.session_state.current_page == "Analisis Klaster":
     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
     st.sidebar.selectbox(
         "Algoritma", ["KMeans", "Agglomerative Clustering"],
