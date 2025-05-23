@@ -622,6 +622,18 @@ def clustering_analysis_page_content():
             cluster_column_name = 'Agglomerative_Cluster'
             st.info(f"Agglomerative Clustering dengan {n_clusters_agg} klaster dan metode linkage '{linkage_method}'.")
 
+        # --- NEW: Display Cluster Members Table ---
+        st.subheader("Anggota Klaster" if st.session_state.language == "Indonesia" else "Cluster Members")
+        if 'Row Labels' in df_current_analysis.columns and cluster_column_name:
+            # Create a dataframe for display: Terminal Name and their assigned Cluster
+            cluster_members_df = df_current_analysis[['Row Labels', cluster_column_name]].copy()
+            cluster_members_df = cluster_members_df.sort_values(by=cluster_column_name).reset_index(drop=True)
+            st.dataframe(cluster_members_df, use_container_width=True)
+            st.markdown("---") # Add a separator after the table
+        else:
+            st.info("Kolom 'Row Labels' tidak ditemukan atau klaster belum terbentuk untuk menampilkan anggota klaster." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found or clusters not formed to display cluster members.")
+        # --- END NEW ---
+
         # --- VISUALIZATION OPTIONS ---
         visualization_options = st.session_state.visualization_options_sidebar
         st.subheader(translate("Visualisasi Klaster"))
@@ -651,7 +663,7 @@ def clustering_analysis_page_content():
                 ax.set_xlabel("Cluster")
                 ax.set_ylabel(feature)
 
-                # --- NEW: Identify and label outliers ---
+                # --- Identify and label outliers ---
                 if 'Row Labels' in df_current_analysis.columns:
                     for cluster_label in df_current_analysis[cluster_column_name].unique():
                         subset = df_current_analysis[df_current_analysis[cluster_column_name] == cluster_label]
@@ -677,7 +689,7 @@ def clustering_analysis_page_content():
                                     color='red', fontsize=8, ha='left', va='center')
                             # Optional: Make the outlier point itself more visible
                             ax.plot(cluster_idx, value, 'o', color='red', markersize=5, alpha=0.7)
-                # --- END NEW: Identify and label outliers ---
+                # --- End Identify and label outliers ---
 
             for j in range(i + 1, len(axes_box)): # Hide unused subplots
                 fig_box.delaxes(axes_box[j])
@@ -775,6 +787,8 @@ def clustering_analysis_page_content():
                     st.info("Tidak cukup klaster (minimal 2) atau sampel untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or samples to calculate Davies-Bouldin Index.")
         else:
             st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
+    else: # If df_cleaned is empty after deletion
+        st.info("Data telah dihapus atau tidak ada data yang tersisa untuk analisis." if st.session_state.language == "Indonesia" else "Data has been removed or no data remaining for analysis.")
 
 
 # --- Main Application Logic (Page Selection and Sidebar Rendering) ---
