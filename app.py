@@ -15,7 +15,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Styling CSS ---
+# --- Styling CSS (kept as is, not relevant to this error) ---
 st.markdown(""" <style>
 .stApp {
     background: linear-gradient(to right, rgba(135, 206, 250, 0.4), rgba(70, 130, 180, 0.4));
@@ -129,7 +129,7 @@ if 'current_page' not in st.session_state: st.session_state.current_page = "Home
 if 'last_uploaded_file_id' not in st.session_state: st.session_state.last_uploaded_file_id = None
 
 
-# --- Translation Function ---
+# --- Translation Function (kept as is) ---
 def translate(text):
     translations = {
         "Pilih Bahasa": {"Indonesia": "Pilih Bahasa", "English": "Select Language"},
@@ -342,6 +342,8 @@ def perform_anova(df, features, cluster_col):
 
     for feature in features:
         df_copy[feature] = pd.to_numeric(df_copy[feature], errors='coerce')
+        
+        # Select both feature and cluster_col, then dropna
         df_feature_cluster_filtered = df_copy[[feature, cluster_col]].dropna()
 
         # IMPORTANT: Check if df_feature_cluster_filtered is empty after dropna
@@ -349,6 +351,26 @@ def perform_anova(df, features, cluster_col):
             st.warning(f"ANOVA Warning for '{feature}': No valid data points found for this feature and cluster after dropping NaNs. Skipping ANOVA for this feature.")
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             continue # Skip to the next feature
+
+        # Ensure the cluster column in the filtered dataframe is not empty or all NaNs
+        # This check is now redundant if df_feature_cluster_filtered is already checked for empty.
+        # If it's not empty, then the 'cluster_col' must exist and have non-NaN values
+        # in the filtered DataFrame.
+        
+        # The line causing the reported error:
+        # unique_cluster_labels = df_feature_cluster_filtered[cluster_col].unique()
+        
+        # If df_feature_cluster_filtered is NOT empty, and cluster_col IS in its columns,
+        # then df_feature_cluster_filtered[cluster_col] will be a pandas Series.
+        # The unique() method is valid for a pandas Series.
+        # The error suggests that df_feature_cluster_filtered[cluster_col] somehow isn't a Series,
+        # or that it's empty in a way that unique() behaves unexpectedly (highly unlikely for Pandas).
+
+        # Re-verify the existence of the column after filtering, though unlikely to be the issue given .dropna()
+        if cluster_col not in df_feature_cluster_filtered.columns:
+            st.error(f"Internal Error in ANOVA: Cluster column '{cluster_col}' mysteriously disappeared for feature '{feature}' after filtering. Skipping.")
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            continue
 
         unique_cluster_labels = df_feature_cluster_filtered[cluster_col].unique()
 
@@ -369,6 +391,8 @@ def perform_anova(df, features, cluster_col):
             if len(group_data) >= 1:
                 groups.append(group_data)
             else:
+                # This else block should theoretically not be hit if df_feature_cluster_filtered is not empty
+                # and unique_cluster_labels is derived from it.
                 st.warning(
                     f"ANOVA Warning for '{feature}' in Cluster '{k}': "
                     f"No data points found for this feature in this cluster. "
@@ -379,26 +403,24 @@ def perform_anova(df, features, cluster_col):
 
         if is_feature_valid_for_anova and len(groups) >= 2:
             try:
-                # While the code allows single-member groups to be added,
-                # f_oneway will likely fail if a group has zero variance (e.g., only one data point).
-                # The current ANOVA warning mechanism handles this gracefully.
                 f_stat, p_value = f_oneway(*groups)
                 anova_results.append({"Variabel": feature, "F-Stat": f_stat, "P-Value": p_value})
             except ValueError as e:
                 st.error(f"ANOVA Error: ValueError for feature '{feature}': {e}. "
-                         "This often occurs if groups have zero variance (all values identical) or other statistical issues. Setting to NaN.")
+                         "This often occurs if groups have zero variance (e.g., only one value or all identical values) or other statistical issues. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             except Exception as e:
                 st.error(f"ANOVA Error: An unexpected error occurred for feature '{feature}': {e}. Setting to NaN.")
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
         else:
+            # If ANOVA couldn't be performed for valid statistical reasons (e.g., less than 2 valid groups)
             if not any(entry.get("Variabel") == feature for entry in anova_results):
                 anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
 
     return pd.DataFrame(anova_results)
 
 
-# --- Page Functions ---
+# --- Page Functions (kept as is, not relevant to this specific error) ---
 
 def home_page():
     # Judul utama aplikasi, sekarang fokus pada SPTP
@@ -598,21 +620,13 @@ def clustering_analysis_page_content():
         if clustering_algorithm == "KMeans":
             n_clusters = st.session_state.kmeans_clusters_sidebar
             # Ensure n_clusters is valid for the number of samples
-            if n_clusters >= len(df_scaled) and len(df_scaled) > 1:
-                st.warning(f"Jumlah klaster KMeans ({n_clusters}) harus kurang dari jumlah sampel ({len(df_scaled)}). Menggunakan {len(df_scaled)-1} klaster.")
-                n_clusters = max(2, len(df_scaled) - 1) # Fallback to a valid number
-            elif len(df_scaled) <= 1: # Handle case with 0 or 1 sample
+            if len(df_scaled) < 2:
                 st.info("Tidak cukup sampel untuk melakukan klastering (minimal 2 sampel diperlukan)." if st.session_state.language == "Indonesia" else "Not enough samples to perform clustering (at least 2 samples required).")
                 return
-
-
-            if n_clusters < 2 and len(df_scaled) >= 2: # Check if n_clusters is too low, but data exists
-                st.info("Jumlah klaster minimal untuk KMeans adalah 2. Sesuaikan parameter.")
-                return
-            elif len(df_scaled) < 2: # No clustering possible with < 2 samples
-                st.info("Tidak cukup sampel untuk melakukan klastering KMeans (minimal 2 sampel diperlukan)." if st.session_state.language == "Indonesia" else "Not enough samples to perform KMeans clustering (at least 2 samples required).")
-                return
-
+            if n_clusters >= len(df_scaled):
+                st.warning(f"Jumlah klaster KMeans ({n_clusters}) harus kurang dari jumlah sampel ({len(df_scaled)}). Menggunakan {len(df_scaled)-1} klaster.")
+                n_clusters = max(2, len(df_scaled) - 1) # Fallback to a valid number
+            
             clusters, _ = perform_kmeans(df_scaled, n_clusters)
             df_current_analysis['KMeans_Cluster'] = clusters
             cluster_column_name = 'KMeans_Cluster'
@@ -620,19 +634,12 @@ def clustering_analysis_page_content():
         else: # Agglomerative Clustering
             n_clusters_agg = st.session_state.agg_clusters_sidebar
             # Ensure n_clusters_agg is valid for the number of samples
-            if n_clusters_agg >= len(df_scaled) and len(df_scaled) > 1:
-                st.warning(f"Jumlah klaster Agglomerative ({n_clusters_agg}) harus kurang dari jumlah sampel ({len(df_scaled)}). Menggunakan {len(df_scaled)-1} klaster.")
-                n_clusters_agg = max(2, len(df_scaled) - 1) # Fallback to a valid number
-            elif len(df_scaled) <= 1: # Handle case with 0 or 1 sample
+            if len(df_scaled) < 2:
                 st.info("Tidak cukup sampel untuk melakukan klastering (minimal 2 sampel diperlukan)." if st.session_state.language == "Indonesia" else "Not enough samples to perform clustering (at least 2 samples required).")
                 return
-
-            if n_clusters_agg < 2 and len(df_scaled) >= 2: # Check if n_clusters_agg is too low, but data exists
-                st.info("Jumlah klaster minimal untuk Agglomerative Clustering adalah 2. Sesuaikan parameter.")
-                return
-            elif len(df_scaled) < 2: # No clustering possible with < 2 samples
-                st.info("Tidak cukup sampel untuk melakukan klastering Agglomerative (minimal 2 sampel diperlukan)." if st.session_state.language == "Indonesia" else "Not enough samples to perform Agglomerative clustering (at least 2 samples required).")
-                return
+            if n_clusters_agg >= len(df_scaled):
+                st.warning(f"Jumlah klaster Agglomerative ({n_clusters_agg}) harus kurang dari jumlah sampel ({len(df_scaled)}). Menggunakan {len(df_scaled)-1} klaster.")
+                n_clusters_agg = max(2, len(df_scaled) - 1) # Fallback to a valid number
 
             linkage_method = st.session_state.agg_linkage_sidebar
             clusters, _ = perform_agglomerative(df_scaled, n_clusters_agg, linkage_method)
@@ -759,25 +766,29 @@ def clustering_analysis_page_content():
         cluster_evaluation_options = st.session_state.cluster_evaluation_options_sidebar
         st.subheader(translate("Evaluasi Klaster"))
 
-        # Check if clustering was performed and has more than one cluster before evaluation
+        # Check if clustering was performed and has more than one unique cluster
         if cluster_column_name and len(df_current_analysis[cluster_column_name].unique()) > 1:
             if "ANOVA" in cluster_evaluation_options:
-                anova_results = perform_anova(df_current_analysis, selected_features, cluster_column_name)
-                if not anova_results.empty:
-                    st.write(anova_results)
-                    # Check if any P-Value is not NaN before giving interpretation
-                    if not anova_results['P-Value'].isnull().all():
-                        interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
-                                     else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
-                        # Check if any p-value is significant before stating there IS a difference
-                        if (anova_results["P-Value"].dropna() < 0.05).any():
-                            st.write(interpret)
+                # Ensure selected_features is not empty for ANOVA
+                if selected_features:
+                    anova_results = perform_anova(df_current_analysis, selected_features, cluster_column_name)
+                    if not anova_results.empty:
+                        st.write(anova_results)
+                        # Check if any P-Value is not NaN before giving interpretation
+                        if not anova_results['P-Value'].isnull().all():
+                            interpret = ("\U0001F4CC P-value kurang dari alpha (0.05) menunjukkan terdapat perbedaan signifikan." if st.session_state.language == "Indonesia"
+                                         else "\U0001F4CC P-value less than alpha (0.05) indicates significant difference.")
+                            # Check if any p-value is significant before stating there IS a difference
+                            if (anova_results["P-Value"].dropna() < 0.05).any():
+                                st.write(interpret)
+                            else:
+                                st.write(interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
                         else:
-                            st.write(interpret.replace("kurang", "lebih").replace("terdapat", "tidak terdapat"))
+                            st.info("Tidak ada hasil ANOVA yang valid (non-NaN) untuk ditampilkan. Ini mungkin terjadi jika semua variabel memiliki masalah data atau tidak ada perbedaan antar klaster.")
                     else:
-                        st.info("Tidak ada hasil ANOVA yang valid (non-NaN) untuk ditampilkan. Ini mungkin terjadi jika semua variabel memiliki masalah data atau tidak ada perbedaan antar klaster.")
+                        st.info("Tidak ada hasil ANOVA untuk ditampilkan (mungkin tidak ada variabel yang dipilih atau klaster tidak terbentuk).")
                 else:
-                    st.info("Tidak ada hasil ANOVA untuk ditampilkan (mungkin tidak ada variabel yang dipilih atau klaster tidak terbentuk).")
+                    st.info("Pilih variabel untuk analisis klaster sebelum melakukan ANOVA." if st.session_state.language == "Indonesia" else "Select variables for cluster analysis before performing ANOVA.")
 
             if "Silhouette Score" in cluster_evaluation_options:
                 # Ensure enough samples and clusters for Silhouette Score
