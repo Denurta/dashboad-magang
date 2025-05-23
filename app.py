@@ -5,8 +5,7 @@ import seaborn as sns
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import f_oneway
-from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
-from scipy.spatial.distance import cdist # For intra-cluster distance calculation
+from sklearn.metrics import silhouette_score, davies_bouldin_score
 import numpy as np
 
 # --- SET PAGE CONFIG (MUST BE AT THE VERY TOP) ---
@@ -157,20 +156,11 @@ def translate(text):
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": { # Updated interpretation
-            "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. ",
-            "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."
+            "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
+            "English": "DBI values closer to 0 are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) and between-cluster separation (how far clusters are from each other)."
         },
-        # New translations for ICD Rate and R-squared
-        "ICD Rate": {"Indonesia": "ICD Rate (Rata-rata Jarak Intra-Klaster)", "English": "ICD Rate (Average Intra-Cluster Distance)"},
-        "Interpretasi ICD Rate": {
-            "Indonesia": "ICD Rate mengukur rata-rata jarak antara setiap titik data dan pusat klaster-nya. **Nilai yang lebih rendah menunjukkan klaster yang lebih padat dan baik.**",
-            "English": "ICD Rate measures the average distance between each data point and its cluster centroid. **Lower values indicate more compact and better clusters.**"
-        },
-        "R-squared (Calinski-Harabasz Index)": {"Indonesia": "R-squared (Indeks Calinski-Harabasz)", "English": "R-squared (Calinski-Harabasz Index)"},
-        "Interpretasi R-squared (Calinski-Harabasz Index)": {
-            "Indonesia": "Indeks Calinski-Harabasz adalah rasio dispersi antar-klaster dan dispersi intra-klaster. **Nilai yang lebih tinggi menunjukkan klaster yang lebih baik dan terpisah dengan baik.**",
-            "English": "The Calinski-Harabasz Index is a ratio of between-cluster dispersion and within-cluster dispersion. **Higher values indicate better and well-separated clusters.**"
-        },
+        "Jumlah Anggota per Klaster": {"Indonesia": "Jumlah Anggota per Klaster", "English": "Number of Members per Cluster"}
+        , # Added this translation entry
         # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
@@ -179,12 +169,12 @@ def translate(text):
             "English": "As part of Pelindo's integration, <code> Subholding Pelindo Terminal Petikemas (SPTP)</code> is a leading terminal operator in Indonesia focusing on container services. SPTP's establishment is a strategic initiative to realize stronger national connectivity and logistics ecosystem networks, specifically within container services."
         },
         "About SPTP Text 2": {
-            "Indonesia": "<code>SPTP</code> memainkan peran krusial dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di various pelabuhan strategis di seluruh Indonesia. Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari various wilayah secara efisien dan aman.",
-            "English": "<code>SPTP</code> plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia. These terminals serve as vital trade gateways, facilitating the efficient and safe flow of goods to and from various regions."
+            "Indonesia": "SPTP memainkan peran krusial dalam rantai logistik nasional dengan mengelola dan mengoperasikan terminal peti kemas di various pelabuhan strategis di seluruh Indonesia. Terminal ini berfungsi sebagai gerbang vital perdagangan, memfasilitasi aliran barang ke dan dari various wilayah secara efisien dan aman.",
+            "English": "SPTP plays a crucial role in the national logistics chain by managing and operating container terminals across various strategic ports in Indonesia. These terminals serve as vital trade gateways, facilitating the efficient and safe flow of goods to and from various regions."
         },
         "About SPTP Text 3": {
-            "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis <code>SPTP</code> menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan handal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
-            "English": "With improved strategic control and strong financial capabilities, <code>SPTP's</code> business operations are more coordinated, standardized, and efficient, benefiting both the public and service users. Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
+            "Indonesia": "Dengan kendali strategis yang lebih baik dan kemampuan finansial yang kuat, operasional bisnis SPTP menjadi lebih terkoordinasi, terstandar, dan efisien, memberikan keuntungan bagi masyarakat dan pengguna jasa. Komitmen kami adalah menyediakan layanan terminal peti kemas yang unggul dan handal, mendukung pertumbuhan ekonomi, dan meningkatkan daya saing Indonesia dalam perdagangan global.",
+            "English": "With improved strategic control and strong financial capabilities, SPTP's business operations are more coordinated, standardized, and efficient, benefiting both the public and service users. Our commitment is to provide excellent and reliable container terminal services, supporting economic growth, and enhancing Indonesia's competitiveness in global trade."
         },
         
         "Our Vision": {"Indonesia": "Visi", "English": "Vision"},
@@ -229,8 +219,8 @@ def translate(text):
             "English": "<code>Elbow Method</code> helps determine the optimal number of clusters."
         },
         "Methodology Item Evaluation Metrics": { # Combined Silhouette and DBI
-            "Indonesia": "<code>Silhouette Score</code>, <code>Davies-Bouldin Index (DBI)</code>, <code>ICD Rate</code>, dan <code>R-squared</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
-            "English": "<code>Silhouette Score</code>, <code>Davies-Bouldin Index (DBI)</code>, <code>ICD Rate</code>, and <code>R-squared</code> are calculated to evaluate how well terminals are grouped."
+            "Indonesia": "<code>Silhouette Score</code> dan <code>Davies-Bouldin Index (DBI)</code> dihitung untuk mengevaluasi seberapa baik terminal dikelompokkan.",
+            "English": "<code>Silhouette Score</code> and <code>Davies-Bouldin Index (DBI)</code> are calculated to evaluate how well terminals are grouped."
         },
         "Methodology Item ANOVA": {
             "Indonesia": "<code>Uji ANOVA</code> dilakukan untuk melihat apakah terdapat perbedaan signifikan antar klaster pada masing-masing variabel kinerja.",
@@ -308,43 +298,6 @@ def perform_agglomerative(df_scaled, n_clusters_agg, linkage_method):
     agg_clustering = AgglomerativeClustering(n_clusters=n_clusters_agg, linkage=linkage_method)
     clusters = agg_clustering.fit_predict(df_scaled)
     return clusters, agg_clustering
-
-# New function for ICD Rate (Average Intra-Cluster Distance)
-@st.cache_data
-def calculate_icd_rate(df_scaled, labels):
-    """
-    Calculates the average intra-cluster distance (sum of distances from each point to its centroid).
-    This is a conceptual 'ICD Rate' based on common interpretation of internal cluster distance.
-    Lower values indicate more compact clusters.
-    """
-    if len(df_scaled) < 2 or len(np.unique(labels)) < 1: # Need at least 2 samples for meaningful distance
-        return np.nan
-    
-    total_icd = 0
-    n_points = 0
-    
-    unique_clusters = np.unique(labels)
-    for cluster_id in unique_clusters:
-        cluster_points = df_scaled[labels == cluster_id]
-        if len(cluster_points) > 0:
-            centroid = cluster_points.mean(axis=0)
-            distances = cdist(cluster_points, centroid.reshape(1, -1), 'euclidean')
-            total_icd += distances.sum()
-            n_points += len(cluster_points)
-            
-    return total_icd / n_points if n_points > 0 else np.nan
-
-# New function for R-squared (Calinski-Harabasz Index)
-@st.cache_data
-def calculate_r_squared_calinski_harabasz(df_scaled, labels):
-    """
-    Calculates the Calinski-Harabasz Index (R-squared equivalent for clustering).
-    Higher values generally indicate better-defined clusters.
-    """
-    if len(df_scaled) < 2 or len(np.unique(labels)) < 2: # CH index requires at least 2 samples and 2 clusters
-        return np.nan
-    return calinski_harabasz_score(df_scaled, labels)
-
 
 def elbow_method(df_scaled):
     """Displays the Elbow Method plot."""
@@ -673,7 +626,7 @@ def clustering_analysis_page_content():
         # --- Display Cluster Members Table ---
         st.subheader("Anggota Klaster" if st.session_state.language == "Indonesia" else "Cluster Members")
         if 'Row Labels' in df_current_analysis.columns and cluster_column_name:
-            # --- NEW: Display Cluster Counts (plain text) ---
+            # --- Display Cluster Counts (plain text) ---
             cluster_counts = df_current_analysis[cluster_column_name].value_counts().sort_index()
             for cluster_id, count in cluster_counts.items():
                 st.write(f"Klaster {cluster_id}: {count} anggota" if st.session_state.language == "Indonesia" else f"Cluster {cluster_id}: {count} members")
@@ -840,25 +793,6 @@ def clustering_analysis_page_content():
                     st.write("\U0001F4CC " + translate("Interpretasi Davies-Bouldin Index"))
                 else:
                     st.info("Tidak cukup klaster (minimal 2) atau sampel untuk menghitung Davies-Bouldin Index." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or samples to calculate Davies-Bouldin Index.")
-            
-            # --- NEW ICD Rate and R-squared ---
-            if translate("ICD Rate") in cluster_evaluation_options:
-                icd_rate = calculate_icd_rate(df_scaled, df_current_analysis[cluster_column_name])
-                if not np.isnan(icd_rate):
-                    st.write(f"*{translate('ICD Rate')}*: {icd_rate:.4f}")
-                    st.write("\U0001F4CC " + translate("Interpretasi ICD Rate"))
-                else:
-                    st.info("Tidak cukup sampel atau klaster untuk menghitung ICD Rate.")
-
-            if translate("R-squared (Calinski-Harabasz Index)") in cluster_evaluation_options:
-                r_squared_ch = calculate_r_squared_calinski_harabasz(df_scaled, df_current_analysis[cluster_column_name])
-                if not np.isnan(r_squared_ch):
-                    st.write(f"*{translate('R-squared (Calinski-Harabasz Index)')}*: {r_squared_ch:.4f}")
-                    st.write("\U0001F4CC " + translate("Interpretasi R-squared (Calinski-Harabasz Index)"))
-                else:
-                    st.info("Tidak cukup sampel atau klaster (minimal 2 klaster diperlukan) untuk menghitung R-squared (Calinski-Harabasz Index).")
-            # --- END NEW ---
-
         else:
             st.info("Tidak cukup klaster (minimal 2) atau tidak ada klaster yang terdeteksi untuk evaluasi." if st.session_state.language == "Indonesia" else "Not enough clusters (minimal 2) or no clusters detected for evaluation.")
     else: # If df_cleaned is empty after deletion
@@ -974,7 +908,7 @@ if st.session_state.current_page == "Clustering Analysis":
 
     st.sidebar.subheader(translate("Pilih Evaluasi Klaster"))
     st.sidebar.multiselect(
-        "Evaluasi", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index"), translate("ICD Rate"), translate("R-squared (Calinski-Harabasz Index)")],
+        "Evaluasi", ["ANOVA", "Silhouette Score", translate("Davies-Bouldin Index")],
         key="cluster_evaluation_options_sidebar"
     )
 
