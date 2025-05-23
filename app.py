@@ -159,8 +159,7 @@ def translate(text):
             "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
             "English": "DBI values closer to 0 are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) and between-cluster separation (how far clusters are from each other)."
         },
-        "Jumlah Anggota per Klaster": {"Indonesia": "Jumlah Anggota per Klaster", "English": "Number of Members per Cluster"}, # Added this translation entry
-        "Clustering Analysis": {"Indonesia": "Analisis Klastering", "English": "Clustering Analysis"}, # Ensure "Clustering Analysis" is consistently translated
+        "Jumlah Anggota per Klaster": {"Indonesia": "Jumlah Anggota per Klaster", "English": "Number of Members per Cluster"}
     }
     return translations.get(text, {}).get(st.session_state.language, text)
 
@@ -732,7 +731,7 @@ with col_home:
         st.session_state.current_page = "Home"
 with col_clustering:
     if st.button(translate("Clustering Analysis"), key="btn_clustering_analysis_main"):
-        st.session_state.current_page = translate("Clustering Analysis") # Set state with translated string
+        st.session_state.current_page = "Clustering Analysis"
 st.markdown('</div>', unsafe_allow_html=True) # Tutup container wrapper
 
 st.markdown("---") # Separator di bawah tombol
@@ -788,8 +787,7 @@ st.markdown(f"""
 
 st.sidebar.markdown("---")
 
-# This part is now language-aware
-if st.session_state.current_page == translate("Clustering Analysis"):
+if st.session_state.current_page == "Clustering Analysis":
     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
     st.sidebar.selectbox(
         "Algoritma", ["KMeans", "Agglomerative Clustering"],
@@ -851,5 +849,5 @@ if st.session_state.current_page == translate("Clustering Analysis"):
 # Display the selected page content
 if st.session_state.current_page == "Home":
     home_page()
-elif st.session_state.current_page == translate("Clustering Analysis"): # Use translate() here as well for consistency
+elif st.session_state.current_page == "Clustering Analysis":
     clustering_analysis_page_content()
