@@ -15,7 +15,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Styling CSS (kept as is, not relevant to this error) ---
+# --- Styling CSS ---
 st.markdown(""" <style>
 .stApp {
     background: linear-gradient(to right, rgba(135, 206, 250, 0.4), rgba(70, 130, 180, 0.4));
@@ -129,7 +129,7 @@ if 'current_page' not in st.session_state: st.session_state.current_page = "Home
 if 'last_uploaded_file_id' not in st.session_state: st.session_state.last_uploaded_file_id = None
 
 
-# --- Translation Function (kept as is) ---
+# --- Translation Function ---
 def translate(text):
     translations = {
         "Pilih Bahasa": {"Indonesia": "Pilih Bahasa", "English": "Select Language"},
@@ -353,20 +353,6 @@ def perform_anova(df, features, cluster_col):
             continue # Skip to the next feature
 
         # Ensure the cluster column in the filtered dataframe is not empty or all NaNs
-        # This check is now redundant if df_feature_cluster_filtered is already checked for empty.
-        # If it's not empty, then the 'cluster_col' must exist and have non-NaN values
-        # in the filtered DataFrame.
-        
-        # The line causing the reported error:
-        # unique_cluster_labels = df_feature_cluster_filtered[cluster_col].unique()
-        
-        # If df_feature_cluster_filtered is NOT empty, and cluster_col IS in its columns,
-        # then df_feature_cluster_filtered[cluster_col] will be a pandas Series.
-        # The unique() method is valid for a pandas Series.
-        # The error suggests that df_feature_cluster_filtered[cluster_col] somehow isn't a Series,
-        # or that it's empty in a way that unique() behaves unexpectedly (highly unlikely for Pandas).
-
-        # Re-verify the existence of the column after filtering, though unlikely to be the issue given .dropna()
         if cluster_col not in df_feature_cluster_filtered.columns:
             st.error(f"Internal Error in ANOVA: Cluster column '{cluster_col}' mysteriously disappeared for feature '{feature}' after filtering. Skipping.")
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
@@ -420,7 +406,7 @@ def perform_anova(df, features, cluster_col):
     return pd.DataFrame(anova_results)
 
 
-# --- Page Functions (kept as is, not relevant to this specific error) ---
+# --- Page Functions ---
 
 def home_page():
     # Judul utama aplikasi, sekarang fokus pada SPTP
@@ -514,17 +500,12 @@ def handle_row_deletion_logic():
             st.session_state['execute_drop_action'] = False
             return
 
-        # Perform deletion on df_original.copy() and update df_cleaned
-        # This ensures df_original remains untouched and df_cleaned reflects changes
-        # initial_rows = st.session_state.df_cleaned.shape[0] # This variable is not used
-        
         rows_before_drop = st.session_state.df_cleaned.shape[0]
         st.session_state.df_cleaned = st.session_state.df_cleaned[~st.session_state.df_cleaned['Row Labels'].isin(names_to_drop)].reset_index(drop=True)
         rows_deleted = rows_before_drop - st.session_state.df_cleaned.shape[0]
             
         if rows_deleted > 0:
             st.success(f"\u2705 Berhasil menghapus {rows_deleted} baris dengan nama: {', '.join(names_to_drop)}")
-            # No explicit rerun here, as changing session state for df_cleaned will naturally trigger it
             pass
         else:
             st.info(f"Tidak ada baris dengan nama '{', '.join(names_to_drop)}' yang ditemukan untuk dihapus.")
