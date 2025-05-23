@@ -624,17 +624,16 @@ def clustering_analysis_page_content():
         # --- Display Cluster Members Table ---
         st.subheader("Anggota Klaster" if st.session_state.language == "Indonesia" else "Cluster Members")
         if 'Row Labels' in df_current_analysis.columns and cluster_column_name:
-            # Create a dataframe for display: Terminal Name and their assigned Cluster
-            cluster_members_df = df_current_analysis[['Row Labels', cluster_column_name]].copy()
-            cluster_members_df = cluster_members_df.sort_values(by=cluster_column_name).reset_index(drop=True)
-            st.dataframe(cluster_members_df, use_container_width=True)
-            
             # --- NEW: Display Cluster Counts (plain text) ---
-            st.subheader(translate("Jumlah Anggota per Klaster"))
             cluster_counts = df_current_analysis[cluster_column_name].value_counts().sort_index()
             for cluster_id, count in cluster_counts.items():
                 st.write(f"Klaster {cluster_id}: {count} anggota" if st.session_state.language == "Indonesia" else f"Cluster {cluster_id}: {count} members")
             # --- END NEW ---
+            
+            # Create a dataframe for display: Terminal Name and their assigned Cluster
+            cluster_members_df = df_current_analysis[['Row Labels', cluster_column_name]].copy()
+            cluster_members_df = cluster_members_df.sort_values(by=cluster_column_name).reset_index(drop=True)
+            st.dataframe(cluster_members_df, use_container_width=True)
 
             st.markdown("---") # Add a separator after the table and counts
         else:
