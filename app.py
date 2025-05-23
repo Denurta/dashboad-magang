@@ -156,8 +156,8 @@ def translate(text):
         "Single": {"Indonesia": "**Single (Minimum Linkage):** Mengukur jarak minimum antar dua titik dari klaster berbeda. Baik untuk klaster berbentuk aneh, tetapi rentan terhadap efek rantai dan outlier.", "English": "**Single (Minimum Linkage):** Measures the minimum distance between two points from different clusters. Good for finding oddly-shaped clusters, but prone to chaining effect and sensitive to outliers."},
         "Davies-Bouldin Index": {"Indonesia": "Davies-Bouldin Index", "English": "Davies-Bouldin Index"},
         "Interpretasi Davies-Bouldin Index": { # Updated interpretation
-            "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
-            "English": "DBI values closer to 0 are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) and between-cluster separation (how far clusters are from each other)."
+            "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. ",
+            "English": "DBI values closer to 0 are better, indicating more separated and denser clusters."
         },
         # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
