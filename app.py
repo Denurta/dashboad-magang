@@ -343,10 +343,13 @@ def perform_anova(df, features, cluster_col):
     for feature in features:
         df_copy[feature] = pd.to_numeric(df_copy[feature], errors='coerce')
         
-        # Select both feature and cluster_col, then dropna
         # Check if the columns actually exist in df_copy before trying to select them
-        if feature not in df_copy.columns or cluster_col not in df_copy.columns:
-            st.warning(f"ANOVA Warning for '{feature}': Required columns ('{feature}' or '{cluster_col}') not found in dataframe. Skipping ANOVA for this feature.")
+        if feature not in df_copy.columns:
+            st.warning(f"ANOVA Warning for '{feature}': Feature column '{feature}' not found in dataframe. Skipping ANOVA for this feature.")
+            anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
+            continue
+        if cluster_col not in df_copy.columns:
+            st.warning(f"ANOVA Warning for '{feature}': Cluster column '{cluster_col}' not found in dataframe. Skipping ANOVA for this feature.")
             anova_results.append({"Variabel": feature, "F-Stat": np.nan, "P-Value": np.nan})
             continue
 
@@ -425,7 +428,8 @@ def home_page():
     # Judul utama aplikasi, sekarang fokus pada SPTP
     st.title("🚢 " + translate("Welcome to SPTP Analysis"))
 
-    st.markdown(f("""
+    # FIX: Removed extra parentheses around f-string for st.markdown
+    st.markdown(f"""
     <div class="home-page-container">
         <h3>{translate("About SPTP")}</h3>
         <p>
@@ -438,17 +442,19 @@ def home_page():
             {translate("About SPTP Text 3")}
         </p>
     </div>
-    """), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     st.header(translate("Our Vision"))
-    st.markdown(f("""
+    # FIX: Removed extra parentheses around f-string for st.markdown
+    st.markdown(f"""
     <div class="home-page-container">
         <p>{translate("Vision Text")}</p>
     </div>
-    """), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     st.header(translate("Our Mission"))
-    st.markdown(f("""
+    # FIX: Removed extra parentheses around f-string for st.markdown
+    st.markdown(f"""
     <div class="home-page-container">
         <ul>
             <li>{translate("Mission Item 1")}</li>
@@ -456,11 +462,12 @@ def home_page():
             <li>{translate("Mission Item 3")}</li>
         </ul>
     </div>
-    """), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     # --- NEW SECTION: Terminal Performance Analysis ---
     st.header(translate("Terminal Performance Analysis Title"))
-    st.markdown(f("""
+    # FIX: Removed extra parentheses around f-string for st.markdown
+    st.markdown(f"""
     <div class="home-page-container">
         <p>{translate("Analysis Objective Text")}</p>
         <h4>{translate("Performance Variables Title")}</h4>
@@ -484,7 +491,7 @@ def home_page():
             <li>{translate("Analysis Objective Item 3")}</li>
         </ul>
     </div>
-    """), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     # --- END NEW SECTION ---
 
     st.info(translate("Navigate to the 'Clustering Analysis' section to upload your data and perform cluster analysis on terminal metrics."))
