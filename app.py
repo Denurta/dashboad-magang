@@ -731,7 +731,8 @@ with col_home:
         st.session_state.current_page = "Home"
 with col_clustering:
     if st.button(translate("Clustering Analysis"), key="btn_clustering_analysis_main"):
-        st.session_state.current_page = "Clustering Analysis"
+        # Set the current_page using the translated string
+        st.session_state.current_page = translate("Clustering Analysis")
 st.markdown('</div>', unsafe_allow_html=True) # Tutup container wrapper
 
 st.markdown("---") # Separator di bawah tombol
@@ -787,7 +788,8 @@ st.markdown(f"""
 
 st.sidebar.markdown("---")
 
-if st.session_state.current_page == "Clustering Analysis":
+# This part is now language-aware
+if st.session_state.current_page == translate("Clustering Analysis"):
     st.sidebar.subheader(translate("Pilih Algoritma Klastering"))
     st.sidebar.selectbox(
         "Algoritma", ["KMeans", "Agglomerative Clustering"],
@@ -849,5 +851,5 @@ if st.session_state.current_page == "Clustering Analysis":
 # Display the selected page content
 if st.session_state.current_page == "Home":
     home_page()
-elif st.session_state.current_page == "Clustering Analysis":
+elif st.session_state.current_page == translate("Clustering Analysis"): # Use translate() here as well for consistency
     clustering_analysis_page_content()
