@@ -159,7 +159,8 @@ def translate(text):
             "Indonesia": "Nilai DBI yang mendekati 0 adalah lebih baik, menunjukkan klaster yang lebih terpisah dan lebih padat. Indeks ini mengukur rasio antara dispersi intra-klaster (seberapa rapat titik dalam satu klaster) dan jarak antar-klaster (seberapa jauh klaster satu sama lain).",
             "English": "DBI values closer to 0 are better, indicating more separated and denser clusters. This index measures the ratio of within-cluster dispersion (how compact points are within a cluster) and between-cluster separation (how far clusters are from each other)."
         },
-        
+        "Jumlah Anggota per Klaster": {"Indonesia": "Jumlah Anggota per Klaster", "English": "Number of Members per Cluster"}
+        , # Added this translation entry
         # --- TEKS UNTUK FOKUS KE SPTP ---
         "Welcome to SPTP Analysis": {"Indonesia": "Selamat Datang di Analisis SPTP", "English": "Welcome to SPTP Analysis"},
         "About SPTP": {"Indonesia": "Tentang SPTP", "English": "About SPTP"},
@@ -630,19 +631,17 @@ def clustering_analysis_page_content():
             cluster_members_df = cluster_members_df.sort_values(by=cluster_column_name).reset_index(drop=True)
             st.dataframe(cluster_members_df, use_container_width=True)
             
-            # --- NEW: Display Cluster Counts ---
-            st.subheader("Jumlah Anggota per Klaster" if st.session_state.language == "Indonesia" else "Number of Members per Cluster")
-            cluster_counts = df_current_analysis[cluster_column_name].value_counts().sort_index().reset_index()
-            cluster_counts.columns = ["Klaster" if st.session_state.language == "Indonesia" else "Cluster", 
-                                      "Jumlah Anggota" if st.session_state.language == "Indonesia" else "Number of Members"]
-            st.dataframe(cluster_counts, use_container_width=True)
+            # --- NEW: Display Cluster Counts (plain text) ---
+            st.subheader(translate("Jumlah Anggota per Klaster"))
+            cluster_counts = df_current_analysis[cluster_column_name].value_counts().sort_index()
+            for cluster_id, count in cluster_counts.items():
+                st.write(f"Klaster {cluster_id}: {count} anggota" if st.session_state.language == "Indonesia" else f"Cluster {cluster_id}: {count} members")
             # --- END NEW ---
 
-            st.markdown("---") # Add a separator after the tables
+            st.markdown("---") # Add a separator after the table and counts
         else:
             st.info("Kolom 'Row Labels' tidak ditemukan atau klaster belum terbentuk untuk menampilkan anggota klaster." if st.session_state.language == "Indonesia" else "Column 'Row Labels' not found or clusters not formed to display cluster members.")
-        # --- END Display Cluster Members Table ---
-
+        # --- End Display Cluster Members Table ---
 
         # --- VISUALIZATION OPTIONS ---
         visualization_options = st.session_state.visualization_options_sidebar
